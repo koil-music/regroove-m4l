@@ -1,0 +1,14 @@
+{
+  "name": "m4l-stochastic-groove",
+  "version": "1.0.0",
+  "description": "MIDI device for syncopating rhythm sequences in Max",
+  "main": "code/stochasticgroove.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Max Kraan",
+  "license": "MIT",
+  "dependencies": {
+    "stochastic-groove-lib": "^1.0.0"
+  }
+}
