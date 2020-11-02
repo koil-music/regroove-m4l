@@ -29,13 +29,6 @@ Max.addHandler('readMidiFile', async(filePath) => {
     // Assign pattern to matrixCtrl and sync matrixCtrl with Max
     matrixCtrl.pattern = basePatternBuffer.pattern;
     await matrixCtrl.sync(true);
-    
-    // // Build Generator with the loaded pattern and populate the latent space
-    // generator = await Generator.build(matrixCtrl.pattern, numSamples, noteDropout, matrixCtrl.channels, matrixCtrl.loopDuration);
-    // await generator.populate();
-    // generatorReady = true;
-    // isGenerating = false;
-    // await Max.post('Generator is ready.');
 });
 
 Max.addHandler('deltaZ', async(z1, z2) => {

@@ -2,12 +2,12 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3687082700,
-	"viewrect" : [ 280.0, 158.0, 300.0, 500.0 ],
+	"modificationdate" : 3687174431,
+	"viewrect" : [ -672.0, 218.0, 302.0, 502.0 ],
 	"autoorganize" : 1,
-	"hideprojectwindow" : 0,
+	"hideprojectwindow" : 1,
 	"showdependencies" : 1,
-	"autolocalize" : 0,
+	"autolocalize" : 1,
 	"contents" : 	{
 		"patchers" : 		{
 			"stochasticgroove.maxpat" : 			{
@@ -55,11 +55,20 @@
 			"enabled" : 1,
 			"includeincollective" : 1
 		}
+,
+		"2" : 		{
+			"bootpath" : "~/Music/Software/Max4Live/M4L-Stochastic-Groove/node_modules",
+			"projectrelativepath" : "./node_modules",
+			"label" : "node_modules",
+			"recursive" : 1,
+			"enabled" : 1,
+			"includeincollective" : 1
+		}
 
 	}
 ,
-	"detailsvisible" : 0,
-	"amxdtype" : 0,
+	"detailsvisible" : 1,
+	"amxdtype" : 1835887981,
 	"readonly" : 0,
 	"devpathtype" : 0,
 	"devpath" : ".",
