@@ -4,15 +4,14 @@ const Max = require('max-api');
 const fs = require('fs');
 
 const { PatternBuffer, Generator } = require('stochastic-groove-lib');
-const { PassThrough } = require('stream');
-const { generateKeyPair } = require('crypto');
 
 let basePatternBuffer;
+let playingPatternBuffer;
 let generator;
 let generatorReady = false;
 let isGenerating = false;
 let syncing = false;
-let numSamples = 100;  // TODO: Elegant way to get this from
+let numSamples = 100;  // TODO: Elegant way to get this from Max
 let randomFactor = 0.5;
 let noteDropout = 0.5;
 
@@ -25,7 +24,7 @@ Max.addHandler('readMidiFile', async(filePath) => {
     // instantiate basePatternBuffer with MIDI file
     let midiBuffer = fs.readFileSync(filePath, 'binary');
     basePatternBuffer = await PatternBuffer.from_midi(midiBuffer, DRUM_PITCH_CLASSES['index']);
-    
+
     // Assign pattern to matrixCtrl and sync matrixCtrl with Max
     matrixCtrl.pattern = basePatternBuffer.pattern;
     await matrixCtrl.sync(true);
@@ -45,7 +44,7 @@ Max.addHandler('deltaZ', async(z1, z2) => {
 
 Max.addHandler('sync', async(step) => {
     if (step == 0) {
-        await matrixCtrl.sync();
+        await matrixCtrl.sync(true);
     }
 });
 
@@ -62,7 +61,6 @@ Max.addHandler('generate', async(patternString) => {
         basePatternBuffer = new PatternBuffer(patternArray);
 
         // Assign pattern to matrixCtrl and sync matrixCtrl with Max
-        // No need to sync because generate takes input directly from Max MatrixCtrl
         matrixCtrl.pattern = basePatternBuffer.pattern;
         
         // Build Generator with the loaded pattern and populate the latent space
@@ -74,11 +72,48 @@ Max.addHandler('generate', async(patternString) => {
     };
 });
 
+// let updating = false;
+
+Max.addHandler('updatePattern', async(indexString) => {
+    /**
+     * Definitely need a better way of doing this then this horrible
+     * if else if clusterfuuuu
+     */
+    let step, channel, value;
+    if (indexString.length == 4) {
+        step = parseInt(indexString.slice(0,2));
+        channel = parseInt(indexString[2]);
+        value = parseInt(indexString[3]);
+    } else if (indexString.length == 2) {
+        step = 0;
+        channel = parseInt(indexString[0]);
+        value = parseInt(indexString[1]);
+    } else if (indexString.length == 1) {
+        step = 0;
+        channel = 0;
+        value = parseInt(indexString[0]);
+    } else {
+        step = parseInt(indexString[0]);
+        channel = parseInt(indexString[1]);
+        value = parseInt(indexString[2]);
+    };
+
+    // update playingPatternBuffer
+    let channelInverse = Object.keys(DRUM_PITCH_CLASSES['pitch']).length - 1 - channel;
+    activePattern[channelInverse][step] = value;
+    matrixCtrl.pattern = activePattern;
+});
+
 /**
  * MatrixCtrl communicates with the corresponding MatrixCtrl object on the Max side
  */
 class MatrixCtrl {
-
+    /**
+     * @param {number} loopDuration Number of time steps, shown as columns in the Max MatrixCtrl object
+     * @param {number} channels Number of instruments, shown as rows in the Max MatrixCtrl object
+     * @param {Array<Array<int>>} _pattern This contains the pattern that will be synced with
+     * the Max MatrixCtrl object when this.sync is called.
+     */
     constructor() {
         this.loopDuration = 32;
         this.channels = 9;
@@ -109,8 +144,8 @@ class MatrixCtrl {
                     output.push(step);
 
                     // Max MatrixCtrl is indexed from top -> bottom so we use the inverse channel
-                    let channel_inverse = Object.keys(DRUM_PITCH_CLASSES['pitch']).length - 1 - channel;
-                    output.push(channel_inverse);
+                    let channelInverse = Object.keys(DRUM_PITCH_CLASSES['pitch']).length - 1 - channel;
+                    output.push(channelInverse);
                     output.push(this._pattern[channel][step]);
                 }
             }
@@ -121,3 +156,6 @@ class MatrixCtrl {
 }
 
 const matrixCtrl = new MatrixCtrl();
+basePatternBuffer = new PatternBuffer(matrixCtrl.pattern);
+let activePattern = basePatternBuffer.pattern;
+matrixCtrl.pattern = activePattern;

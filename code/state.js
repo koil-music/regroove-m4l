@@ -1,5 +1,8 @@
+/**
+ * This ES5 script runs inside a `js` Max object and not inside Node.js
+ */
 inlets = 1;
-outlets = 1;
+outlets = 2;
 
 var LOOP_DURATION = 32;
 var NUM_CHANNELS = 9;
@@ -45,4 +48,12 @@ function bang()
 	};
 	outlet(0, out);
 	pattern = _reset();
+}
+
+function msg_int(s) {
+	/**
+	* Receives single note changes and sends as index update to stochasticgroove.js
+	*/
+	var string = s.toString();
+	outlet(1, string);
 }
