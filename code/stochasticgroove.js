@@ -12,7 +12,8 @@ let generator;
 let generatorReady = false;
 let isGenerating = false;
 let syncing = false;
-let numSamples = 10;
+let numSamples = 100;  // TODO: Elegant way to get this from
+let randomFactor = 0.5;
 let noteDropout = 0.5;
 
 // TODO: Read default constants from stochastic-groove-lib
@@ -21,15 +22,20 @@ let data = fs.readFileSync('drum_pitch_classes.json', 'utf-8');
 let DRUM_PITCH_CLASSES = JSON.parse(data);
 
 Max.addHandler('readMidiFile', async(filePath) => {
+    // instantiate basePatternBuffer with MIDI file
     let midiBuffer = fs.readFileSync(filePath, 'binary');
-    PatternBuffer.from_midi(midiBuffer, DRUM_PITCH_CLASSES['index'])
-        .then(buffer => {
-            basePatternBuffer = buffer;
-            
-            matrixCtrl.pattern = basePatternBuffer.pattern;
-            matrixCtrl.sync(true);
-            generate(basePatternBuffer.pattern, matrixCtrl.channels, matrixCtrl.loopDuration);
-        })
+    basePatternBuffer = await PatternBuffer.from_midi(midiBuffer, DRUM_PITCH_CLASSES['index']);
+    
+    // Assign pattern to matrixCtrl and sync matrixCtrl with Max
+    matrixCtrl.pattern = basePatternBuffer.pattern;
+    await matrixCtrl.sync(true);
+    
+    // // Build Generator with the loaded pattern and populate the latent space
+    // generator = await Generator.build(matrixCtrl.pattern, numSamples, noteDropout, matrixCtrl.channels, matrixCtrl.loopDuration);
+    // await generator.populate();
+    // generatorReady = true;
+    // isGenerating = false;
+    // await Max.post('Generator is ready.');
 });
 
 Max.addHandler('deltaZ', async(z1, z2) => {
@@ -44,37 +50,36 @@ Max.addHandler('deltaZ', async(z1, z2) => {
     }
 });
 
-Max.addHandler('clock', (step) => {
+Max.addHandler('sync', async(step) => {
     if (step == 0) {
-        matrixCtrl.sync();
+        await matrixCtrl.sync();
     }
-})
+});
 
-/**
- * Regenerate
- * @param {*} pattern Pattern variable as found as member of PatternBuffer class
- */
-function generate(pattern, channels, loopDuration) {
-    Generator.build(pattern, Math.pow(numSamples, 2.0), noteDropout, channels, loopDuration)
-        .then(g => {
-            generator = g;
-            isGenerating = true;
-            generator.populate().then(_ => {
-                generatorReady = true;
-                isGenerating = false;
-                Max.post('Generator is ready.');
-            })
-            .catch(e => {
-                isGenerating = false;
-                Max.post('ERROR - something went wrong whilst populating the generator grid.');
-                throw new Error(e);
-            });
-        })
-        .catch(e => {
-            Max.post('ERROR - something went wrong whilst constructing the Generator class.');
-            throw new Error(e);
-        })
-}
+Max.addHandler('setRandom', async(value) => {
+    randomFactor = value;
+});
+
+Max.addHandler('generate', async(patternString) => {
+    // Build Generator with the loaded pattern and populate the latent space
+    if (!isGenerating) {
+        isGenerating = true;
+        await Max.post('generating...');
+        let patternArray = Array.from(patternString).map(Number);
+        basePatternBuffer = new PatternBuffer(patternArray);
+
+        // Assign pattern to matrixCtrl and sync matrixCtrl with Max
+        // No need to sync because generate takes input directly from Max MatrixCtrl
+        matrixCtrl.pattern = basePatternBuffer.pattern;
+        
+        // Build Generator with the loaded pattern and populate the latent space
+        generator = await Generator.build(basePatternBuffer.pattern, numSamples, noteDropout, matrixCtrl.channels, matrixCtrl.loopDuration);
+        await generator.populate();
+        await Max.post('Generator is ready.');
+        generatorReady = true;
+        isGenerating = false;
+    };
+});
 
 /**
  * MatrixCtrl communicates with the corresponding MatrixCtrl object on the Max side

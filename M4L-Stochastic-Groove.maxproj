@@ -2,7 +2,7 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3686828092,
+	"modificationdate" : 3687082700,
 	"viewrect" : [ 280.0, 158.0, 300.0, 500.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
@@ -20,6 +20,11 @@
 ,
 		"code" : 		{
 			"stochasticgroove.js" : 			{
+				"kind" : "javascript",
+				"local" : 1
+			}
+,
+			"generate.js" : 			{
 				"kind" : "javascript",
 				"local" : 1
 			}
