@@ -9,6 +9,6 @@
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
-    "stochastic-groove-lib": "^1.0.0"
+    "stochastic-groove-lib": "^1.1.3"
   }
 }

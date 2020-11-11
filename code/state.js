@@ -1,5 +1,5 @@
 /**
- * This ES5 script runs inside a `js` Max object and not inside Node.js
+ * runs inside a `js` Max object and not inside Node.script
  */
 inlets = 1;
 outlets = 2;

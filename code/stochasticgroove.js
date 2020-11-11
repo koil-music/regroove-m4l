@@ -3,7 +3,7 @@
 const Max = require('max-api');
 const fs = require('fs');
 
-const { PatternBuffer, Generator } = require('stochastic-groove-lib');
+const { PatternBuffer, Generator, DRUM_PITCH_CLASSES, pitchToIndexMap } = require('stochastic-groove-lib');
 
 let basePatternBuffer;
 let playingPatternBuffer;
@@ -15,18 +15,19 @@ let numSamples = 100;  // TODO: Elegant way to get this from Max
 let randomFactor = 0.5;
 let noteDropout = 0.5;
 
-// TODO: Read default constants from stochastic-groove-lib
-//       and write to drum_pitch_classes.json
-let data = fs.readFileSync('drum_pitch_classes.json', 'utf-8');
-let DRUM_PITCH_CLASSES = JSON.parse(data);
+// let data = fs.readFileSync('drum_pitch_classes.json', 'utf-8');
+// let DRUM_PITCH_CLASSES = JSON.parse(data);
 
 Max.addHandler('readMidiFile', async(filePath) => {
     // instantiate basePatternBuffer with MIDI file
-    let midiBuffer = fs.readFileSync(filePath, 'binary');
-    basePatternBuffer = await PatternBuffer.from_midi(midiBuffer, DRUM_PITCH_CLASSES['index']);
+    const pitchIndexMap = pitchToIndexMap(DRUM_PITCH_CLASSES['pitch'], DRUM_PITCH_CLASSES['index']);
+    basePatternBuffer = await PatternBuffer.from_midi(filePath, pitchIndexMap);
 
     // Assign pattern to matrixCtrl and sync matrixCtrl with Max
-    matrixCtrl.pattern = basePatternBuffer.pattern;
+    // await Max.post(basePatternBuffer.onsets);
+    matrixCtrl.onsets = basePatternBuffer.onsets;
+    matrixCtrl.velocities = basePatternBuffer.velocities;
+    matrixCtrl.offsets = basePatternBuffer.offsets;
     await matrixCtrl.sync(true);
 });
 
@@ -56,7 +57,7 @@ Max.addHandler('generate', async(patternString) => {
     // Build Generator with the loaded pattern and populate the latent space
     if (!isGenerating) {
         isGenerating = true;
-        await Max.post('generating...');
+        await Max.outlet('isGenerating');
         let patternArray = Array.from(patternString).map(Number);
         basePatternBuffer = new PatternBuffer(patternArray);
 
@@ -69,6 +70,8 @@ Max.addHandler('generate', async(patternString) => {
         await Max.post('Generator is ready.');
         generatorReady = true;
         isGenerating = false;
+        await Max.outlet('generatorReady');
+        await Max.outlet('isGenerating');
     };
 });
 
@@ -109,18 +112,36 @@ Max.addHandler('updatePattern', async(indexString) => {
  */
 class MatrixCtrl {
     /**
-     * @param {number} loopDuration Number of time steps, shown as columns in the Max MatrixCtrl object
-     * @param {number} channels Number of instruments, shown as rows in the Max MatrixCtrl object
-     * @param {Array<Array<int>>} _pattern This contains the pattern that will be synced with
+     * @loopDuration Number of time steps, shown as columns in the Max MatrixCtrl object
+     * @channels Number of instruments, shown as rows in the Max MatrixCtrl object
+     * @_pattern This contains the pattern that will be synced with
      * the Max MatrixCtrl object when this.sync is called.
      */
     constructor() {
         this.loopDuration = 32;
         this.channels = 9;
-        this._pattern = Array.from({ length: this.channels }, _ => {
-            let array = Array.from({ length: this.loopDuration }, _ => 0);
-            return array;
-        });
+        this._pattern = this._initArray();
+        this._onsets = this._initArray();
+        this._velocities = this._initArray();
+        this._offsets = this._initArray();
+    }
+    set onsets(v) {
+        this._onsets = v;
+    }
+    get onsets() {
+        return this._onsets;
+    }
+    set velocities(v) {
+        this._velocities = v;
+    }
+    get velocities() {
+        return this._velocities;
+    }
+    set offsets(v) {
+        this._offsets = v;
+    }
+    get offsets() {
+        return this._offsets;
     }
     set pattern(p) {
         this._pattern = p;
@@ -138,24 +159,45 @@ class MatrixCtrl {
         };
         if (!syncing) {
             syncing = true;
-            let output = new Array;
+            const pattern = new Array;
+
+            const onsets = new Array;
+            const velocities = new Array;
+            const offsets = new Array;
             for (let channel = 0; channel < this.channels; channel++) {
                 for (let step = 0; step < this.loopDuration; step++) {
-                    output.push(step);
-
                     // Max MatrixCtrl is indexed from top -> bottom so we use the inverse channel
+                    pattern.push(step);
                     let channelInverse = Object.keys(DRUM_PITCH_CLASSES['pitch']).length - 1 - channel;
-                    output.push(channelInverse);
-                    output.push(this._pattern[channel][step]);
+                    pattern.push(channelInverse);
+                    pattern.push(this._onsets[channel][step]);
+                    
+                    // fill jitter matrices
+                    velocities.push(this._velocities[channel][step]);
+                    // if (step == 31) { // TODO: Fix this bug in lib
+                    //     offsets.push(0.);
+                    // } else {}
+                    offsets.push(this._offsets[channel][step]);
+                    onsets.push(this._onsets[channel][step]);
                 }
             }
-            await Max.outlet(output);
+            await Max.outlet("fillMatrixCtrl", ...pattern);
+            // await Max.post(offsets);
+            await Max.outlet("onsets", ...onsets);
+            await Max.outlet("velocities", ...velocities);
+            await Max.outlet("offsets", ...offsets);
             syncing = false;
         }
+    }
+    _initArray() {
+        return Array.from({ length: this.channels }, _ => {
+            let array = Array.from({ length: this.loopDuration }, _ => 0);
+            return array;
+        });
     }
 }
 
 const matrixCtrl = new MatrixCtrl();
-basePatternBuffer = new PatternBuffer(matrixCtrl.pattern);
+basePatternBuffer = new PatternBuffer(matrixCtrl.onsets, matrixCtrl.velocities, matrixCtrl.offsets);
 let activePattern = basePatternBuffer.pattern;
 matrixCtrl.pattern = activePattern;

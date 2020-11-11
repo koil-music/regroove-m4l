@@ -1,3 +1,6 @@
+/**
+ * runs inside a `js` Max object and not inside Node.script
+ */
 inlets = 1;
 outlets = 1;
 
