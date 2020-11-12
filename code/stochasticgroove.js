@@ -6,25 +6,24 @@ const fs = require('fs');
 const { PatternBuffer, Generator, DRUM_PITCH_CLASSES, pitchToIndexMap } = require('stochastic-groove-lib');
 
 let basePatternBuffer;
-let playingPatternBuffer;
+let activePatternBuffer;
 let generator;
 let generatorReady = false;
 let isGenerating = false;
 let syncing = false;
+
 let numSamples = 100;  // TODO: Elegant way to get this from Max
 let randomFactor = 0.5;
 let noteDropout = 0.5;
-
-// let data = fs.readFileSync('drum_pitch_classes.json', 'utf-8');
-// let DRUM_PITCH_CLASSES = JSON.parse(data);
 
 Max.addHandler('readMidiFile', async(filePath) => {
     // instantiate basePatternBuffer with MIDI file
     const pitchIndexMap = pitchToIndexMap(DRUM_PITCH_CLASSES['pitch'], DRUM_PITCH_CLASSES['index']);
     basePatternBuffer = await PatternBuffer.from_midi(filePath, pitchIndexMap);
+    activePatternBuffer = basePatternBuffer;
 
     // Assign pattern to matrixCtrl and sync matrixCtrl with Max
-    // await Max.post(basePatternBuffer.onsets);
+    // matrixCtrl.pattern = basePatternBuffer.pattern;
     matrixCtrl.onsets = basePatternBuffer.onsets;
     matrixCtrl.velocities = basePatternBuffer.velocities;
     matrixCtrl.offsets = basePatternBuffer.offsets;
@@ -35,8 +34,19 @@ Max.addHandler('deltaZ', async(z1, z2) => {
     if (generatorReady) {
         let input = `${z1},${z2}`;
         try {
-            let newPatternBuffer = new PatternBuffer(generator.data[input]);
-            matrixCtrl.pattern = newPatternBuffer.pattern;
+            const onsets = generator.data[input].onsets;
+            const velocities = generator.data[input].velocities;
+            const offsets = generator.data[input].offsets;
+            let newPatternBuffer = new PatternBuffer(onsets, velocities, offsets);
+
+            activePatternBuffer = newPatternBuffer;
+
+            // matrixCtrl.pattern = newPatternBuffer.pattern;
+            matrixCtrl.onsets = newPatternBuffer.onsets;
+            matrixCtrl.velocities = newPatternBuffer.velocities;
+            matrixCtrl.offsets = newPatternBuffer.offsets;
+            // TODO: Fill preview matrixCtrl
+            // await matrixCtrl.sync(true);
         } catch (error) {
             console.log(error);
         }
@@ -53,19 +63,30 @@ Max.addHandler('setRandom', async(value) => {
     randomFactor = value;
 });
 
-Max.addHandler('generate', async(patternString) => {
+Max.addHandler('generate', async() => {
     // Build Generator with the loaded pattern and populate the latent space
     if (!isGenerating) {
         isGenerating = true;
         await Max.outlet('isGenerating');
-        let patternArray = Array.from(patternString).map(Number);
-        basePatternBuffer = new PatternBuffer(patternArray);
+        // // let patternArray = Array.from(patternString).map(Number);
+        // basePatternBuffer = new PatternBuffer(onsets, velocities, offsets);
 
-        // Assign pattern to matrixCtrl and sync matrixCtrl with Max
-        matrixCtrl.pattern = basePatternBuffer.pattern;
+        // // Assign pattern to matrixCtrl and sync matrixCtrl with Max
+        // matrixCtrl.pattern = basePatternBuffer.pattern;
+        // matrixCtrl.onsets = basePatternBuffer.onsets;
+        // matrixCtrl.velocities = basePatternBuffer.velocities;
+        // matrixCtrl.offsets = basePatternBuffer.offsets;
         
         // Build Generator with the loaded pattern and populate the latent space
-        generator = await Generator.build(basePatternBuffer.pattern, numSamples, noteDropout, matrixCtrl.channels, matrixCtrl.loopDuration);
+        generator = await Generator.build(
+            activePattern,
+            activePatternBuffer.velocities,
+            activePatternBuffer.offsets,
+            numSamples, 
+            noteDropout, 
+            matrixCtrl.channels, 
+            matrixCtrl.loopDuration
+        );
         await generator.populate();
         await Max.post('Generator is ready.');
         generatorReady = true;
@@ -74,8 +95,6 @@ Max.addHandler('generate', async(patternString) => {
         await Max.outlet('isGenerating');
     };
 });
-
-// let updating = false;
 
 Max.addHandler('updatePattern', async(indexString) => {
     /**
@@ -105,6 +124,7 @@ Max.addHandler('updatePattern', async(indexString) => {
     let channelInverse = Object.keys(DRUM_PITCH_CLASSES['pitch']).length - 1 - channel;
     activePattern[channelInverse][step] = value;
     matrixCtrl.pattern = activePattern;
+    matrixCtrl.onsets = activePattern;
 });
 
 /**
@@ -181,8 +201,10 @@ class MatrixCtrl {
                     onsets.push(this._onsets[channel][step]);
                 }
             }
+            // fill visual display
             await Max.outlet("fillMatrixCtrl", ...pattern);
-            // await Max.post(offsets);
+
+            // fill Max-side data matrices
             await Max.outlet("onsets", ...onsets);
             await Max.outlet("velocities", ...velocities);
             await Max.outlet("offsets", ...offsets);
@@ -197,7 +219,13 @@ class MatrixCtrl {
     }
 }
 
+// Initialize MatrixCtrl
 const matrixCtrl = new MatrixCtrl();
 basePatternBuffer = new PatternBuffer(matrixCtrl.onsets, matrixCtrl.velocities, matrixCtrl.offsets);
-let activePattern = basePatternBuffer.pattern;
-matrixCtrl.pattern = activePattern;
+activePatternBuffer = basePatternBuffer;
+let activePattern = activePatternBuffer.onsets;
+
+// Default zero arrays
+matrixCtrl.onsets = activePattern;
+matrixCtrl.velocities = activePattern;
+matrixCtrl.offsets = activePattern;

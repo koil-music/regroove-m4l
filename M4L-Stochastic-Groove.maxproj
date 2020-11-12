@@ -2,9 +2,9 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3687205242,
-	"viewrect" : [ -672.0, 218.0, 302.0, 502.0 ],
-	"autoorganize" : 1,
+	"modificationdate" : 3688043053,
+	"viewrect" : [ 1309.0, 397.0, 766.0, 763.0 ],
+	"autoorganize" : 0,
 	"hideprojectwindow" : 1,
 	"showdependencies" : 1,
 	"autolocalize" : 1,
@@ -24,13 +24,16 @@
 				"local" : 1
 			}
 ,
-			"state.js" : 			{
+			"update.js" : 			{
 				"kind" : "javascript",
 				"local" : 1
 			}
+
+		}
 ,
-			"update.js" : 			{
-				"kind" : "javascript",
+		"data" : 		{
+			"drum_pitch_classes.json" : 			{
+				"kind" : "json",
 				"local" : 1
 			}
 
@@ -44,9 +47,9 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "~/Music/Software/Max4Live/M4L-Stochastic-Groove/assets",
-			"projectrelativepath" : "./assets",
-			"label" : "assets",
+			"bootpath" : "~/Music/Software/Max4Live/M4L-Stochastic-Groove/node_modules",
+			"projectrelativepath" : "./node_modules",
+			"label" : "node_modules",
 			"recursive" : 1,
 			"enabled" : 1,
 			"includeincollective" : 1
@@ -56,15 +59,6 @@
 			"bootpath" : "~/Music/Software/Max4Live/M4L-Stochastic-Groove/code",
 			"projectrelativepath" : "./code",
 			"label" : "code",
-			"recursive" : 1,
-			"enabled" : 1,
-			"includeincollective" : 1
-		}
-,
-		"2" : 		{
-			"bootpath" : "~/Music/Software/Max4Live/M4L-Stochastic-Groove/node_modules",
-			"projectrelativepath" : "./node_modules",
-			"label" : "node_modules",
 			"recursive" : 1,
 			"enabled" : 1,
 			"includeincollective" : 1
