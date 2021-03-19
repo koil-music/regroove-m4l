@@ -2,7 +2,7 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3698589172,
+	"modificationdate" : 3699029184,
 	"viewrect" : [ 1309.0, 397.0, 766.0, 763.0 ],
 	"autoorganize" : 0,
 	"hideprojectwindow" : 1,
@@ -19,15 +19,6 @@
 		}
 ,
 		"code" : 		{
-			"stochasticgroove.js" : 			{
-				"kind" : "javascript",
-				"local" : 1
-			}
-,
-			"update.js" : 			{
-				"kind" : "javascript",
-				"local" : 1
-			}
 
 		}
 ,
@@ -47,7 +38,7 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "wsl:/Ubuntu/home/max/repos/groove/M4L-stochastic-groove/node_modules",
+			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/node_modules",
 			"projectrelativepath" : "./node_modules",
 			"label" : "node_modules",
 			"recursive" : 1,
@@ -56,7 +47,16 @@
 		}
 ,
 		"1" : 		{
-			"bootpath" : "wsl:/Ubuntu/home/max/repos/groove/M4L-stochastic-groove/code",
+			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/assets",
+			"projectrelativepath" : "./assets",
+			"label" : "assets",
+			"recursive" : 1,
+			"enabled" : 1,
+			"includeincollective" : 1
+		}
+,
+		"2" : 		{
+			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/code",
 			"projectrelativepath" : "./code",
 			"label" : "code",
 			"recursive" : 1,

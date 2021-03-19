@@ -25,16 +25,28 @@ function debug(value) {
  * Pattern
  */
 const dims = [1, LOOP_DURATION, CHANNELS];
-const zeroPattern = new Pattern(Float32Array.from({length: dims[0] * dims[1] * dims[2]}, _ => 0.), dims);
-let onsetsPattern = zeroPattern;
-let velocitiesPattern = zeroPattern;
-let offsetsPattern = zeroPattern;
+const data = new Float32Array(dims[0] * dims[1] * dims[2])
+const zeroPattern = new Pattern(data, dims);
+let onsetsPattern = new Pattern(data, dims);
+let velocitiesPattern = new Pattern(data, dims);
+let offsetsPattern = new Pattern(data, dims);
 let velocityScale;
+debug(onsetsPattern.data);
 
-function updateCell(value, step, instrument) {
-    onsetsPattern.setcell(value, step, instrument);
-    velocitiesPattern.setcell(value * velocityScale, step, instrument);
-    offsetsPattern.setcell(0., step, instrument);
+function updateCell(step, instrument, value) {
+    const onsetsTensor = onsetsPattern.tensor()
+    const velocitiesTensor = velocitiesPattern.tensor()
+    const offsetsTensor = offsetsPattern.tensor()
+
+    onsetsTensor[0][step][instrument - 1] = value
+    velocitiesTensor[0][step][instrument - 1] = value * velocityScale
+    offsetsTensor[0][step][instrument - 1] = 0.
+
+    // debug(`Update cell: ${step}, ${instrument}, ${value}`)
+    const dims = onsetsPattern.dims;
+    onsetsPattern = new Pattern(onsetsTensor, dims);
+    velocitiesPattern = new Pattern(velocitiesTensor, dims);
+    offsetsPattern = new Pattern(offsetsTensor, dims);
 }
 
 const patternHistory = new PatternHistory(20);
@@ -112,6 +124,7 @@ async function generate() {
         generatorReady = true;
         isGenerating = false;
         debug(`Generated ${numSamples} rhythm sequence with note dropout: ${noteDropout}, threshold range: [${minOnsetThreshold}:${maxOnsetThreshold}]`);
+        debug(`Input was ${onsetsPattern.data}`)
         Max.post('Generator is ready.');
     }
 }
@@ -145,6 +158,10 @@ function updatePattern() {
     }
 }
 
+/**
+ * Sync with Max MatrixCtrl
+ */
+
 function createMatrixCtrlData() {
     const data = [];
     const onsets = onsetsPattern.tensor()[0];
@@ -152,11 +169,15 @@ function createMatrixCtrlData() {
         for (let step = 0; step < LOOP_DURATION; step++) {
             data.push(step);
             data.push(channel);
-            data.push(onsets[step][channel]);    
+            const value = onsets[step][CHANNELS - channel - 1];
+            data.push(value);    
         }
     }
+    debug(data)
     return data;
 }
+
+const matrixCtrlLoopDuration = LOOP_DURATION;
 
 async function waitSync (step) {
     if (!isSyncing  && syncMode === "sync") {
@@ -172,15 +193,15 @@ async function waitSync (step) {
     }
 }
 
-function snapSync () {
+async function snapSync () {
     debug(isSyncing);
     if (!isSyncing && syncMode === "snap") {
-        debug("Snap two!");
+        debug("Snap!");
         isSyncing = true;
         updatePattern()
 
         const matrixCtrl = createMatrixCtrlData();
-        Max.outlet("fillMatrixCtrl", ...matrixCtrl);
+        await Max.outlet("fillMatrixCtrl", ...matrixCtrl);
         isSyncing = false;
     }
 }
@@ -202,13 +223,14 @@ Max.addHandler("debug", (value) => {
 
 Max.addHandler("set_density", (value) => {
     if (value >= 0 && value <= 1) {
-        densityIndex = Math.round(value * Math.sqrt(numSamples)) - 1;
+        densityIndex = Math.round((1 - value) * Math.sqrt(numSamples)) - 1;
         debug(densityIndex);
     } else {
         Max.post(`invalid density value ${value} - must be between 0 and 1`)
     }
 })
-Max.addHandler("set_max_density", (value) => {
+
+Max.addHandler("set_min_density", (value) => {
     if (value >= 0 && value <= 1) {
         maxOnsetThreshold = 1 - value;
         debug(`Set maxOnsetThreshold to ${value}`);
@@ -216,7 +238,8 @@ Max.addHandler("set_max_density", (value) => {
         debug(`invalid maxOnsetThreshold value ${value} - must be between 0 and 1`)
     }
 })
-Max.addHandler("set_min_density", (value) => {
+
+Max.addHandler("set_max_density", (value) => {
     if (value >= 0 && value <= 1) {
         minOnsetThreshold = 1 - value;
         debug(`Set minOnsetThreshold to ${value}`);
@@ -224,14 +247,16 @@ Max.addHandler("set_min_density", (value) => {
         debug(`invalid minOnsetThreshold value ${value} - must be between 0 and 1`)
     }
 })
+
 Max.addHandler("set_note_dropout", (value) => {
     if (value >= 0 && value <= 1) {
-        noteDropout = value;
+        noteDropout = 1 - value;
         debug(`Set noteDropout to ${value}`)
     } else {
         debug(`invalid noteDropout value ${value} - must be between 0 and 1`)
     }
 })
+
 Max.addHandler("set_num_samples", (value) => {
     if (value >= 0 && value <= 1000) {
         numSamples = value;
@@ -252,39 +277,45 @@ Max.addHandler("set_sync_mode", (value) => {
 })
 
 const syncRateOptions = [0.25, 0.5, 1., 2., 4.]
+
 Max.addHandler("set_sync_rate", (value) => {
-    if (value in syncRateOptions) {
+    if (syncRateOptions.includes(parseFloat(value))) {
         debug(`Set sync_rate to ${value}`)
         syncRate = value;
     } else {
-        Max.post(`invalid syncRate ${value} - must be one of ${options}`)
+        Max.post(`invalid syncRate ${value} - must be one of ${syncRateOptions}`)
     }
 })
+
 Max.addHandler("set_velocity", (value) => {
-    if (value >= 0 && value <= 1) {
+    if (value >= 0 && value <= 127) {
         debug(`Set velocity to ${value}`)
-        velocityScale = value;
+        velocityScale = value / 127;
     } else {
         Max.post(`invalid velocity value ${value} - must be between 0 and 1`)
     }
 })
+
 Max.addHandler("generate", () => {
     generate();
 })
-Max.addHandler("snap_sync", () => {
-    snapSync();
+
+Max.addHandler("snap_sync", async() => {
+    await snapSync();
 });
+
 Max.addHandler("update_cell", (step, instrument, value) => {
     const inverseChannel = CHANNELS - instrument;
-    if (value in [0., 1.]) {
+    if (value in [0, 1]) {
         if (step < LOOP_DURATION && instrument < CHANNELS) {
-            updateCell(value, step, inverseChannel);
+            updateCell(step, inverseChannel, value);
         } else {
             Max.post(`Invalid pattern index: [${step}, ${instrument}]`)
         }
     }
     
 })
+
 Max.addHandler("wait_sync", (step) => {
     debug(`wait_sync: ${step}`);
     waitSync(step);
@@ -294,4 +325,8 @@ Max.addHandler("setModelDir", (value) => {
   if (validModelDir(value)) {
     modelDir = value;
   }  
+})
+
+Max.addHandler("set_loop_duration", (value) => {
+  loopDuration = value;
 })
