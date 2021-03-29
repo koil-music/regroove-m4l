@@ -214,8 +214,8 @@ async function sync() {
 }
 
 async function waitSync(step) {
-  if (!isSyncing && syncMode === "sync") {
-    if (step % syncRate === syncRate - 1) {
+  if (!isSyncing && syncMode === "wait") {
+    if (step % (syncRate * LOOP_DURATION) === 0) {
       await sync();
     }
   }
@@ -347,5 +347,7 @@ Max.addHandler("setModelDir", (value) => {
 });
 
 Max.addHandler("set_active_channels", (channels) => {
+  debug(channels);
   activeChannels = channels.slice(1);
+  debug(activeChannels);
 })

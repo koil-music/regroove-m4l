@@ -2,7 +2,7 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3699812219,
+	"modificationdate" : 3699860004,
 	"viewrect" : [ 1309.0, 397.0, 766.0, 763.0 ],
 	"autoorganize" : 0,
 	"hideprojectwindow" : 1,
@@ -47,15 +47,6 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/node_modules",
-			"projectrelativepath" : "./node_modules",
-			"label" : "node_modules",
-			"recursive" : 1,
-			"enabled" : 1,
-			"includeincollective" : 1
-		}
-,
-		"1" : 		{
 			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/assets",
 			"projectrelativepath" : "./assets",
 			"label" : "assets",
@@ -64,7 +55,7 @@
 			"includeincollective" : 1
 		}
 ,
-		"2" : 		{
+		"1" : 		{
 			"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/code",
 			"projectrelativepath" : "./code",
 			"label" : "code",
