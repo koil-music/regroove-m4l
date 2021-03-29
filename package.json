@@ -1,6 +1,6 @@
 {
   "name": "m4l-stochastic-groove",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "MIDI device for syncopating rhythm sequences in Max",
   "main": "code/stochasticgroove.js",
   "scripts": {
