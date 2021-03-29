@@ -2,7 +2,6 @@
 
 const assert = require("assert");
 const Max = require("max-api");
-const fs = require("fs");
 const glob = require("glob");
 const path = require("path");
 
@@ -17,7 +16,7 @@ const {
   DRUM_PITCH_CLASSES,
 } = require("stochastic-groove-lib/dist/constants");
 
-DEBUG = false;
+let DEBUG = false;
 function debug(value) {
   if (DEBUG) {
     Max.post(`DEBUG - ${value}`);
@@ -29,7 +28,7 @@ function debug(value) {
  */
 const dims = [1, LOOP_DURATION, CHANNELS];
 const data = new Float32Array(dims[0] * dims[1] * dims[2]);
-const zeroPattern = new Pattern(data, dims);
+
 let onsetsPattern = new Pattern(data, dims);
 let velocitiesPattern = new Pattern(data, dims);
 let offsetsPattern = new Pattern(data, dims);
@@ -57,9 +56,6 @@ const patternHistory = new PatternHistory(20);
 /**
  * MIDI Pattern Factory
  */
-let onsetsMidiPattern = zeroPattern;
-let velocitiesMidiPattern = zeroPattern;
-let offsetsMidiPattern = zeroPattern;
 
 // TODO: Figure out clever way for universal MIDI pattern mapping
 const pitchMapping = pitchToIndexMap(
@@ -68,7 +64,7 @@ const pitchMapping = pitchToIndexMap(
 );
 
 async function readMidi(filename) {
-  [
+  const [
     onsetsMidiPattern,
     velocitiesMidiPattern,
     offsetsMidiPattern,
@@ -145,10 +141,9 @@ async function generate() {
  * MatrixCtrl
  */
 let densityIndex = 0;
-let syncMode = "off";
+let syncMode = "snap";
 let syncRate = 16; // in sixteenth notes
 let isSyncing = false;
-let previewOnsetsPattern = onsetsPattern;
 
 function updatePattern() {
   if (generatorReady) {
@@ -156,8 +151,8 @@ function updatePattern() {
     const randomIndex = Math.round(Math.random() * generator.axisLength);
     patternHistory.append(onsetsPattern);
     try {
-      x = parseInt(densityIndex);
-      y = parseInt(randomIndex);
+      const x = parseInt(densityIndex);
+      const y = parseInt(randomIndex);
       debug(`x: ${x}, y: ${y}`);
       onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
       velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
@@ -173,48 +168,62 @@ function updatePattern() {
 /**
  * Sync with Max MatrixCtrl
  */
+let activeChannels = '111111111'
 
 function createMatrixCtrlData() {
-  const data = [];
+  const onsetsData = [];
+  const velocitiesData = [];
   const onsets = onsetsPattern.tensor()[0];
+  const velocities = velocitiesPattern.tensor()[0];
+
   for (let channel = 8; channel >= 0; channel--) {
-    for (let step = 0; step < LOOP_DURATION; step++) {
-      data.push(step);
-      data.push(channel);
-      const value = onsets[step][CHANNELS - channel - 1];
-      data.push(value);
+    if (activeChannels[channel] == "1") {
+      for (let step = 0; step < LOOP_DURATION; step++) {
+        // onsets
+        onsetsData.push(step);
+        onsetsData.push(channel);
+        const value = onsets[step][CHANNELS - channel - 1];
+        onsetsData.push(value);
+
+        // velocities
+        velocitiesData.push(step);
+        velocitiesData.push(channel);
+        const velocityValue = velocities[step][CHANNELS - channel - 1].toFixed(3);
+        // velocitiesData.push(velocityValue);
+        if (value == 1.) {
+          velocitiesData.push(velocityValue);
+        } else {
+          velocitiesData.push(0.);
+        }
+    }
     }
   }
-  debug(data);
-  return data;
+  return [onsetsData, velocitiesData];
 }
 
-const matrixCtrlLoopDuration = LOOP_DURATION;
+async function sync() {
+  debug("syncing...");
+  isSyncing = true;
+
+  updatePattern();
+  const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
+  await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
+  await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
+  await Max.outlet("penultimateSync", isSyncing);
+  isSyncing = false;
+}
 
 async function waitSync(step) {
   if (!isSyncing && syncMode === "sync") {
     if (step % syncRate === syncRate - 1) {
-      isSyncing = true;
-
-      updatePattern();
-      const matrixCtrl = createMatrixCtrlData();
-
-      await Max.outlet("fillMatrixCtrl", ...matrixCtrl);
-      isSyncing = false;
+      await sync();
     }
   }
 }
 
 async function snapSync() {
-  debug(isSyncing);
   if (!isSyncing && syncMode === "snap") {
-    debug("Snap!");
-    isSyncing = true;
-    updatePattern();
-
-    const matrixCtrl = createMatrixCtrlData();
-    await Max.outlet("fillMatrixCtrl", ...matrixCtrl);
-    isSyncing = false;
+    await sync();
   }
 }
 
@@ -298,7 +307,7 @@ Max.addHandler("set_sync_rate", (value) => {
   }
 });
 
-Max.addHandler("set_velocity", (value) => {
+Max.addHandler("velocity", (value) => {
   if (value >= 0 && value <= 127) {
     debug(`Set velocity to ${value}`);
     velocityScale = value / 127;
@@ -337,6 +346,6 @@ Max.addHandler("setModelDir", (value) => {
   }
 });
 
-Max.addHandler("set_loop_duration", (value) => {
-  loopDuration = value;
-});
+Max.addHandler("set_active_channels", (channels) => {
+  activeChannels = channels.slice(1);
+})

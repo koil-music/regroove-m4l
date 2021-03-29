@@ -2,7 +2,7 @@
 	"name" : "M4L-Stochastic-Groove",
 	"version" : 1,
 	"creationdate" : 3686807121,
-	"modificationdate" : 3699029184,
+	"modificationdate" : 3699812219,
 	"viewrect" : [ 1309.0, 397.0, 766.0, 763.0 ],
 	"autoorganize" : 0,
 	"hideprojectwindow" : 1,
@@ -27,6 +27,15 @@
 				"kind" : "json",
 				"local" : 1
 			}
+,
+			"midi_mapping.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
+
+		}
+,
+		"externals" : 		{
 
 		}
 
