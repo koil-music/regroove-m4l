@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 35.0, 85.0, 1244.0, 1290.0 ],
+		"rect" : [ 35.0, 85.0, 1674.0, 1290.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 1,
 		"default_fontsize" : 12.0,
@@ -40,12 +40,13 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-222",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 1275.0, 2012.0, 32.0, 22.0 ],
-					"text" : "print"
+					"id" : "obj-135",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 803.0, 1523.0, 98.0, 22.0 ],
+					"text" : "script npm install"
 				}
 
 			}
@@ -230,17 +231,6 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-31",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 1838.0, 2350.500009179115295, 32.0, 22.0 ],
-					"text" : "print"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"fontname" : "MesloLGS NF",
 					"fontsize" : 8.0,
 					"id" : "obj-160",
@@ -313,17 +303,6 @@
 					"outlettype" : [ "", "" ],
 					"patching_rect" : [ 2013.250001966953278, 172.833333730697632, 37.0, 22.0 ],
 					"text" : "zl.rev"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-150",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 409.0, 2503.0, 32.0, 22.0 ],
-					"text" : "print"
 				}
 
 			}
@@ -1727,7 +1706,6 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
-						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-1",
@@ -2740,15 +2718,17 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 331.875, 1794.666674971580505, 502.0, 22.0 ],
+					"patching_rect" : [ 331.875, 1794.666674971580505, 460.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 1,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"options" : [ "--inspect=127.0.1.1:9229" ],
 						"watch" : 1
 					}
 ,
-					"text" : "node.script code/stochasticgroove.js @watch 1 @defer 1 @options --inspect=127.0.1.1:9229"
+					"text" : "node.script code/regroove.js @watch 1 @defer 1 @options --inspect=127.0.1.1:9229"
 				}
 
 			}
@@ -5343,14 +5323,16 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 331.875, 1750.666674971580505, 312.0, 22.0 ],
+					"patching_rect" : [ 331.875, 1750.666674971580505, 269.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 1,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 1
 					}
 ,
-					"text" : "node.script code/stochasticgroove.js @defer 1 @watch 1"
+					"text" : "node.script code/regroove.js @defer 1 @watch 1"
 				}
 
 			}
@@ -5789,6 +5771,13 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-140", 0 ],
+					"source" : [ "obj-135", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-137", 0 ],
 					"source" : [ "obj-136", 0 ]
 				}
@@ -5820,7 +5809,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-141", 0 ],
-					"midpoints" : [ 634.375, 1842.0, 318.0, 1842.0, 318.0, 2283.0, 503.375, 2283.0 ],
+					"midpoints" : [ 591.375, 1842.0, 318.0, 1842.0, 318.0, 2283.0, 503.375, 2283.0 ],
 					"order" : 0,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -5837,7 +5826,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-37", 0 ],
-					"midpoints" : [ 634.375, 1843.0, 370.208333849906921, 1843.0 ],
+					"midpoints" : [ 591.375, 1843.0, 370.208333849906921, 1843.0 ],
 					"order" : 2,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -5846,7 +5835,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-43", 0 ],
-					"midpoints" : [ 634.375, 1842.0, 318.0, 1842.0, 318.0, 2283.0, 361.416671097278595, 2283.0 ],
+					"midpoints" : [ 591.375, 1842.0, 318.0, 1842.0, 318.0, 2283.0, 361.416671097278595, 2283.0 ],
 					"order" : 1,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -7241,15 +7230,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-140", 0 ],
 					"midpoints" : [ 49.333333849906921, 2437.0, 26.0, 2437.0, 26.0, 2308.0, 317.0, 2308.0, 317.0, 1744.0, 341.375, 1744.0 ],
-					"order" : 1,
-					"source" : [ "obj-78", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-150", 0 ],
-					"order" : 0,
 					"source" : [ "obj-78", 0 ]
 				}
 
@@ -7442,8 +7422,8 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "stochasticgroove.js",
-				"bootpath" : "~/Music/software/Stochastic Groove/M4L-stochastic-groove/code",
+				"name" : "regroove.js",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
 				"patcherrelativepath" : "../code",
 				"type" : "TEXT",
 				"implicit" : 1

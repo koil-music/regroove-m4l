@@ -1,8 +1,8 @@
 {
-  "name": "m4l-stochastic-groove",
-  "version": "0.0.4",
-  "description": "MIDI device for syncopating rhythm sequences in Max",
-  "main": "code/stochasticgroove.js",
+  "name": "regroove-m4l",
+  "version": "0.1.0b1",
+  "description": "Max for Live MIDI device for generating expressive rhythm sequences",
+  "main": "code/regroove.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "npx prettier --write  code"
@@ -10,7 +10,7 @@
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
-    "stochastic-groove-lib": "^1.3.0-b9"
+    "regroove-lib": "^1.0.0-b"
   },
   "devDependencies": {
     "eslint": "^7.23.0",

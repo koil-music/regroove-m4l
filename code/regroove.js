@@ -5,16 +5,16 @@ const Max = require("max-api");
 const glob = require("glob");
 const path = require("path");
 
-const { Pattern } = require("stochastic-groove-lib/dist/pattern");
-const { PatternHistory } = require("stochastic-groove-lib/dist/history");
-const { Generator } = require("stochastic-groove-lib/dist/generate");
-const { readMidiFile } = require("stochastic-groove-lib/dist/midi");
-const { pitchToIndexMap } = require("stochastic-groove-lib/dist/util");
+const { Pattern } = require("regroove-lib/dist/pattern");
+const { PatternHistory } = require("regroove-lib/dist/history");
+const { Generator } = require("regroove-lib/dist/generate");
+const { readMidiFile } = require("regroove-lib/dist/midi");
+const { pitchToIndexMap } = require("regroove-lib/dist/util");
 const {
   CHANNELS,
   LOOP_DURATION,
   DRUM_PITCH_CLASSES,
-} = require("stochastic-groove-lib/dist/constants");
+} = require("regroove-lib/dist/constants");
 
 let DEBUG = false;
 function debug(value) {
@@ -81,6 +81,7 @@ async function readMidi(filename) {
 let numSamples = 400;
 let minOnsetThreshold = 0.3;
 let maxOnsetThreshold = 0.7;
+let noteDropout = 0.5;
 
 function validModelDir(dir) {
   const globPath = dir + "*.onnx";
@@ -102,8 +103,13 @@ function validModelDir(dir) {
   return valid;
 }
 
-let noteDropout = 0.5;
-let modelDir = path.dirname(__dirname) + "/assets/models/";
+let ENV;
+if (typeof process.env.REGROOVE_ENV === 'string') {
+  ENV = process.env.REGROOVE_ENV
+} else {
+  ENV = 'production'
+}
+let modelDir = path.dirname(__dirname) + `/regroove-models/${ENV}/`;
 const isValid = validModelDir(modelDir);
 assert.ok(isValid);
 

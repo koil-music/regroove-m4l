@@ -1,0 +1,3 @@
+[submodule "regroove-models"]
+	path = regroove-models
+	url = git@github.com:rekoilio/regroove-models.git
