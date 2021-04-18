@@ -107,7 +107,7 @@ let ENV;
 if (typeof process.env.REGROOVE_ENV === 'string') {
   ENV = process.env.REGROOVE_ENV
 } else {
-  ENV = 'production'
+  ENV = 'staging'
 }
 let modelDir = path.dirname(__dirname) + `/regroove-models/${ENV}/`;
 const isValid = validModelDir(modelDir);

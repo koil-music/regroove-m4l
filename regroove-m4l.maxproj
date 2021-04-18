@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3701613776,
-	"viewrect" : [ 1811.0, 65.0, 741.0, 1310.0 ],
+	"modificationdate" : 3701626580,
+	"viewrect" : [ 1690.0, 117.0, 741.0, 1258.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -19,6 +19,10 @@
 		}
 ,
 		"code" : 		{
+			"regroove.js" : 			{
+				"kind" : "javascript",
+				"local" : 1
+			}
 
 		}
 ,
@@ -60,9 +64,9 @@
 		}
 ,
 		"2" : 		{
-			"bootpath" : "~/Music/software/regroove/regroove-m4l/assets",
-			"projectrelativepath" : "./assets",
-			"label" : "assets",
+			"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
+			"projectrelativepath" : "./code",
+			"label" : "code",
 			"recursive" : 1,
 			"enabled" : 1,
 			"includeincollective" : 1
