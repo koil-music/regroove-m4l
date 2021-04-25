@@ -78,18 +78,17 @@ function updateCell(step, instrument, value) {
 }
 
 /**
- * Pattern Factory
+ * Pattern Storage
+ * - history
  */
 const onsetsHistory = new PatternHistory(20)
 const velocitiesHistory = new PatternHistory(20)
 const offsetsHistory = new PatternHistory(20)
 
-
 const pitchMapping = pitchToIndexMap(
   DRUM_PITCH_CLASSES["pitch"],
   DRUM_PITCH_CLASSES["index"]
 )
-
 
 
 /**
@@ -369,3 +368,4 @@ Max.addHandler("clear_pattern_history", () => {
     velocitiesHistory._queue = [];
     offsetsHistory._queue = [];
 })
+
