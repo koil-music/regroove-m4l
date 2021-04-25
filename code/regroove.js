@@ -8,7 +8,6 @@ const path = require("path")
 const { Pattern } = require("regroove-lib/dist/pattern")
 const { PatternHistory } = require("regroove-lib/dist/history")
 const { Generator } = require("regroove-lib/dist/generate")
-const { readMidiFile } = require("regroove-lib/dist/midi")
 const { pitchToIndexMap } = require("regroove-lib/dist/util")
 const {
   CHANNELS,
@@ -91,19 +90,7 @@ const pitchMapping = pitchToIndexMap(
   DRUM_PITCH_CLASSES["index"]
 )
 
-async function readMidi(filename) {
-  const [
-    onsetsMidiPattern,
-    velocitiesMidiPattern,
-    offsetsMidiPattern,
-  ] = await readMidiFile(filename, pitchMapping)
-  onsetsPattern = onsetsMidiPattern
-  velocitiesPattern = velocitiesMidiPattern
-  offsetsPattern = offsetsMidiPattern
-  onsetsHistory.append(onsetsPattern)
-  velocitiesHistory.append(velocitiesPattern)
-  offsetsHistory.append(offsetsPattern)
-}
+
 
 /**
  * Generate
@@ -147,7 +134,7 @@ async function generate() {
  * MatrixCtrl
  */
 let densityIndex = 0
-let syncMode = "snap"
+let syncMode = "wait"
 let syncRate = 16 // in sixteenth notes
 let isSyncing = false
 
