@@ -2,19 +2,17 @@
 
 const assert = require("assert")
 const Max = require("max-api")
-const glob = require("glob")
 const path = require("path")
 
 const { Pattern } = require("regroove-lib/dist/pattern")
 const { PatternHistory } = require("regroove-lib/dist/history")
 const { Generator } = require("regroove-lib/dist/generate")
-const { pitchToIndexMap } = require("regroove-lib/dist/util")
 const {
   CHANNELS,
   LOOP_DURATION,
-  DRUM_PITCH_CLASSES,
 } = require("regroove-lib/dist/constants")
 
+const { validModelDir } = require("./utils")
 
 /**
  * Ops and environment
@@ -26,30 +24,9 @@ function debug(value) {
   }
 }
 
-function validModelDir(dir) {
-  const globPath = dir + "*.onnx"
-  debug(globPath)
-  const valid = glob(globPath, function (err, files) {
-    if (err) {
-      debug(err)
-      return false
-    } else {
-      if (files.length == 2) {
-        debug(`Found model files: ${files}`)
-        return true
-      } else {
-        debug(`Invalid model directory ${dir}`)
-        return false
-      }
-    }
-  })
-  return valid
-}
-
 let ENV = 'staging'
-let modelDir = path.dirname(__dirname) + `/regroove-models/${ENV}/`
-const isValid = validModelDir(modelDir)
-assert.ok(isValid)
+let modelPath = path.dirname(__dirname) + `/regroove-models/${ENV}/`
+assert.ok(validModelDir(modelPath))
 
 /**
  * Pattern
@@ -85,12 +62,6 @@ const onsetsHistory = new PatternHistory(20)
 const velocitiesHistory = new PatternHistory(20)
 const offsetsHistory = new PatternHistory(20)
 
-const pitchMapping = pitchToIndexMap(
-  DRUM_PITCH_CLASSES["pitch"],
-  DRUM_PITCH_CLASSES["index"]
-)
-
-
 /**
  * Generate
  */
@@ -110,7 +81,7 @@ async function generate() {
       onsetsPattern.data,
       velocitiesPattern.data,
       offsetsPattern.data,
-      modelDir,
+      modelPath,
       minOnsetThreshold,
       maxOnsetThreshold,
       numSamples,
@@ -233,7 +204,6 @@ Max.addHandler("debug", (value) => {
     debug("Debug OFF")
     DEBUG = false
   }
-  DEBUG = value
 })
 
 Max.addHandler("set_density", (value) => {
@@ -337,7 +307,7 @@ Max.addHandler("wait_sync", (step) => {
 
 Max.addHandler("setModelDir", (value) => {
   if (validModelDir(value)) {
-    modelDir = value
+    modelPath = value
   }
 })
 
@@ -368,4 +338,3 @@ Max.addHandler("clear_pattern_history", () => {
     velocitiesHistory._queue = [];
     offsetsHistory._queue = [];
 })
-
