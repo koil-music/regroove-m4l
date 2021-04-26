@@ -2,7 +2,7 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3701626580,
+	"modificationdate" : 3702310795,
 	"viewrect" : [ 1690.0, 117.0, 741.0, 1258.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
@@ -34,7 +34,7 @@
 
 		}
 ,
-		"other" : 		{
+		"externals" : 		{
 
 		}
 
@@ -67,6 +67,15 @@
 			"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
 			"projectrelativepath" : "./code",
 			"label" : "code",
+			"recursive" : 1,
+			"enabled" : 1,
+			"includeincollective" : 1
+		}
+,
+		"3" : 		{
+			"bootpath" : "~/Music/software/regroove/regroove-m4l/.data",
+			"projectrelativepath" : "./.data",
+			"label" : "data",
 			"recursive" : 1,
 			"enabled" : 1,
 			"includeincollective" : 1

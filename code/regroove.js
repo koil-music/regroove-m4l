@@ -1,18 +1,20 @@
-"use_strict"
+'use_strict'
 
-const assert = require("assert")
-const Max = require("max-api")
-const path = require("path")
+const assert = require('assert')
+const Max = require('max-api')
+const path = require('path')
+const process = require('process')
 
-const { Pattern } = require("regroove-lib/dist/pattern")
-const { PatternHistory } = require("regroove-lib/dist/history")
-const { Generator } = require("regroove-lib/dist/generate")
+const { AppData } = require('regroove-lib/dist/appdata')
+const { Pattern } = require('regroove-lib/dist/pattern')
+const { PatternHistory } = require('regroove-lib/dist/history')
+const { Generator } = require('regroove-lib/dist/generate')
 const {
   CHANNELS,
   LOOP_DURATION,
-} = require("regroove-lib/dist/constants")
+} = require('regroove-lib/dist/constants')
 
-const { validModelDir } = require("./utils")
+const { validModelDir } = require('./utils')
 
 /**
  * Ops and environment
@@ -25,14 +27,16 @@ function debug(value) {
 }
 
 let ENV = 'staging'
-let modelPath = path.dirname(__dirname) + `/regroove-models/${ENV}/`
+let modelPath = path.dirname(process.cwd()) + `/regroove-models/${ENV}/`
 assert.ok(validModelDir(modelPath))
+
+const appMidiData = new AppData(path.dirname(process.cwd()), '.mid')
 
 /**
  * Pattern
  */
 const dims = [1, LOOP_DURATION, CHANNELS]
-const data = Float32Array.from({length: dims[0] * dims[1] * dims[2]}, _ => 0.)
+const data = Float32Array.from({length: dims[0] * dims[1] * dims[2]}, () => 0.)
 
 let onsetsPattern = new Pattern(data, dims)
 let velocitiesPattern = new Pattern(data, dims)
@@ -55,8 +59,7 @@ function updateCell(step, instrument, value) {
 }
 
 /**
- * Pattern Storage
- * - history
+ * Pattern History
  */
 const onsetsHistory = new PatternHistory(20)
 const velocitiesHistory = new PatternHistory(20)
@@ -96,7 +99,7 @@ async function generate() {
       `Generated ${numSamples} rhythm sequence with note dropout: ${noteDropout}, threshold range: [${minOnsetThreshold}:${maxOnsetThreshold}]`
     )
     debug(`Input was ${onsetsPattern.data}`)
-    Max.post("Generator is ready.")
+    Max.post('Generator is ready.')
   }
 }
 
@@ -104,13 +107,13 @@ async function generate() {
  * MatrixCtrl
  */
 let densityIndex = 0
-let syncMode = "wait"
+let syncMode = 'wait'
 let syncRate = 16 // in sixteenth notes
 let isSyncing = false
 
-function updatePattern() {
+async function updatePattern() {
   if (generatorReady) {
-    debug("Updating pattern")
+    debug('Updating pattern')
     const randomIndex = Math.round(Math.random() * generator.axisLength)
     onsetsHistory.append(onsetsPattern)
     velocitiesHistory.append(velocitiesPattern)
@@ -126,6 +129,8 @@ function updatePattern() {
     } catch (e) {
       debug(e)
     }
+    await appMidiData.savePattern(onsetsPattern, velocitiesPattern, offsetsPattern, 'current')
+    appMidiData.saveIndex()
   } else {
     debug(`Generator is not ready`)
   }
@@ -143,7 +148,7 @@ function createMatrixCtrlData() {
   const velocities = velocitiesPattern.tensor()[0]
 
   for (let channel = 8; channel >= 0; channel--) {
-    if (activeChannels[channel] == "1") {
+    if (activeChannels[channel] == '1') {
       for (let step = 0; step < LOOP_DURATION; step++) {
         // onsets
         onsetsData.push(step)
@@ -168,19 +173,19 @@ function createMatrixCtrlData() {
 }
 
 async function sync() {
-  debug("syncing...")
+  debug('syncing...')
   isSyncing = true
 
-  updatePattern()
+  await updatePattern()
   const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData()
-  await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl)
-  await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl)
-  await Max.outlet("penultimateSync", isSyncing)
+  await Max.outlet('fillOnsetsMatrix', ...onsetsMatrixCtrl)
+  await Max.outlet('fillVelocitiesMatrix', ...velocitiesMatrixCtrl)
+  await Max.outlet('penultimateSync', isSyncing)
   isSyncing = false
 }
 
 async function waitSync(step) {
-  if (!isSyncing && syncMode === "wait") {
+  if (!isSyncing && syncMode === 'wait') {
     if (step % (syncRate * LOOP_DURATION) === 0) {
       await sync()
     }
@@ -188,7 +193,7 @@ async function waitSync(step) {
 }
 
 async function snapSync() {
-  if (!isSyncing && syncMode === "snap") {
+  if (!isSyncing && syncMode === 'snap') {
     await sync()
   }
 }
@@ -196,17 +201,17 @@ async function snapSync() {
 /**
  * Max request handlers
  */
-Max.addHandler("debug", (value) => {
+Max.addHandler('debug', (value) => {
   if (value === 1) {
     DEBUG = true
-    debug("Debug ON")
+    debug('Debug ON')
   } else if (value == 0) {
-    debug("Debug OFF")
+    debug('Debug OFF')
     DEBUG = false
   }
 })
 
-Max.addHandler("set_density", (value) => {
+Max.addHandler('set_density', (value) => {
   if (value >= 0 && value <= 1) {
     densityIndex = Math.round((1 - value) * Math.sqrt(numSamples)) - 1
     debug(densityIndex)
@@ -215,7 +220,7 @@ Max.addHandler("set_density", (value) => {
   }
 })
 
-Max.addHandler("set_min_density", (value) => {
+Max.addHandler('set_min_density', (value) => {
   if (value >= 0 && value <= 1) {
     maxOnsetThreshold = 1 - value
     debug(`Set maxOnsetThreshold to ${value}`)
@@ -224,7 +229,7 @@ Max.addHandler("set_min_density", (value) => {
   }
 })
 
-Max.addHandler("set_max_density", (value) => {
+Max.addHandler('set_max_density', (value) => {
   if (value >= 0 && value <= 1) {
     minOnsetThreshold = 1 - value
     debug(`Set minOnsetThreshold to ${value}`)
@@ -233,7 +238,7 @@ Max.addHandler("set_max_density", (value) => {
   }
 })
 
-Max.addHandler("set_note_dropout", (value) => {
+Max.addHandler('set_note_dropout', (value) => {
   if (value >= 0 && value <= 1) {
     noteDropout = 1 - value
     debug(`Set noteDropout to ${value}`)
@@ -242,7 +247,7 @@ Max.addHandler("set_note_dropout", (value) => {
   }
 })
 
-Max.addHandler("set_num_samples", (value) => {
+Max.addHandler('set_num_samples', (value) => {
   if (value >= 0 && value <= 1000) {
     numSamples = value
     debug(numSamples)
@@ -251,8 +256,8 @@ Max.addHandler("set_num_samples", (value) => {
   }
 })
 
-const syncModeOptions = ["snap", "off", "wait"]
-Max.addHandler("set_sync_mode", (value) => {
+const syncModeOptions = ['snap', 'off', 'wait']
+Max.addHandler('set_sync_mode', (value) => {
   if (syncModeOptions.includes(value)) {
     syncMode = value
     debug(`Set sync_mode to ${value}`)
@@ -263,7 +268,7 @@ Max.addHandler("set_sync_mode", (value) => {
 
 const syncRateOptions = [0.25, 0.5, 1, 2, 4]
 
-Max.addHandler("set_sync_rate", (value) => {
+Max.addHandler('set_sync_rate', (value) => {
   if (syncRateOptions.includes(parseFloat(value))) {
     debug(`Set sync_rate to ${value}`)
     syncRate = value
@@ -272,7 +277,7 @@ Max.addHandler("set_sync_rate", (value) => {
   }
 })
 
-Max.addHandler("velocity", (value) => {
+Max.addHandler('velocity', (value) => {
   if (value >= 0 && value <= 127) {
     debug(`Set velocity to ${value}`)
     velocityScale = value / 127
@@ -281,15 +286,15 @@ Max.addHandler("velocity", (value) => {
   }
 })
 
-Max.addHandler("generate", () => {
+Max.addHandler('generate', () => {
   generate()
 })
 
-Max.addHandler("snap_sync", async () => {
+Max.addHandler('snap_sync', async () => {
   await snapSync()
 })
 
-Max.addHandler("update_cell", (step, instrument, value) => {
+Max.addHandler('update_cell', (step, instrument, value) => {
   const inverseChannel = CHANNELS - instrument
   if (value in [0, 1]) {
     if (step < LOOP_DURATION && instrument < CHANNELS) {
@@ -300,24 +305,24 @@ Max.addHandler("update_cell", (step, instrument, value) => {
   }
 })
 
-Max.addHandler("wait_sync", (step) => {
+Max.addHandler('wait_sync', (step) => {
   debug(`wait_sync: ${step}`)
   waitSync(step)
 })
 
-Max.addHandler("setModelDir", (value) => {
+Max.addHandler('setModelDir', (value) => {
   if (validModelDir(value)) {
     modelPath = value
   }
 })
 
-Max.addHandler("set_active_channels", (channels) => {
+Max.addHandler('set_active_channels', (channels) => {
   debug(channels)
   activeChannels = channels.slice(1)
   debug(activeChannels)
 })
 
-Max.addHandler("get_cached_pattern", async (idx) => {
+Max.addHandler('get_cached_pattern', async (idx) => {
   debug(`Get pattern ${idx}`)
   if (idx + 1 <= onsetsHistory._queue.length) {
     isSyncing = true
@@ -326,15 +331,38 @@ Max.addHandler("get_cached_pattern", async (idx) => {
     offsetsPattern = offsetsHistory.sample(idx)
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData()
-    await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl)
-    await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl)
-    await Max.outlet("penultimateSync", isSyncing)
+    await Max.outlet('fillOnsetsMatrix', ...onsetsMatrixCtrl)
+    await Max.outlet('fillVelocitiesMatrix', ...velocitiesMatrixCtrl)
+    await Max.outlet('penultimateSync', isSyncing)
     isSyncing = false
   }
 })
 
-Max.addHandler("clear_pattern_history", () => {
+Max.addHandler('clear_pattern_history', () => {
     onsetsHistory._queue = [];
     velocitiesHistory._queue = [];
     offsetsHistory._queue = [];
+})
+
+Max.addHandler('save_pattern', (name) => {
+  appMidiData.savePattern(onsetsPattern, velocitiesPattern, offsetsPattern, name)
+  appMidiData.saveIndex()
+})
+
+Max.addHandler('load_pattern', async (filename) => {
+  if (filename.endsWith('.mid')) {
+    isSyncing = true
+    const name = filename.replace(".mid", "")
+    const [loadedOnsetsPattern, loadedVelocitiesPattern, loadedOffsetsPattern] = await appMidiData.loadPattern(name)
+
+    onsetsPattern = loadedOnsetsPattern
+    velocitiesPattern = loadedVelocitiesPattern
+    offsetsPattern = loadedOffsetsPattern
+
+    const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData()
+    await Max.outlet('fillOnsetsMatrix', ...onsetsMatrixCtrl)
+    await Max.outlet('fillVelocitiesMatrix', ...velocitiesMatrixCtrl)
+    await Max.outlet('penultimateSync', isSyncing)
+    isSyncing = false
+  }
 })
