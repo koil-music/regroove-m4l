@@ -1,20 +1,19 @@
-const glob = require("glob")
+const glob = require("glob");
 
 function validModelDir(dir) {
-  const globPath = dir + "*.onnx"
+  const globPath = dir + "*.onnx";
   const valid = glob(globPath, function (err, files) {
     if (err) {
-      return false
+      return false;
     } else {
       if (files.length == 2) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     }
-  })
-  return valid
+  });
+  return valid;
 }
 
-
-module.exports = { validModelDir }
+module.exports = { validModelDir };
