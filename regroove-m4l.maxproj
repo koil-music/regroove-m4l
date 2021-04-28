@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3702310795,
-	"viewrect" : [ 1690.0, 117.0, 741.0, 1258.0 ],
+	"modificationdate" : 3702455356,
+	"viewrect" : [ 1945.0, 65.0, 607.0, 1310.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -19,22 +19,10 @@
 		}
 ,
 		"code" : 		{
-			"regroove.js" : 			{
-				"kind" : "javascript",
-				"local" : 1
-			}
 
 		}
 ,
-		"data" : 		{
-			"midi_mapping.json" : 			{
-				"kind" : "json",
-				"local" : 1
-			}
-
-		}
-,
-		"externals" : 		{
+		"other" : 		{
 
 		}
 
@@ -46,8 +34,8 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "~/OneDrive/Documents/Max 8/Projects/regroove-m4l/node_modules",
-			"projectrelativepath" : "../../../../OneDrive/Documents/Max 8/Projects/regroove-m4l/node_modules",
+			"bootpath" : "~/Music/software/regroove/regroove-m4l/node_modules",
+			"projectrelativepath" : "./node_modules",
 			"label" : "node_modules",
 			"recursive" : 1,
 			"enabled" : 1,

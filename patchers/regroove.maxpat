@@ -35,11 +35,31 @@
 		"description" : "",
 		"digest" : "",
 		"tags" : "",
-		"style" : "",
+		"style" : "default",
 		"subpatcher_template" : "",
 		"isolateaudio" : 1,
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"bgmode" : 0,
+					"border" : 0,
+					"clickthrough" : 0,
+					"enablehscroll" : 0,
+					"enablevscroll" : 0,
+					"id" : "obj-31",
+					"lockeddragscroll" : 0,
+					"maxclass" : "bpatcher",
+					"name" : "n4m.monitor.maxpat",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"offset" : [ 0.0, 0.0 ],
+					"outlettype" : [ "bang" ],
+					"patching_rect" : [ 672.0, 1995.000009179115295, 400.0, 220.0 ],
+					"viewvisibility" : 1
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-212",
 					"maxclass" : "newobj",
@@ -2327,18 +2347,6 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-31",
-					"maxclass" : "newobj",
-					"numinlets" : 2,
-					"numoutlets" : 1,
-					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 638.0, 1757.083349943161011, 55.0, 22.0 ],
-					"text" : "del 3000"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-135",
 					"maxclass" : "message",
 					"numinlets" : 2,
@@ -2518,7 +2526,6 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-95",
-					"int" : 1,
 					"maxclass" : "gswitch2",
 					"numinlets" : 2,
 					"numoutlets" : 2,
@@ -3386,8 +3393,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 2333.833334773778915, 831.120003325939251, 145.0, 22.0 ],
-					"text" : "import midi_mapping.json"
+					"patching_rect" : [ 2333.833334773778915, 831.120003325939251, 175.0, 22.0 ],
+					"text" : "import code/midi_mapping.json"
 				}
 
 			}
@@ -3545,14 +3552,13 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 1758.000005841255188, 2072.0, 217.54667379140858, 22.0 ],
-					"text" : "84 84 84 84 84 84 84 84 84"
+					"text" : "100 100 100 100 100 100 100 100 100"
 				}
 
 			}
 , 			{
 				"box" : 				{
 					"id" : "obj-371",
-					"int" : 1,
 					"maxclass" : "gswitch2",
 					"numinlets" : 2,
 					"numoutlets" : 2,
@@ -3582,7 +3588,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 1160.5, 1757.0, 245.0, 22.0 ],
-					"text" : "84 84 84 84 84 84 84 84 84"
+					"text" : "100 100 100 100 100 100 100 100 100"
 				}
 
 			}
@@ -5173,19 +5179,6 @@
 			}
 , 			{
 				"box" : 				{
-					"fontface" : 1,
-					"fontsize" : 14.0,
-					"id" : "obj-128",
-					"maxclass" : "comment",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 605.083333849906921, 1621.166674971580505, 61.0, 23.0 ],
-					"text" : "Reload"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-86",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -5197,38 +5190,13 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-70",
-					"maxclass" : "button",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "bang" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 564.333333849906921, 1614.166674971580505, 37.0, 37.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"hidden" : 1,
-					"id" : "obj-48",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 564.333333849906921, 1681.416674971580505, 58.0, 22.0 ],
-					"text" : "loadbang"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"hidden" : 1,
 					"id" : "obj-8",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "bang", "int", "int" ],
-					"patching_rect" : [ 564.333333849906921, 1705.416674971580505, 83.0, 22.0 ],
+					"patching_rect" : [ 564.333333849906921, 1735.583349943161011, 83.0, 22.0 ],
 					"text" : "live.thisdevice"
 				}
 
@@ -7324,26 +7292,6 @@
 			}
 , 			{
 				"box" : 				{
-					"bgmode" : 0,
-					"border" : 0,
-					"clickthrough" : 0,
-					"enablehscroll" : 0,
-					"enablevscroll" : 0,
-					"id" : "obj-37",
-					"lockeddragscroll" : 0,
-					"maxclass" : "bpatcher",
-					"name" : "n4m.monitor.maxpat",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"offset" : [ 0.0, 0.0 ],
-					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 431.708333849906921, 2040.083349943161011, 400.0, 220.0 ],
-					"viewvisibility" : 1
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-36",
 					"maxclass" : "message",
 					"numinlets" : 2,
@@ -7385,16 +7333,16 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 402.875, 1933.083349943161011, 231.0, 22.0 ],
+					"patching_rect" : [ 402.875, 1933.083349943161011, 159.0, 22.0 ],
 					"saved_object_attributes" : 					{
-						"autostart" : 1,
+						"autostart" : 0,
 						"defer" : 0,
 						"node_bin_path" : "",
 						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
-					"text" : "node.script code/regroove.js @autostart 1"
+					"text" : "node.script code/regroove.js"
 				}
 
 			}
@@ -7791,7 +7739,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-141", 0 ],
-					"midpoints" : [ 624.375, 2271.0, 1011.0, 2271.0, 1011.0, 2466.0, 574.375, 2466.0 ],
+					"midpoints" : [ 552.375, 2271.0, 1011.0, 2271.0, 1011.0, 2466.0, 574.375, 2466.0 ],
 					"order" : 0,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -7807,8 +7755,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-37", 0 ],
-					"midpoints" : [ 624.375, 1997.083349943161011, 441.208333849906921, 1997.083349943161011 ],
+					"destination" : [ "obj-31", 0 ],
 					"order" : 2,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -7817,7 +7764,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-43", 0 ],
-					"midpoints" : [ 624.375, 2271.0, 387.0, 2271.0, 387.0, 2466.0, 432.416671097278595, 2466.0 ],
+					"midpoints" : [ 552.375, 2271.0, 387.0, 2271.0, 387.0, 2466.0, 432.416671097278595, 2466.0 ],
 					"order" : 1,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -8678,14 +8625,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-32", 0 ],
-					"midpoints" : [ 647.5, 1784.916682839393616, 725.083333849906921, 1784.916682839393616 ],
-					"source" : [ "obj-31", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-324", 0 ],
 					"midpoints" : [ 1657.000005841255415, 389.0, 1657.000005841255643, 389.0 ],
 					"source" : [ "obj-310", 1 ]
@@ -9221,14 +9160,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-8", 0 ],
-					"midpoints" : [ 573.833333849906921, 1704.0, 573.833333849906921, 1704.0 ],
-					"source" : [ "obj-48", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-47", 0 ],
 					"midpoints" : [ 1753.500005841255188, 262.0, 1753.500005841255188, 262.0 ],
 					"source" : [ "obj-49", 0 ]
@@ -9373,14 +9304,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-48", 0 ],
-					"midpoints" : [ 573.833333849906921, 1653.0, 573.833333849906921, 1653.0 ],
-					"source" : [ "obj-70", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-74", 0 ],
 					"source" : [ "obj-72", 0 ]
 				}
@@ -9451,8 +9374,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-31", 0 ],
-					"midpoints" : [ 573.833333849906921, 1743.0, 647.5, 1743.0 ],
+					"destination" : [ "obj-5", 0 ],
 					"order" : 0,
 					"source" : [ "obj-8", 0 ]
 				}
@@ -9461,7 +9383,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-86", 0 ],
-					"midpoints" : [ 605.833333849906921, 1728.0, 605.833333849906921, 1728.0 ],
+					"midpoints" : [ 605.833333849906921, 1758.0, 605.833333849906921, 1758.0 ],
 					"source" : [ "obj-8", 1 ]
 				}
 
@@ -9617,27 +9539,31 @@
 				"implicit" : 1
 			}
 , 			{
+				"name" : "M4L.api.ObserveTransport.maxpat",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/patchers",
+				"patcherrelativepath" : ".",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
 				"name" : "n4m.monitor.maxpat",
-				"bootpath" : "C74:/packages/Node For Max/patchers/debug-monitor",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/patchers",
+				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "resize_n4m_monitor_patcher.js",
-				"bootpath" : "C74:/packages/Node For Max/patchers/debug-monitor",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
+				"patcherrelativepath" : "../code",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "fit_jweb_to_bounds.js",
-				"bootpath" : "C74:/packages/Node For Max/patchers/debug-monitor",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
+				"patcherrelativepath" : "../code",
 				"type" : "TEXT",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "M4L.api.ObserveTransport.maxpat",
-				"bootpath" : "C74:/patchers/m4l/LiveAPI resources/abstractions",
-				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
