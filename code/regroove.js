@@ -30,18 +30,42 @@ assert.ok(validModelDir(modelPath));
 const appMidiData = new AppData(path.dirname(process.cwd()), ".mid");
 
 /**
- * Pattern
+ * Global state variables
  */
+// MatrixCtrl
+let densityIndex = 0;
+let syncMode = "wait";
+let syncRate = 16; // in sixteenth notes
+let isSyncing = false;
+
+// Patterns
 const dims = [1, LOOP_DURATION, CHANNELS];
 const data = Float32Array.from(
   { length: dims[0] * dims[1] * dims[2] },
   () => 0
 );
-
 let onsetsPattern = new Pattern(data, dims);
 let velocitiesPattern = new Pattern(data, dims);
 let offsetsPattern = new Pattern(data, dims);
+
+const onsetsHistory = new PatternHistory(20);
+const velocitiesHistory = new PatternHistory(20);
+const offsetsHistory = new PatternHistory(20);
+
 let velocityScale;
+
+// Generator
+let numSamples = 400;
+let minOnsetThreshold = 0.3;
+let maxOnsetThreshold = 0.7;
+let noteDropout = 0.5;
+let generator;
+let generatorReady = false;
+let isGenerating = false;
+
+/**
+ * Functions that act on state variables
+ */
 
 function updateCell(step, instrument, value) {
   const onsetsTensor = onsetsPattern.tensor();
@@ -58,24 +82,10 @@ function updateCell(step, instrument, value) {
   offsetsPattern = new Pattern(offsetsTensor, dims);
 }
 
-/**
- * Pattern History
- */
-const onsetsHistory = new PatternHistory(20);
-const velocitiesHistory = new PatternHistory(20);
-const offsetsHistory = new PatternHistory(20);
 
 /**
  * Generate
  */
-let numSamples = 400;
-let minOnsetThreshold = 0.3;
-let maxOnsetThreshold = 0.7;
-let noteDropout = 0.5;
-
-let generator;
-let generatorReady = false;
-let isGenerating = false;
 
 async function generate() {
   if (!isGenerating) {
@@ -106,10 +116,6 @@ async function generate() {
 /**
  * MatrixCtrl
  */
-let densityIndex = 0;
-let syncMode = "wait";
-let syncRate = 16; // in sixteenth notes
-let isSyncing = false;
 
 async function updatePattern() {
   if (generatorReady) {
@@ -125,7 +131,7 @@ async function updatePattern() {
       debug(`density index: ${x} random index: ${y}`);
       onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
       velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
-      offsetsPattern = new Pattern(generator.offsets._T[x][y], dims);
+      // offsetsPattern = new Pattern(generator.offsets._T[x][y], dims);
     } catch (e) {
       debug(e);
     }
@@ -133,7 +139,7 @@ async function updatePattern() {
       onsetsPattern,
       velocitiesPattern,
       offsetsPattern,
-      "current"
+      "origin"
     );
     appMidiData.saveIndex();
   } else {
@@ -335,7 +341,7 @@ Max.addHandler("get_cached_pattern", async (idx) => {
     isSyncing = true;
     onsetsPattern = onsetsHistory.sample(idx);
     velocitiesPattern = velocitiesHistory.sample(idx);
-    offsetsPattern = offsetsHistory.sample(idx);
+    // offsetsPattern = offsetsHistory.sample(idx);
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -373,7 +379,7 @@ Max.addHandler("load_pattern", async (filename) => {
 
     onsetsPattern = loadedOnsetsPattern;
     velocitiesPattern = loadedVelocitiesPattern;
-    offsetsPattern = loadedOffsetsPattern;
+    // offsetsPattern = loadedOffsetsPattern;
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -382,3 +388,23 @@ Max.addHandler("load_pattern", async (filename) => {
     isSyncing = false;
   }
 });
+
+/**
+ * Finally initialization
+ */
+// Load origin pattern if it exists in the appData index
+if ( typeof appMidiData.data['origin'] !== 'undefined') {
+  isSyncing = true;
+  appMidiData.loadPattern('origin')
+    .then((results) => {
+      [onsetsPattern, velocitiesPattern, _] = results;
+      const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
+      Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
+      Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
+      Max.outlet("penultimateSync", isSyncing);
+      isSyncing = false;
+    })
+    .catch((err) => {
+      if (err) throw err;
+    })
+}
