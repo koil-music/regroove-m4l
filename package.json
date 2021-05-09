@@ -13,7 +13,7 @@
     "regroove-lib": "^1.0.2-b2"
   },
   "devDependencies": {
-    "eslint": "^7.25.0",
+    "eslint": "^7.26.0",
     "prettier": "^2.2.1"
   }
 }

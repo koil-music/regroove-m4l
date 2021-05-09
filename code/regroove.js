@@ -29,10 +29,10 @@ const root = path.dirname(process.cwd())
 let modelPath = path.join(root, `regroove-models/${ENV}/`);
 assert.ok(validModelDir(modelPath));
 
-if (~fs.existsSync(path.join(root, '.data/factory'))) {
+if (!fs.existsSync(path.join(root, '.data/factory'))) {
   fs.mkdirSync(path.join(root, '.data/factory'))
 }
-if (~fs.existsSync(path.join(root, '.data/user'))) {
+if (!fs.existsSync(path.join(root, '.data/user'))) {
   fs.mkdirSync(path.join(root, '.data/user'))
 }
 
