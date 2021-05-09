@@ -1,6 +1,7 @@
 "use_strict";
 
 const assert = require("assert");
+const fs = require("fs");
 const Max = require("max-api");
 const path = require("path");
 const process = require("process");
@@ -24,8 +25,16 @@ function debug(value) {
 }
 
 let ENV = "staging";
-let modelPath = path.dirname(process.cwd()) + `/regroove-models/${ENV}/`;
+const root = path.dirname(process.cwd())
+let modelPath = path.join(root, `regroove-models/${ENV}/`);
 assert.ok(validModelDir(modelPath));
+
+if (~fs.existsSync(path.join(root, '.data/factory'))) {
+  fs.mkdirSync(path.join(root, '.data/factory'))
+}
+if (~fs.existsSync(path.join(root, '.data/user'))) {
+  fs.mkdirSync(path.join(root, '.data/user'))
+}
 
 const appMidiData = new AppData(path.dirname(process.cwd()), ".mid");
 
