@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"openrect" : [ 35.0, 85.0, 686.519326508045197, 171.783608585596085 ],
+		"openrect" : [ 35.0, 85.0, 657.019322693347931, 171.783608585596085 ],
 		"bglocked" : 0,
 		"openinpresentation" : 1,
 		"default_fontsize" : 12.0,
@@ -31,7 +31,7 @@
 		"boxanimatetime" : 200,
 		"enablehscroll" : 1,
 		"enablevscroll" : 1,
-		"devicewidth" : 686.519326508045197,
+		"devicewidth" : 657.019322693347931,
 		"description" : "",
 		"digest" : "",
 		"tags" : "",
@@ -41,18 +41,115 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
-					"fontface" : 0,
-					"fontname" : "Ableton Sans",
-					"fontsize" : 9.0,
-					"id" : "obj-196",
-					"maxclass" : "comment",
+					"border" : 2.0,
+					"id" : "obj-269",
+					"linecolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 0.45 ],
+					"maxclass" : "live.line",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 63.125, 3188.0, 128.0, 17.0 ],
+					"patching_rect" : [ 557.163536876440048, 43.146191895008087, 5.0, 100.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 618.321330770850182, 81.556525826454163, 33.806451439857483, 17.0 ],
-					"text" : "length",
-					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
+					"presentation_rect" : [ 557.163536876440048, 45.146191895008087, 91.373423174023628, 7.557692527770996 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"autofit" : 1,
+					"forceaspect" : 1,
+					"id" : "obj-267",
+					"ignoreclick" : 1,
+					"maxclass" : "fpic",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "jit_matrix" ],
+					"patching_rect" : [ 505.0, 223.0, 100.0, 100.0 ],
+					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/shuffle.png",
+					"presentation" : 1,
+					"presentation_rect" : [ 583.17671635409522, 75.66398318310064, 39.707630723714828, 39.707630723714828 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"activebgcolor" : [ 0.203921568627451, 0.203921568627451, 0.203921568627451, 1.0 ],
+					"activebgoncolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
+					"bgcolor" : [ 0.203921568627451, 0.203921568627451, 0.203921568627451, 1.0 ],
+					"bordercolor" : [ 0.0, 0.0, 0.0, 1.0 ],
+					"focusbordercolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
+					"id" : "obj-136",
+					"maxclass" : "live.button",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"parameter_enable" : 1,
+					"patching_rect" : [ 659.470849573612213, 340.083333730697632, 28.0, 26.75 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 581.566056609153748, 74.326804995536804, 43.190655931830406, 42.716613262891769 ],
+					"saved_attribute_attributes" : 					{
+						"valueof" : 						{
+							"parameter_enum" : [ "off", "on" ],
+							"parameter_longname" : "live.button",
+							"parameter_mmax" : 1,
+							"parameter_shortname" : "live.button",
+							"parameter_type" : 2
+						}
+
+					}
+,
+					"transition" : 2,
+					"varname" : "sync_snap"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-241",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 597.690000000000055, 406.149999999999977, 32.0, 22.0 ],
+					"text" : "print"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"border" : 2.0,
+					"id" : "obj-232",
+					"linecolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 0.45 ],
+					"maxclass" : "live.line",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 355.125000000000227, 3099.0, 5.0, 100.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 557.496870219707489, 142.25730374455452, 90.623423174023628, 7.557692527770996 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.352941176470588, 0.352941176470588, 0.352941176470588, 1.0 ],
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.0,
+					"bgfillcolor_color" : [ 0.352941176470588, 0.352941176470588, 0.352941176470588, 1.0 ],
+					"bgfillcolor_color1" : [ 0.301961, 0.301961, 0.301961, 1.0 ],
+					"bgfillcolor_color2" : [ 0.2, 0.2, 0.2, 1.0 ],
+					"bgfillcolor_proportion" : 0.5,
+					"bgfillcolor_type" : "color",
+					"fontname" : "Ableton Sans",
+					"fontsize" : 10.0,
+					"id" : "obj-230",
+					"items" : [ "wait", ",", "snap", ",", "toggle" ],
+					"maxclass" : "umenu",
+					"numinlets" : 1,
+					"numoutlets" : 3,
+					"outlettype" : [ "int", "", "" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 643.080009536743205, 216.923087120056152, 100.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 602.964616851806682, 50.423073768615723, 50.769227981567383, 20.0 ],
+					"textcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ]
 				}
 
 			}
@@ -103,7 +200,7 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 644.57084995508194, 41.330000000000041, 58.0, 21.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 582.972196310758591, 5.240485817193985, 61.425860226154327, 19.0 ],
+					"presentation_rect" : [ 556.126040190458298, 51.345190793275833, 47.3297079205513, 19.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "val1", "val2" ],
@@ -115,8 +212,8 @@
 
 					}
 ,
-					"text" : "syncopate",
-					"texton" : "syncopate",
+					"text" : "sync",
+					"texton" : "sync",
 					"varname" : "sync_on"
 				}
 
@@ -177,7 +274,7 @@
 					"patching_rect" : [ 44.0, 940.298440895689964, 100.0, 93.36322869955157 ],
 					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/logo_dark.png",
 					"presentation" : 1,
-					"presentation_rect" : [ 627.313488215208054, 130.661274446099327, 32.354166924953461, 30.20689485997897 ]
+					"presentation_rect" : [ 588.198098391294479, 8.35357142791085, 32.354166924953461, 30.20689485997897 ]
 				}
 
 			}
@@ -189,20 +286,6 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 656.330000000000041, 924.216816139221237, 101.0, 22.0 ],
 					"text" : "s --density_range"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"border" : 2.0,
-					"id" : "obj-321",
-					"linecolor" : [ 0.517647058823529, 0.517647058823529, 0.517647058823529, 0.58 ],
-					"maxclass" : "live.line",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 340.125000000000227, 3084.0, 5.0, 100.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 558.392778307199478, 119.248298926353471, 108.434076502919197, 5.0 ]
 				}
 
 			}
@@ -220,7 +303,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 96.137516438961029, 975.904058428745657, 68.470849573612213, 68.470849573612213 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 628.313488215208054, 130.99311301112175, 34.354166924953461, 34.354166924953461 ]
+					"presentation_rect" : [ 588.697667723047289, 8.575022335705086, 34.354166924953461, 34.354166924953461 ]
 				}
 
 			}
@@ -301,23 +384,6 @@
 			}
 , 			{
 				"box" : 				{
-					"bgcolor" : [ 0.2, 0.2, 0.2, 0.0 ],
-					"blinkcolor" : [ 1.0, 1.0, 1.0, 1.0 ],
-					"id" : "obj-37",
-					"maxclass" : "button",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "bang" ],
-					"outlinecolor" : [ 0.349019607843137, 0.349019607843137, 0.349019607843137, 0.0 ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 1644.17043726017414, 390.073423615553338, 30.0, 30.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 562.313488215208054, 149.000450177192704, 10.0, 10.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-150",
 					"maxclass" : "newobj",
 					"numinlets" : 0,
@@ -369,25 +435,6 @@
 					}
 ,
 					"varname" : "live.button[1]"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"alpha" : 0.85,
-					"autofit" : 1,
-					"data" : [ 10062, "png", "IBkSG0fBZn....PCIgDQRA..APL..D.wHX....voeo0G....DLmPIQEBHf.B7g.YHB..f.PRDEDU3wY6cuGcbddPmG+2yyLizLxRxZFcINwtwVxxNNMtotQBGG1.M4rvIPWfSHrQc6gBzzSKmcAVfxVNc6E3vBzsr.kRgc6BkdHrkBo04TJsKzhaYqRKoYksG43jpDm5Xqw1M2klKRV2G897r+Qr65byW0LOykue9mFKqH8Kxt9qeFMy6qQ0vNzgNTuRRwiGe0UVYE2vCO7LgdS..nwjIzC3kKa1ruAIkHVrXOuy47qrxJQ80WeuciwjVRKKIu266qXwh6y68+rVqcj.OY.fKYYxjQ82e+0b+YvMyB9uXL1Xi04d1ydlMa1rq24bcGKVr1yjIyi3btiXLldJVrXugdi..UBDEqsDregHa1rIRlLYqSM0Tq1Vas0Uu816utj9YH.BflIDEqcT0+EgrYyl3zm9zwRkJUOaXCanunnnethEKtGu22u0ZIFBflNDEqMT09EfG9ge3thhhhGOd7E6ryNuKI8Q4zf..uHhhgWE+K96e+6eCFi40EOd746pqt5sb4xcO2by84qzedA.p2PTLrpXege7wGevnnnjVqcKYxj4MIotJTnvFMFyasR84D.ndGQwvYM+K5G5PGp2nnncYs1k8duKc5z+REKVbAIcCFiY2q0e9..ZzPTLLVS+B9AO3A2s0ZKr7xKW3ptpqZim9zm98Ttb4qwZs2wZ4mG.fFcDEq9Vy9h8ANvA9QSlL4X4ym+zaYKaYa4ym+uhSDB.b4inX00ZxWnOvANvatqt5ZrDIRjx68uw74ye+7Rn..3JGQwpG6U5GfrYyt04me98mHQByoO8oemEKV7AHFB.r1nPgBJWtb9PuilAWQ+sNxlM60t5pqVJSlLsNyLy7gkzcRLD.XsGmTrx6J5DhFiYi81auaXlYl4u1Zsuahg..UFbRwJuKq+1FO3C9fczRKsr4d6s22P974+9MFyuzZ8v..vqDmTrx4R9KpiO93Wijtlt5pqqqPgB2f0Ze+UfcA.fWCDEqLtj9B53iO9fdueCoSmdyEKVbCFi4OrRML..7Zin3ZuKouGhduOd2c28wJUpzhDCA.BG9dJt16hNHNwDSzxF1vFlpPgBaz68uuJ4n..vEFQw0VWTAwQGcz3RRyM2b+.RJKWAZ..pMPTbsyEUPr2d6MYpTo9gme94+BU5AA.fKMDEWabAChSLwDsjLYxcTnPg6sZLH..boin3UtKlSH1x7yO+mlWz8..01HJdk47FDylM6UmJUpehUWc0quZMH..b4in3kuWyWCKSLwDsmJUp8TpTouV0bP..3JGuNEuz8ZdBwYmc1HI8iWE2B..VivIEuz8p92dX+6e+ceUW0U0Y974mrZOH..r1gSJdw6U8DhwhEa1EWbw+wp8X..vZKNo3EuWQPbzQGMd5zo2wBKr.OQZ..Z.PT7hyqHH1au8lzXL+xgXL..nxfn3E1qHH1d6s2awhEeWgXL..nxgn342KIHt+8u+tcN2OXnFC..prHJ9Z6kDDMFyUmOe92VnFC..p7HJ9p6kDD6t6tuCq0dGgZL..n5fn3qz2KHlMa11jz2my4lJf6A..UIDEeo9dAQmy8CUrXw94h3M.PyChh++88Bhc2c2+BRZuAbK..H.HJ9hrRRiM1XcJoRdu+8E38..f.fn3YBhIRjXaQQQ6iGtT.flWM6QQqjjy410ryNawPOF..DVMyQQqjT5zo+lFi47dyBF..MGZVihVIoVZokEbN2VB7V..PMhlwnnURpb4xwjDW+RA.v2SyVTzJIYLl6TR8D3s..fZLMSQwyFD+37LLE..uZZVhhVoW7+XA..dszLDE4YVJ..tnznGEIHB.fKZMxQQBh..3RRiZTjfH..tj0HFEiG5ArVZngFxD5M.fJqwGe7Fp+P35YmMJ1e+82P7m8xIDA.vksFoSJRPD..WQZThhDDA.vUrFgnHAQ..rlndOJRPD..qYpmihDDA.vZp50nHAQ..rlqdLJRPD..UD0aQQBh..nhodJJRPD..UT0KQQBh..nhqdHJRPD..UE05QQBh..npoVNJRPD..UU0pQQBh..npqVLJRPD..AQsVTjfH..BlZonHAQ..DT0JQQBh..H3pEhhDDA.PMgPGEIHB.fZFgLJRPD..0TBUTjfH..p4DhnHAQ..TSpZGEIHB.fZVUynHAQ..TSqZEEIHB.fZdUinHAQ..TWnRGEIHB.f5FUxnHAQ..TWoREEIHB.f5NUhnHAQ..TWZsNJRPD..0sVKihDDA.Pcs0pnHAQ..T2asHJRPD..MDtRihDDA.PCiqjnHAQ..zP4xMJRPD..MbtbhhDDA.PCoK0nHAQ..zv5RIJRPD..MztXihDDA.PCuKlnHAQ..zT3BEEIHB.flFmunHAQ..zT40JJRPD..Mcd0hhDDA.PSoWdTjfH..ZZctQQBh..noVgBEjDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IQPD..PRDDA..jDAQ...IIEOzCXsz3iOtOza...0m3Dh...hfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjHHB..HIBh...RhfH..fjjhG5A.zHy4bSIooOOuK8bN+yGxZs2gy4lxZs8VgmF.dYHHBrFy68GPRpyN6TwiG+qIouswXNkjxYsVq266pb4xmtkVZIx4bc5btMYs1mZ0UWc0DIRL+pqt5FiGOta0UWsKq01gwXdAu22my4JGEE02LyLyQiEK1N8d+2mjtFiw7VB5+ACzfffHvZfzoS+Qjz2v4bSGKVr9dtm64NzryNaeVqMZ0UW8zwhEq8gFZnmy68lCe3CuPrXwLaaaaqnjdFI8DurObO6E5yWtb4NTrXw9qkjN9wOd4N5niA8d+erwXR68994Dl.W5HHBbQx4bSYLluly49L8zSO2pj1qy4hFbvAm303ekm+k+FLFiWRktR2R+82+Rur2zSjKWt+cdu+MJIewhEay4b2k0Ze2Woet.ZVPPD3Bv4bSkNc52WrXwFMJJp8RkJ8cFXfA9J6cu6M1.CLvFC89Nq96u+RR5ab1e7wO9wiYs1C4bt6rPgB2DmZD37yHIM93i6C8P.p0jJUpoRlLYNiw7wle94+614N24JgdSWNN7gObeqe8q+068923hKt3xKt3hK5892l0ZuiPuMfZECMzPFNgHv4v4b+K8zSO+kKszRe9q+5u9SKIM5niFuiN5vD5sc4ZW6ZWufjdAI8.RRG6XGqOq0p74yyoFANGbBQ.8hOrnYxj497d+WbvAG7qG58ToM1Xi0Yu816Mas1dld5o+4jDwQzTiSHhlZdu+ajJUp+t1ZqsCFEEYmc1Ye52za5MchPuqpg8rm8Lqj9ZYylMQlLY9VVq0tvBK7CrvBK7QILhlUDDQSGmyMUas01eexjI+Racqa8ePRJa1r8jLYxYC81p1Fd3gKKoScle3Idxm7IefUVYk6ZgEV3CRXDMa3gLEMU7d+8lISlGQRGYfAF3qF58TK5nG8ns1Zqs18zSOcaNm6+NO4aPy.dHSQSiy78H7cJoSMv.C7ngdO0x19129xdu+Yu1q8ZMiO93+3R5djzedn2EPkFAQzPy68e3ToREKQhDepAFXfIexm7IaIzapdvYt.B3kjy68+EO1i8X+sKszR+Tdu+OfGJUznhfHZX4btijNc5uxfCN325bdyKGrAUm5Lww4N9wO9+zTSM0Wv68uEq09dLFytC81.VKws+IzPJQhD6Kc5zenWVLDWAN0oNU9q5ptJ6pqt5WLJJ5sbl6jG.MLHHhFFdu+47d+6o6t6dnN5ni+r74y+Mtv+agKV29se6qdvCdvS2We80wl1zlVzXL2Un2DvZIdVlhFBNmapXwhcCoRkZoq+5u9S+fO3C1wsdq25oC8tZjcjibjNVXgE1tjxF5s.bkZngFxvIDQcOmy8GlJUpAZqs17whEaEIIhgUd6XG6Xtd5omIau812Tn2BvZABhnt1YtST7I6niN5qToRcrssssxgdSMKLFieyadyEKWt7LczQGuNu2+AB8l.tRvyxTT2x4b6sqt55CN3fCdrPuklY6bm6bNIM2wN1w9pkJUZaFi4dB8l.tbvIDQcIu2eu80Weu+ssssQLrFwfCN33Yxj4y5btORn2BvkCBhnthy4lJJJ5e65V259U17l27jgdO3kZfAF3q1SO879C8N.tbPPD0MbN29LFyOxF23F+Jm8dUHp8ze+8axjISnmAvkLBhntf26+4ihh9OrgMrgStwMtwEB8dv4GQQTOhfHp44892gwXFc8qe8SuoMso7gdO3hCQQTugfHpo489Ofy4Fq2d6cQdXRq+PTD0SHHhZVdu+C6btGp6t69Zu1q8Ze5PuGb4o+962jNcZttmhZdDDQMIu2+47degt6t66ZqacqesPuGbkYfAFnut5pqiD5c.b9PPD0j7deWs1ZqsJoTgdKXMyecpT7Kmn1EWoZPMIiw7cZqs19NEKV7KD5sf0FEKV7uJc5zKsvBKbyFi4sF58.7xwIDQMGmy8g5pqt9R4ym+aL7vC+DgdOXswvCO7yFEE8IxjIyWIzaA3UCAQTSw4bS0SO870GbvA++by27MyKwhFLae6ae4rYy9Y5pqt1an2BvKGAQTSos1Z62TRaNz6.UN28ce2t1Zqs2owXt2PuEfyEAQTyv4bejjIS9TEJT3aF5sfJGiw32vF1vhc1YmeDu2efPuGfyhfHpI389CjISlG6Tm5T+yCMzPOSn2CprLFi669c+t4RmN8GhnHpUvyxTDbdu+.oRk5CVpToG+1tsaakPuGTcb629supj9ZG4HG4Fme94kwX1cn2DZtwIDQv4bt+7Vas0mqiN5fmDMMghEK1mVR4B8N.HHhfx68u2d5omnAGbvI19129xFiwE5MgpqssssMc5zo+i3gNEgFAQDZkkzRSLwDsG5gfvXrwFqunnnmPbJQDX78PDAi26+E6t6te196uetZzzD6Vtka44kjlbxI+XEKVjqfMHX3DhHH7d+ARlLY2R5+an2BpMDOd7mrkVZ4KG5cflWDDQP389SDOd7+m82e+OWn2BpML1XiMy5V259sC8NPyKBhHHZqs112N1wNlNz6.0NFYjQhFXfA1epTo1Wn2BZNQPDUcdu+SkLYxOen2ApMEOd72EOiSQHPPDUcwiG+CFEE0Rn2ApMkHQhokzuQn2AZ9PPDUUdu+cjISlSu8su8oB8VPsosrksrbmc14C6bNdnSQUEAQT0389+jxkK+OUtbYNcHdMc+2+8aiEK1JFi42OzaAMW30gHpptlq4Zhs4Mu4YB8NPsqQFYjHIMyINwIVJedtZ9gpGNgHpZ7d+ay4bcF5cf5CVq8jgdCn4BAQT0rt0stud+82+SD5cf5CiM1XOWpToNRn2AZdPPDUENmapToR8wGczQ4goGWTFYjQhRlL4ebn2AZdPPDUKi58dWpTo1PnGBpeDEE8sB8FPyC9aqiphLYx76Nv.C7sC8NP8kYlYlilNc5iTpToqOzaAM93Dhnhy68GvZsaMa1rIB8VP8kgGd3xR5OMz6.MGHHhJNu2WzXLmxXLaNzaA0eLFyCE5MflC7PlhJJmyMkwX97aYKa4PgdKn9zBKrvQ7d+8ZLl6IzaAM13DhnhxXL4RmNM2IzwksctyctR5zoevPuCz3ifHpnLFy+b4xkObn2Ap6wSHKTwQPDUTNmKehDIZKa1r+aB8VP8qxkKyix.p3HHhJJiwr37yO+o8dOWx1vkscricLsy43pVCpn3IUCpn5t6t+B82e+Ekz8E5sf5aYxj4OsToRehPuCz3hSHhJly72nOcn2AZL3btuoy439nIpXHHhJoS4bt4C8HPigToR8bgdCnwFAQTIMijV9QezGkSIhqXkKWl+xUnhhfHpXLFy8UrXwB23MdiEC8VP8uCdvCV1XLewPuCz3hfHpXxjIyCKo1B8NPigQFYjnLYxLAeeDQkBAQTQ3bt8489kFd3gmIzaAMNLFy9jzzgdGnwDAQTQXLlMGKVrtC8NPikxkKmOza.MtHHhJlUVYkYC8FPikjISFIodB8NPiIBhnhv68mr0Va0E5cfFNoB8.PiKBhnhvZsiGEE0Qn2AZrr7xKmxXLbcMEUDDDQEgy4VLJJhKMfXMi26MVq058ddY7fJBBhnhvXL+3whEaigdGnghQRxXLemPODzXhfHpXhEK1wB8FPCEujVuj1SnGBZLQPDUDdu+QbNWqgdGnghIVrXyaLlcG5gfFSDDQEgwXdAiwTJz6.MNLFiy688E5cfFWDDQkx7RJYnGA.vEKBhnhv68E4kcAVq489EC8FPiKBhnhvXLaJVrXsG5cfFG6cu6MVTTDW51PECAQToLny430gHVyLv.CXiEKVYtaWfJEBhnhw4bIB8FPiiVZok18demgdGnwEAQTwXs1mJza.MNJWt7FrVKOL7nhgfHpXLFC+9KrlwXLFI0Un2AZbwefEpjttPO.z3v4buPn2.ZrQPD.0EJWtbLmyEi61EnRgfHpX3pJBVK0RKsDSRKwc6BToPPDULdum61EXMi26m2ZsCJoaJzaAMlHHhJlBEJLS1rY6Iz6.MFhhhhmOe9q2Zs8F5sfFSDDQkR+FiIWWc00VxlM65C8XP8ud6s21kzzgdGnwEAQTwXLlgsV6oGZngNcn2Bp+489qxXLOVn2AZbQPDULduOkwXV1XLtPuEzPX8du+MG5QfFWDDQkzTFi4ZB8HP8uwFarNMFyazXL+xgdKnwEW7kQEg2662XLuwomdZkMa1GSRqe3gG9TgdWn9ThDI1RgBEt6W7hUCPkAmPDUDVqsWiw7VkzQRmN81MFCulDwkk8u+8uqLYxrQu2y8WSTQQPDUTdu+sYs1u6PCMT1PuETe5jm7je6nnnUjDuDdPEEAQToc6QQQ8jMaVtUPgKKiLxHQVqsGd8GhJMBhnhxZs8VrXw0GOd7zgdKn9Uwhb0ZCUdDDQEmwXtqjISxK8BbIa+6e+cepScpM589eqPuEz3ifHpFt0VasUdFMiKYoSmdtkVZIiwX1Qn2BZ7QPDUbduueI8ijMa1D6cu6MVn2Cper8su8kiGO96Iz6.MGHHhJNq01a974+ASmN8N1xV1xlC8dP8iicriss74y+yD5cflCDDQ0xsDKVrncu6cOYnGBpeXsV9ynPUC+lMTUXLlcr3hK1Un2Apur3hKd6gdCn4AAQT0L2byciG+3G+VevG7A4JNBNuNzgNTu4xk6e+hKt320XL4B8dPyABhnZ5NcNWwa8VuUtcPgyqa5ltoobN2S4bt4jzXgdOn4.AQT0Xs16nPgB5nG8nsNwDSzRn2CpcM4jS9lymO+osV62O2gKP0Bu1vPUk0Z+ns0Va+zEJTnrjVIz6A0VN7gO75jz5rV6orV6uJwPTMwIDQUk0Zuim4YdlA17l2bTn2BpMst0stdKTnvbdu+5B8VPyEBhnpKVrX2YTTTxPuCT6YW6ZWy+TO0S8cbN20Ys16Hz6AMWHHhP3CLyLy7SG5QfZSczQGsHoevPuCz7gfHBhkVZoO9jSN4O2DSLQKdumeeHj26s4xk6GIJJpeu2+qF58flO7GDgfYwEW7WHVrXsd+2+8aB8VP3kKWt6tXwhWWrXw9M3deHBAdVlhfYgEVn+d5om0MxHivqKwlbG5PGpWIchnnn+ThgHT3DhHXNyE86+0SN4j7rIrIW5zoiUnPgqmXHBIBhHn7d+Gy4bbobqImy45TRuuPuCzbifHBJq01awhE+cO9wO9MF5sfvXhIlnkhEKtEtI.iPifHpEbSKszR2VnGABiUWc0tLFy9B8N.HHhfyZs8tvBK7glbxI+UB8VP0yniNZxSdxSNP4xkmHzaAPhfHpQXs1dKTnvsjKWtqOzaAUdYylssMsoMs0olZp6imHMnVAAQTyvXLu04late8b4xwME1FXiN5nISlLocokVZViwr6PuGfyhfHporxJqbOQQQoC8NPkysca21JszRKcszRKw22PTSgfHp4TpTo2Wtb4tctmI1X5Dm3DcN6ry94sVKO73nlBAQTywXL6d5om9y0ZqsdsO5i9nbZwFHm3Dm3pymO+93gJE0hHHhZRVqs2xkK+NV25VWKiM1XcF58fqLOzC8PoN9wO9tWXgEtWhgnVEAQTyZ94m+m2XL+G2yd1yrgdK3JysbK2xRR52dwEWj6wgnlEAQTy5LWEa9f4xkyG5sfqLm5Tmp+BEJbSgdG.mODDQMuBEJHhh0uNxQNRGSM0TeZd8FhZcDDQcAhh0mN5QOZmyO+7GvXL+qB8V.tPHHh5FDEqu7TO0S08ryN694h1MpWPPD0UHJVe3nG8na8Ye1m8HDCQ8DBhntCQwZaG+3G+plc1Y+a46YHp2PPD0kJTnflbxImKz6.uT4xkaCkJU5430ZHpGQPD0sJVr35lbxIegPuC7hNwINQ+EJT3YC8N.tbQPD00JVrXuOwS7D6+Iexmbv8t28FKz6oYzoN0o1Xtb410TSM09C8V.tRPPD08le9428BKrv6bW6ZWWcn2Rylb4x8SVpTouuBEJ7v78LD06HHhFBqt5pu+Ymc1ehie7iesgdKMxFczQSt+8u+sKIM4jS9WlOe9+ykKW9KD5cArVHdnG.vZEiw7+nPgBu4m7Iex26pqtZo4me91Gd3g46o0ZnToR0Ru816Ue7ie72awhEuGiwD5IArlgSHhFJVqcjYmc1Ss3hK91SmNchwGe7MG5M0Hou956GcwEW72uPgB2Yn2BvZMNgHZH489OQgBElJSlL+TR5jgdOMBlbxIeghEK1qjj0xeWZz3geWMZXYs1dKUpz27we7G+uLWtbaIz6odR1rYW+C+vObWRuXH7we7G2e1XHPiJNgHZ3s3hKdOKrvB4N1wN1mURyLyLyDWRZngF5YB7zpY0YmctT73w2xjSN49HDhlEbBQzTvXL+1EKV7aMyLyb6qe8qecYxjw8POzCkJz6pVzIO4IulVZokaHe97e7hEKxUbFzzffHZZblWmbe1RkJ89WXgE9g2vF1v1C8lpEjMa1DiN5nIkjN1wNVeyN6r+t4ymebq0xc2dzTwHIM93iyEJYzzw682aas01+qVas0VLFyJ82e+eyG4Qdj110t107gdaUZdu27HOxiz1pqt5JoSm9pMFSpEWbwtVbwEGwXL+Zgde.UaCMzPF9dHhlNdu+y489tLFyyL+7y+9me94OkjNj26Kt90u9a5nG8n22S+zOsQRpiN5vN7vCuPfm7Zt6+9ue6a3M7Frc0UWaZ5om90KoeSiwradcEhlYbBQzzw4bSYLlbm4Gd1+2m268mzXLs1UWc8bFiY1omd5ukwXFv68St6cu6WvXLtPs40RO0S8Tcu7xKeSEKV7Gy68uMou2CmLPSKNgHZJcl+v+yF.18YCjFiYORJWoRkdiR5w5niNZukVZwZLlzOxi7HGTR0U2YM7duQ5EOM3q+0+5SkJUpaY4kW9c87O+yOhjjwXDmHD3+ONgHvKy4bBxbm4G+U6omdx689DRJ4TSM0WZO6YOy58d6XiMVu2xsbKOeXW7Kx681y8Tr4xkaCqt5pIhEK1.SO8zWswXdG7DkA3U2PCMjgfHv4wKON5896KJJ5Q6omdh6btESjHQ796u+SbleN6C7.OfsiN5n2PbMTMWtbcs5pq1g268yLyL+XR5NkzojzcxCIJv4GAQfKAmyCs5t8d+Ajzi489CXLlnt6t6C58906bti389N21111wFczQS1QGcXiGOtwZssHIkOe9E6t6tSM2byYjzhKu7xkmZpo7iLxHQWr6v68lImbx9rVapxkKuZrXwr4ymOk0ZWmwX1ny4d6VqcjJ0WG.ZDQPDXMzYhjm8e9y0d6s+XISl7p8detEVXgwuga3FVPRm8+ul8wdrGKljTKszhYkUVw2YmcFKJJxas1TRRKu7xQQQQ9N5niVJWtbT4xkcFi40M6rydcdu+Gy4bOXrXw1p26+gNyGyNMFyNpp+GMPCBBh.UIdu+.duunwX9Ndu+jR5UMbYLlS689NLFSmRp+y7l+Zdu+trV60W0FLPSFdVlBTkbNuF+tiKzyryWkedd8ABTEvktM...QPD..PRDDA.PSNu2+4jNSPLc5z+CgcN...gQlLYdnCbfCLf8.G3.uYIs2POH..ffMtKM...fA4mDQAQUv4beciwzSbu2Og26WLzCB..nZy4bSkHQhm1XLWksb4xqXLlYB8n...BfC4bNujJaSlL4RVqs6PuH..f.XFmy0YTTTr3RRSM0TWu0xS3T..zbwXLGtXwhSu6cu6krCO7vksV6.YxjIz6B..npJc5zu4gGd3ELFi6rGK7jdu+WInqB..nJyXLe4rYylP5LuNDGZng9jNm6qD1YA..T83btorV6+aIc0RmyUpl4latYbN2TAaY...UW+dSO8zO0vCO7ojj9d2sKZqs1lId73pXwhgaZ...UIoRk5Styctyxm8G+8Ng3gO7gW068+8bJQ..zny68+loSm1ctusWxMYswGe7M6bt6xZs+QU2oA..T8jHQhqekUV43CO7vuxSHJIEEEko2d6c+du+.U+4A..TczQGcriyMFJ8xBhs0VaOo268U2YA..T83btohEK19d4u8WRPbm6bmyUrXwY5ryNqdKC..nJJc5zukq8Zu1WwM0hWw0qsxkK2R73w+T7jqA..MhRjHQgWs29qHHdy27Me3hEKNaKszxmpxOK..fpmt5pq8M4jS9LuZ+bupWQuihh9ts2d6eVmy8JdLVA..pGclqLMu+a+1u8kd094eUCh6d269gJVrXod5om+du2+43gOE..065t6t+vG7fG7Qes94Oe2ymlIQhD2uj9Lq8yB..n5w68e.myceiLxHQuVuOmuf3Bm3DmXkLYxbWFiIWEXe...Ubdu+WLc5z+MCN3fuv46860LHN7vCWNYxjsmOe9ubhDIHHB.f5Ndu+SkLYxO8V25VO0E5887cBQM7vC+rduekN5niE3pWC..pmblW.9+5szRKkuvu2Wffnjzt28t+R4ym+SmNc5+SDEA.P8Biw7Nihhle1Ym8ptXd+iegeWjbN2yLyLy3SmN8iTpTocekMQ..fJKu2+ARlL4CblauSWvGtToKhSHJIcy27MeTmycUIRj3+h0ZemWQqD..nB5LuTA+DO9i+3uhKOamOWTAQIIq09cJTnPonnnOi26u2K4EB..Tg4bt8kJUpgSmNcxst0sdQ8PkdVWzAwa5ltooVc0UeWRps0u90+ekqhM..nVh26Of26e2qacq6ElZpoVb0UWc4Kk+8MW32kWpCdvCdayM2biswMtwNlYlYdLq016k5GC..f0ZQQQ2l0ZengFZnUMFyk7sxvK5SHdVwhE6wZs0VaaaaaaS2UWcMj26+FWpeL...VK4btOxF23FO3kaLT5xHHdS2zMMUKszxR2+8e+1AGbvmpyN67syCeJ..BEmy8azUWc82rwMtwEtbigRWFOjomKu2akjNwINw0M8zS+drV669J4iG..vkh3wi+5Zu81O8V25Vm4J8i0k7IDOWFiwII+AO3AOZe802ukwX9KtRGD..vEh26+S5pqt5pyN6b5hEKtvZwGyqnSHdt16d2arcsqckwXL+2JUpzjVq82Ys5iM..v43c1UWc8k25V25yO5nil7059a3kp0rf3YczidzViEK1OcgBEZQR2t0ZGYs9yA..Z9blavuuuLYx7U5u+9et05O9q4AQoWLJ5btNVYkU10xKu760Zs2Qk3yC..Z74btoLFStt6t660ZseoMu4M+LUhOOWQeODesr8su8kutq65J7DOwSLZO8zyum26+bm4RoC..vEMu2e.iw7wRmN8cuksrkOY974untyUb43h5h68kiy7DtQ6cu68eY3gGtnwXdf74yeOFigKN3..3Bx68Gnqt55WaokV5fm5Tmxs0stUmjpXGtph7Pl9pYzQGM9q608510JqrxuvBKrvMPXD..ubm4gG8OtyN67S2QGcTbCaXCKN93iGS5Euw0WI+bW0Bhm0DSLQKqacqKi26e6EKV7OnZ+4G..0dbN2Q7d+OYO8zyRVqckRkJM6t10tluZtgpdP7bM4jStYu2+6WnPg2f0Zu9PtE..T84bt80Zqsp1ZqsemDIRjalYlYwa7FuwhgXKUruGhWLFXfANo26eaKt3hwiGOdmIRj3msXwh6zXL2SH2E..pbbN29rV63c1Ym+YVq8pmc1YegYmc10u5pqtsUWc0ucn1UPOg3K2d26dis4Mu4d6s2d+hdu+OIJJ5WdlYloeIItqZ..T6y68QRpj26cm4MMsj5QRJSlL+pdu+fwhEK9AO3AO5.CLf8zm9zwVqdg0ekplJHdVSLwDs+3O9iu3l1zlVemc14Js2d6Wqy4h7d+5sV65bN2apToRezPuS..7R4897Yxj4PR5ez4beqXwhMujJ9zO8SO+y7LOyBiLxHQgdiuVpIChm0niNZxN5niHIoImbRmjzce22s6J4pYN..pbN7gO75Vc0Ui2YmctzryNaxkVZIW6s2tat4ly1We8sx1291ujto8VM8+CDLSfJpPTqCo.....jTQNQjqBAlf" ],
-					"embed" : 1,
-					"forceaspect" : 1,
-					"id" : "obj-34",
-					"maxclass" : "fpic",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "jit_matrix" ],
-					"patching_rect" : [ 1631.500005841255188, 362.661669595241619, 80.0, 80.0 ],
-					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/download_light.png",
-					"presentation" : 1,
-					"presentation_rect" : [ 563.513917953418513, 149.000450177192704, 11.875559821724664, 11.875559821724664 ]
 				}
 
 			}
@@ -667,35 +714,6 @@
 			}
 , 			{
 				"box" : 				{
-					"autopopulate" : 1,
-					"bgcolor" : [ 0.352941176470588, 0.352941176470588, 0.352941176470588, 1.0 ],
-					"bgfillcolor_angle" : 270.0,
-					"bgfillcolor_autogradient" : 0.0,
-					"bgfillcolor_color" : [ 0.352941176470588, 0.352941176470588, 0.352941176470588, 1.0 ],
-					"bgfillcolor_color1" : [ 0.301961, 0.301961, 0.301961, 1.0 ],
-					"bgfillcolor_color2" : [ 0.2, 0.2, 0.2, 1.0 ],
-					"bgfillcolor_proportion" : 0.5,
-					"bgfillcolor_type" : "color",
-					"depth" : 1,
-					"fontname" : "Ableton Sans",
-					"fontsize" : 9.0,
-					"id" : "obj-192",
-					"items" : [ "factory", ",", "user", ",", "user/origin.mid" ],
-					"maxclass" : "umenu",
-					"numinlets" : 1,
-					"numoutlets" : 3,
-					"outlettype" : [ "int", "", "" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 1816.5, 371.829999999999927, 133.5, 19.0 ],
-					"prefix" : "~/Music/software/regroove/regroove-m4l/.data/",
-					"presentation" : 1,
-					"presentation_rect" : [ 557.693627953529358, 123.300412535667419, 61.260554313659782, 19.0 ],
-					"textcolor" : [ 0.870588235294118, 0.870588235294118, 0.870588235294118, 1.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-174",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -859,7 +877,7 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 656.330000000000041, 599.330000000000041, 58.0, 21.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 144.02780382335186, 9.307303100824356, 53.361344337463379, 19.0 ],
+					"presentation_rect" : [ 144.02780382335186, 7.307303100824356, 53.361344337463379, 19.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "val1", "val2" ],
@@ -882,7 +900,7 @@
 					"activebgcolor" : [ 0.647058823529412, 0.647058823529412, 0.647058823529412, 0.0 ],
 					"activetextcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ],
 					"bgcolor" : [ 0.647058823529412, 0.647058823529412, 0.647058823529412, 0.0 ],
-					"bordercolor" : [ 0.352941176470588, 0.352941176470588, 0.352941176470588, 1.0 ],
+					"bordercolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ],
 					"focusbordercolor" : [ 0.0, 0.0, 0.0, 1.0 ],
 					"fontname" : "Ableton Sans",
 					"fontsize" : 9.0,
@@ -895,7 +913,7 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 656.330000000000041, 710.330000000000041, 46.0, 19.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 583.610297875404399, 146.750450177192704, 42.0, 16.5 ],
+					"presentation_rect" : [ 607.994917588233989, 149.538911862373368, 39.692307472229004, 16.5 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "val1", "val2" ],
@@ -3770,20 +3788,6 @@
 			}
 , 			{
 				"box" : 				{
-					"border" : 2.0,
-					"id" : "obj-392",
-					"linecolor" : [ 0.34902, 0.34902, 0.34902, 1.0 ],
-					"maxclass" : "live.line",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 405.125000000000227, 3060.0, 5.0, 100.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 604.902980983257294, 112.287983609437958, 12.604162395000458, 5.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"fontface" : 1,
 					"fontname" : "Ableton Sans Medium",
 					"fontsize" : 30.0,
@@ -5160,9 +5164,9 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 48.125, 3173.0, 128.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 617.903767690062523, 47.945864230394363, 38.645160973072052, 17.0 ],
+					"presentation_rect" : [ 558.826839551329613, 122.099715739488602, 38.6836217045784, 17.0 ],
 					"text" : "interval",
-					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
+					"textcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ]
 				}
 
 			}
@@ -5177,7 +5181,7 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 644.57084995508194, 435.833333730697632, 48.799999237060547, 15.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 618.45069819688797, 63.055725528001801, 38.208333313465118, 15.0 ],
+					"presentation_rect" : [ 608.623772919178009, 122.671110583543793, 38.208333313465118, 15.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "0.25", "0.5", "1", "2", "4" ],
@@ -5205,7 +5209,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 41.625, 3119.333340764045715, 138.0, 18.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 147.708475992083549, 63.76495032191275, 44.0, 18.0 ],
+					"presentation_rect" : [ 149.708475992083549, 62.76495032191275, 44.0, 18.0 ],
 					"text" : "density",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5222,7 +5226,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 35.125, 3091.541665732860565, 129.0, 18.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 147.708475992083549, 115.44920461058615, 46.0, 18.0 ],
+					"presentation_rect" : [ 147.708475992083549, 116.44920461058615, 46.0, 18.0 ],
 					"text" : "velocity",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5602,7 +5606,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 78.720836937427521, 729.579999999999927, 36.5, 36.5 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 153.92706398665905, 82.135461091995239, 32.562824010848999, 32.562824010848999 ],
+					"presentation_rect" : [ 153.92706398665905, 79.135461091995239, 32.562824010848999, 32.562824010848999 ],
 					"size" : 100.0,
 					"varname" : "density"
 				}
@@ -5639,7 +5643,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 191.220836937427521, 705.703337056636883, 36.5, 36.5 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 153.92706398665905, 29.246382147073746, 31.562824010848999, 31.562824010848999 ],
+					"presentation_rect" : [ 154.92706398665905, 27.246382147073746, 31.562824010848999, 31.562824010848999 ],
 					"size" : 100.0,
 					"varname" : "dynamics"
 				}
@@ -5747,79 +5751,12 @@
 			}
 , 			{
 				"box" : 				{
-					"activebgcolor" : [ 0.203921568627451, 0.203921568627451, 0.203921568627451, 1.0 ],
-					"activebgoncolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
-					"bgcolor" : [ 0.203921568627451, 0.203921568627451, 0.203921568627451, 1.0 ],
-					"id" : "obj-136",
-					"maxclass" : "live.button",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"parameter_enable" : 1,
-					"patching_rect" : [ 659.470849573612213, 340.083333730697632, 28.0, 26.75 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 566.835010439157486, 70.395771235227585, 34.347110375761986, 33.930108070373535 ],
-					"saved_attribute_attributes" : 					{
-						"valueof" : 						{
-							"parameter_enum" : [ "off", "on" ],
-							"parameter_longname" : "live.button",
-							"parameter_mmax" : 1,
-							"parameter_shortname" : "live.button",
-							"parameter_type" : 2
-						}
-
-					}
-,
-					"varname" : "sync_snap"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-130",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 683.220849573612213, 271.833333730697632, 110.0, 22.0 ],
 					"text" : "s --set_sync_mode"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"appearance" : 1,
-					"focusbordercolor" : [ 0.0, 0.0, 0.0, 0.92156862745098 ],
-					"fontname" : "Ableton Sans",
-					"fontsize" : 9.0,
-					"id" : "obj-129",
-					"inactivelcdcolor" : [ 0.847058823529412, 0.6, 0.164705882352941, 1.0 ],
-					"maxclass" : "live.tab",
-					"num_lines_patching" : 3,
-					"num_lines_presentation" : 2,
-					"numinlets" : 1,
-					"numoutlets" : 3,
-					"outlettype" : [ "", "", "float" ],
-					"parameter_enable" : 1,
-					"patching_rect" : [ 650.720849573612213, 149.333333730697632, 84.0, 98.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 559.456068009138107, 27.68009290099144, 102.054437965154648, 31.376602962613106 ],
-					"saved_attribute_attributes" : 					{
-						"valueof" : 						{
-							"parameter_enum" : [ "snap", "wait", "toggle" ],
-							"parameter_initial" : [ "wait" ],
-							"parameter_initial_enable" : 1,
-							"parameter_longname" : "live.tab",
-							"parameter_mmax" : 2,
-							"parameter_shortname" : "live.tab",
-							"parameter_type" : 2,
-							"parameter_unitstyle" : 9
-						}
-
-					}
-,
-					"spacing_x" : 3.0,
-					"spacing_y" : 3.0,
-					"varname" : "sync_mode"
 				}
 
 			}
@@ -7566,7 +7503,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1933.999994158744812, 838.708333730697632, 58.0, 19.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 622.298499094247859, 95.040921403169648, 29.0, 19.0 ],
+					"presentation_rect" : [ 558.836955057382625, 148.425542069673554, 29.0, 19.0 ],
 					"textcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ],
 					"tricolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ],
 					"varname" : "loop_length"
@@ -7691,7 +7628,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 45.333333849906921, 2902.000009179115295, 128.0, 128.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 532.23611219406132, 2.437335520982742, 141.288612306118011, 166.648160517215729 ],
+					"presentation_rect" : [ 525.620729045867961, 3.206566363573074, 129.692456185817719, 166.648160517215729 ],
 					"proportion" : 0.5,
 					"rounded" : 4
 				}
@@ -7882,13 +7819,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-130", 0 ],
-					"source" : [ "obj-129", 1 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-62", 4 ],
 					"source" : [ "obj-13", 0 ]
 				}
@@ -7930,6 +7860,15 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-137", 0 ],
+					"order" : 0,
+					"source" : [ "obj-136", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-241", 0 ],
+					"order" : 1,
 					"source" : [ "obj-136", 0 ]
 				}
 
@@ -8257,13 +8196,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-198", 0 ],
-					"source" : [ "obj-192", 1 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-164", 1 ],
 					"midpoints" : [ 1963.333334773778915, 1863.0, 1844.833346456289291, 1863.0 ],
 					"order" : 0,
@@ -8511,6 +8443,13 @@
 				"patchline" : 				{
 					"destination" : [ "obj-62", 1 ],
 					"source" : [ "obj-23", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-130", 0 ],
+					"source" : [ "obj-230", 1 ]
 				}
 
 			}
@@ -9233,13 +9172,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-170", 0 ],
-					"source" : [ "obj-37", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-357", 0 ],
 					"midpoints" : [ 1641.000005841255188, 1743.0, 1387.0, 1743.0 ],
 					"source" : [ "obj-371", 0 ]
@@ -9818,7 +9750,6 @@
 			"obj-10" : [ "live.toggle[9]", "live.toggle", 0 ],
 			"obj-104" : [ "live.text[2]", "live.text", 0 ],
 			"obj-108" : [ "live.text[3]", "live.text", 0 ],
-			"obj-129" : [ "live.tab", "live.tab", 0 ],
 			"obj-13" : [ "live.toggle[10]", "live.toggle", 0 ],
 			"obj-136" : [ "live.button", "live.button", 0 ],
 			"obj-18" : [ "live.toggle[11]", "live.toggle", 0 ],
@@ -9883,13 +9814,6 @@
 				"implicit" : 1
 			}
 , 			{
-				"name" : "download_light.png",
-				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
-				"patcherrelativepath" : "../assets/images",
-				"type" : "PNG",
-				"implicit" : 1
-			}
-, 			{
 				"name" : "play_mid_dark.png",
 				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
 				"patcherrelativepath" : "../assets/images",
@@ -9898,6 +9822,13 @@
 			}
 , 			{
 				"name" : "logo_dark.png",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "shuffle.png",
 				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
 				"patcherrelativepath" : "../assets/images",
 				"type" : "PNG",
@@ -9913,13 +9844,13 @@
 				"boxes" : [ "obj-47", "obj-11" ]
 			}
 , 			{
-				"boxes" : [ "obj-34", "obj-37" ]
-			}
-, 			{
 				"boxes" : [ "obj-237", "obj-302", "obj-91" ]
 			}
 , 			{
 				"boxes" : [ "obj-306", "obj-1" ]
+			}
+, 			{
+				"boxes" : [ "obj-136", "obj-267" ]
 			}
  ],
 		"bgcolor" : [ 0.258823529411765, 0.258823529411765, 0.258823529411765, 1.0 ],

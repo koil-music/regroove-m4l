@@ -54,9 +54,14 @@ const data = Float32Array.from(
   { length: dims[0] * dims[1] * dims[2] },
   () => 0
 );
+
 let onsetsPattern = new Pattern(data, dims);
 let velocitiesPattern = new Pattern(data, dims);
 let offsetsPattern = new Pattern(data, dims);
+
+let tempOnsetsPattern = new Pattern(data, dims);
+let tempVelocitiesPattern = new Pattern(data, dims);
+let tempOffsetsPattern = new Pattern(data, dims);
 
 const onsetsHistory = new PatternHistory(20);
 const velocitiesHistory = new PatternHistory(20);
@@ -157,6 +162,33 @@ async function updatePattern() {
   }
 }
 
+let syncToggle = false;
+
+async function tempPatternOn() {
+  if (generatorReady) {
+    const randomIndex = Math.round(Math.random() * generator.axisLength);
+    try {
+      const x = parseInt(densityIndex);
+      const y = parseInt(randomIndex);
+
+      tempOnsetsPattern = onsetsPattern;
+      tempVelocitiesPattern = velocitiesPattern;
+      onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
+      velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
+    } catch (e) {
+      debug(e);
+    }
+  } else {
+    debug(`Generator is not ready`);
+  }
+}
+
+async function tempPatternOff() {
+  if (syncToggle) {
+    onsetsPattern = tempOnsetsPattern;
+    velocitiesPattern = tempVelocitiesPattern;
+  }
+}
 /**
  * Sync with Max MatrixCtrl
  */
@@ -196,32 +228,50 @@ function createMatrixCtrlData() {
 }
 
 async function sync() {
-  debug("syncing...");
-  isSyncing = true;
-
-  await updatePattern();
   const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
   await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
   await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
   await Max.outlet("penultimateSync", isSyncing);
-  isSyncing = false;
 }
 
 async function waitSync(step) {
   if (syncOn) {
     if (!isSyncing && syncMode === "wait") {
       if (step % (syncRate * LOOP_DURATION) === 0) {
+        isSyncing = true;
+        await updatePattern();
         await sync();
+        isSyncing = false;
       }
     }
   }
 }
 
+let oddSnap = true;
 async function snapSync() {
   if (syncOn) {
     if (!isSyncing && syncMode === "snap") {
+      if (oddSnap) {
+        oddSnap = false;
+        isSyncing = true;
+        await updatePattern();
+        await sync();
+        isSyncing = false;
+      } else {
+        oddSnap = true;
+      }
+    } else if (!isSyncing && syncMode == "toggle") {
+      isSyncing = true;
+      if (syncToggle) {
+        await tempPatternOff();
+        syncToggle = false;
+      } else {
+        await tempPatternOn();
+        syncToggle = true;
+      }
       await sync();
-  }
+      isSyncing = false;
+    }
   }
 }
 
