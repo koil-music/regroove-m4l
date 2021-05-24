@@ -2,7 +2,6 @@ node_modules
 .vscode
 *.onnx
 *.log
-.data/**/*.mid
 .github
 
 # Max 8 built-ins
