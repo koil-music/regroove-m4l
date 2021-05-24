@@ -43,7 +43,8 @@ const appMidiData = new AppData(path.dirname(process.cwd()), ".mid");
  */
 // MatrixCtrl
 let densityIndex = 0;
-let syncMode = "wait";
+let syncOn = true;
+let syncMode = "snap";
 let syncRate = 16; // in sixteenth notes
 let isSyncing = false;
 
@@ -207,16 +208,20 @@ async function sync() {
 }
 
 async function waitSync(step) {
-  if (!isSyncing && syncMode === "wait") {
-    if (step % (syncRate * LOOP_DURATION) === 0) {
-      await sync();
+  if (syncOn) {
+    if (!isSyncing && syncMode === "wait") {
+      if (step % (syncRate * LOOP_DURATION) === 0) {
+        await sync();
+      }
     }
   }
 }
 
 async function snapSync() {
-  if (!isSyncing && syncMode === "snap") {
-    await sync();
+  if (syncOn) {
+    if (!isSyncing && syncMode === "snap") {
+      await sync();
+  }
   }
 }
 
@@ -278,7 +283,7 @@ Max.addHandler("set_num_samples", (value) => {
   }
 });
 
-const syncModeOptions = ["snap", "off", "wait"];
+const syncModeOptions = ["snap", "toggle", "wait"];
 Max.addHandler("set_sync_mode", (value) => {
   if (syncModeOptions.includes(value)) {
     syncMode = value;
@@ -397,6 +402,10 @@ Max.addHandler("load_pattern", async (filename) => {
     isSyncing = false;
   }
 });
+
+Max.addHandler("sync_on", (value) => {
+  syncOn = Boolean(parseInt(value));
+})
 
 /**
  * Finally initialization
