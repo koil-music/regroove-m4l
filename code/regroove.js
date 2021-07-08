@@ -248,7 +248,7 @@ function createMatrixCtrlData() {
           3
         );
 
-        if (value == 1) {
+        if (value === 1) {
           velocitiesData.push(velocityValue);
         } else {
           velocitiesData.push(0);
@@ -435,7 +435,6 @@ Max.addHandler("setModelDir", (value) => {
 });
 
 Max.addHandler("set_active_channels", (channels) => {
-  debug(channels);
   activeChannels = channels.slice(1);
   debug(activeChannels);
 });
