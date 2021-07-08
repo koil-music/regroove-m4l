@@ -29,14 +29,17 @@ const root = path.dirname(process.cwd())
 let modelPath = path.join(root, `regroove-models/${ENV}/`);
 assert.ok(validModelDir(modelPath));
 
-if (!fs.existsSync(path.join(root, '.data/factory'))) {
-  fs.mkdirSync(path.join(root, '.data/factory'))
-}
-if (!fs.existsSync(path.join(root, '.data/user'))) {
-  fs.mkdirSync(path.join(root, '.data/user'))
+const factoryDir = path.join(root, '.data/factory')
+const userDir = path.join(root, '.data/user')
+const stateDir = path.join(root, '.data/state')
+for (const dir of [factoryDir, userDir, stateDir]) {
+  if (!fs.existsSync(dir)) {
+    Max.post(`Creating directory: ${dir}`)
+    fs.mkdirSync(dir);
+  }
 }
 
-const appMidiData = new AppData(path.dirname(process.cwd()), ".mid");
+const appMidiData = new AppData(root, ".mid");
 
 /**
  * Global state variables
@@ -69,12 +72,27 @@ const offsetsHistory = new PatternHistory(20);
 
 let velocityScale;
 
-// Generator
+// Initialize default generator instance
 let numSamples = 400;
 let minOnsetThreshold = 0.3;
 let maxOnsetThreshold = 0.7;
 let noteDropout = 0.5;
 let generator;
+Generator.build(
+  onsetsPattern.data,
+  velocitiesPattern.data,
+  offsetsPattern.data,
+  modelPath,
+  minOnsetThreshold,
+  maxOnsetThreshold,
+  numSamples,
+  noteDropout,
+  CHANNELS,
+  LOOP_DURATION
+  )
+  .then(gen => generator = gen)
+  .catch((e) => {throw e})
+
 let generatorReady = false;
 let isGenerating = false;
 
@@ -128,6 +146,20 @@ async function generate() {
   }
 }
 
+async function saveGeneratorState(name) {
+  if (!isGenerating && generatorReady) {
+    const savePath = path.join(stateDir, name)
+    await generator.save(savePath)
+  }
+}
+
+async function loadGeneratorState(filepath) {
+  if (!isGenerating) {
+    await generator.load(filepath);
+    generatorReady = true;
+  }
+}
+
 /**
  * MatrixCtrl
  */
@@ -144,7 +176,7 @@ async function updatePattern() {
       const x = parseInt(densityIndex);
       const y = parseInt(randomIndex);
       debug(`density index: ${x} random index: ${y}`);
-      onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
+      onsetsPattern = new Pattern(generator.onsets._T[x][y], dims);
       velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
       // offsetsPattern = new Pattern(generator.offsets._T[x][y], dims);
     } catch (e) {
@@ -252,6 +284,7 @@ async function snapSync() {
   if (syncOn) {
     if (!isSyncing && syncMode === "snap") {
       if (oddSnap) {
+        debug("oddSnap")
         oddSnap = false;
         isSyncing = true;
         await updatePattern();
@@ -366,6 +399,14 @@ Max.addHandler("velocity", (value) => {
 Max.addHandler("generate", () => {
   generate();
 });
+
+Max.addHandler("save_generator_state", (name) => {
+  saveGeneratorState(name);
+})
+
+Max.addHandler("load_generator_state", (name) => {
+  loadGeneratorState(name);
+})
 
 Max.addHandler("snap_sync", async () => {
   await snapSync();

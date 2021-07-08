@@ -41,6 +41,178 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"border" : 2.0,
+					"id" : "obj-34",
+					"linecolor" : [ 0.34902, 0.34902, 0.34902, 1.0 ],
+					"maxclass" : "live.line",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 346.291666150093306, 3360.946923732757568, 5.0, 100.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 11.271723449230194, 138.449123127460552, 108.911887720227242, 7.414654284715652 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-195",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 797.0, 876.0, 139.0, 22.0 ],
+					"text" : "s --load_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"alpha" : 0.45,
+					"autofit" : 1,
+					"forceaspect" : 1,
+					"id" : "obj-129",
+					"ignoreclick" : 1,
+					"maxclass" : "fpic",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "jit_matrix" ],
+					"patching_rect" : [ 629.425689846277237, 810.829999999999927, 66.0, 66.0 ],
+					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/save-solid.png",
+					"presentation" : 1,
+					"presentation_rect" : [ 93.470139145851135, 145.559116942882611, 17.547715485095978, 17.547715485095978 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"autopopulate" : 1,
+					"bgcolor" : [ 0.2, 0.2, 0.2, 1.0 ],
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.0,
+					"bgfillcolor_color" : [ 0.2, 0.2, 0.2, 1.0 ],
+					"bgfillcolor_color1" : [ 0.301961, 0.301961, 0.301961, 1.0 ],
+					"bgfillcolor_color2" : [ 0.2, 0.2, 0.2, 1.0 ],
+					"bgfillcolor_proportion" : 0.5,
+					"bgfillcolor_type" : "color",
+					"fontname" : "Ableton Sans",
+					"fontsize" : 10.0,
+					"id" : "obj-233",
+					"items" : "test.rgs",
+					"maxclass" : "umenu",
+					"numinlets" : 1,
+					"numoutlets" : 3,
+					"outlettype" : [ "int", "", "" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 756.500012636184806, 845.333333730697632, 100.0, 20.0 ],
+					"prefix" : "~/Music/software/regroove/regroove-m4l/.data/state/",
+					"presentation" : 1,
+					"presentation_rect" : [ 13.669896304607391, 145.559116942882611, 73.316256783902645, 20.0 ],
+					"textcolor" : [ 0.831372549019608, 0.831372549019608, 0.831372549019608, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-231",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 40.0, 2928.619477927684784, 169.0, 22.0 ],
+					"text" : "prepend load_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-232",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 40.0, 2903.492393581867418, 137.0, 22.0 ],
+					"text" : "r --load_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-225",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 40.0, 2861.164955823421678, 172.0, 22.0 ],
+					"text" : "prepend save_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-224",
+					"maxclass" : "newobj",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 40.0, 2837.164955823421678, 140.0, 22.0 ],
+					"text" : "r --save_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-196",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 676.425689846277237, 964.036669595241619, 142.0, 22.0 ],
+					"text" : "s --save_generator_state"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-203",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 3,
+					"outlettype" : [ "", "bang", "bang" ],
+					"patching_rect" : [ 629.425689846277237, 916.036669595241619, 41.0, 22.0 ],
+					"text" : "dialog"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-222",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "" ],
+					"patching_rect" : [ 629.425689846277237, 940.036669595241619, 66.0, 22.0 ],
+					"text" : "unpack s s"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.2, 0.2, 0.2, 0.0 ],
+					"blinkcolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
+					"hint" : "",
+					"id" : "obj-192",
+					"maxclass" : "button",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "bang" ],
+					"outlinecolor" : [ 0.349019607843137, 0.349019607843137, 0.349019607843137, 0.0 ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 629.425689846277237, 810.829999999999927, 64.972579672932739, 64.972579672932739 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 93.470139145851135, 145.559116942882611, 17.547715485095978, 17.547715485095978 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"autofit" : 1,
 					"forceaspect" : 1,
 					"id" : "obj-270",
@@ -49,7 +221,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "jit_matrix" ],
-					"patching_rect" : [ 624.0, 257.0, 100.0, 100.0 ],
+					"patching_rect" : [ 659.0, 315.0, 47.0, 47.0 ],
 					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/shuffle.png",
 					"presentation" : 1,
 					"presentation_rect" : [ 584.24793899804331, 81.283248035311715, 38.643800944090003, 38.643800944090003 ]
@@ -69,7 +241,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 659.470849573612213, 340.083333730697632, 28.0, 26.75 ],
+					"patching_rect" : [ 668.470849573612213, 324.083333730697632, 28.0, 26.75 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 585.311768777668249, 81.283248035311715, 34.680017694830894, 34.205975025892258 ],
 					"saved_attribute_attributes" : 					{
@@ -85,17 +257,6 @@
 ,
 					"transition" : 2,
 					"varname" : "sync_snap"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-241",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 597.690000000000055, 406.149999999999977, 32.0, 22.0 ],
-					"text" : "print"
 				}
 
 			}
@@ -118,7 +279,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "int", "", "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 643.080009536743205, 216.923087120056152, 100.0, 20.0 ],
+					"patching_rect" : [ 658.080009536743205, 209.923087120056152, 100.0, 20.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 602.964616851806682, 52.423073768615723, 50.769227981567383, 20.0 ],
 					"textcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ]
@@ -155,7 +316,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 644.57084995508194, 84.0, 93.0, 22.0 ],
+					"patching_rect" : [ 656.57084995508194, 154.0, 93.0, 22.0 ],
 					"text" : "s --set_sync_on"
 				}
 
@@ -170,7 +331,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 644.57084995508194, 41.330000000000041, 58.0, 21.0 ],
+					"patching_rect" : [ 656.57084995508194, 120.330000000000041, 58.0, 21.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 556.126040190458298, 53.345190793275833, 47.3297079205513, 19.0 ],
 					"saved_attribute_attributes" : 					{
@@ -252,17 +413,6 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-331",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 656.330000000000041, 924.216816139221237, 101.0, 22.0 ],
-					"text" : "s --density_range"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"bgcolor" : [ 0.2, 0.2, 0.2, 0.0 ],
 					"blinkcolor" : [ 0.807843137254902, 0.898039215686275, 0.909803921568627, 0.0 ],
 					"hint" : "Documentation",
@@ -294,7 +444,7 @@
 					"patching_rect" : [ 226.222222924232483, 107.535941600799561, 43.790847897529602, 43.790847897529602 ],
 					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/play_mid_dark.png",
 					"presentation" : 1,
-					"presentation_rect" : [ 83.681995689868927, 13.276328176259995, 31.061949849128723, 31.061949849128723 ]
+					"presentation_rect" : [ 87.445883393287659, 10.307303100824356, 23.596226990222931, 23.596226990222931 ]
 				}
 
 			}
@@ -306,9 +456,9 @@
 					"maxclass" : "live.line",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 340.125000000000227, 3084.0, 5.0, 100.0 ],
+					"patching_rect" : [ 331.291666150093306, 3345.946923732757568, 5.0, 100.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 11.669896304607391, 53.996491432189941, 108.911887720227242, 7.414654284715652 ]
+					"presentation_rect" : [ 11.669896304607391, 40.996491432189941, 108.911887720227242, 7.414654284715652 ]
 				}
 
 			}
@@ -319,7 +469,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 139.200002074241638, 176.800002634525299, 72.0, 22.0 ],
+					"patching_rect" : [ 92.200002074241638, 127.800002634525299, 72.0, 22.0 ],
 					"text" : "1, 100 1000"
 				}
 
@@ -331,7 +481,7 @@
 					"numinlets" : 3,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "bang" ],
-					"patching_rect" : [ 139.729996566772456, 206.130002706050874, 54.0, 22.0 ],
+					"patching_rect" : [ 92.729996566772456, 157.130002706050874, 54.0, 22.0 ],
 					"text" : "line 1 50"
 				}
 
@@ -346,9 +496,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 50.125, 3061.749997675418854, 155.0, 21.0 ],
+					"patching_rect" : [ 41.291666150093079, 3323.696921408176422, 155.0, 21.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 15.267148360610008, 16.774323761463165, 59.0, 21.0 ],
+					"presentation_rect" : [ 15.669896304607391, 11.35357142791085, 60.44582225382328, 21.0 ],
 					"text" : "generate",
 					"textcolor" : [ 0.831372549019608, 0.831372549019608, 0.831372549019608, 1.0 ]
 				}
@@ -394,7 +544,7 @@
 					"parameter_enable" : 1,
 					"patching_rect" : [ 226.422807352542804, 109.784902350902541, 41.400001108646393, 40.333334386348724 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 83.681995689868927, 13.276328176259995, 27.596226990222931, 27.900629460811615 ],
+					"presentation_rect" : [ 85.050669275224209, 7.912088982760906, 27.596226990222931, 27.900629460811615 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "off", "on" ],
@@ -433,8 +583,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 96.470849573612213, 1062.078344566822125, 165.0, 22.0 ],
-					"text" : "https://docs.rekoil.io/regroove"
+					"patching_rect" : [ 96.470849573612213, 1062.078344566822125, 182.0, 22.0 ],
+					"text" : "https://rekoil.io/projects/regroove"
 				}
 
 			}
@@ -883,7 +1033,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 656.330000000000041, 710.330000000000041, 46.0, 19.0 ],
+					"patching_rect" : [ 656.330000000000041, 682.330000000000041, 46.0, 19.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 605.994917588233989, 149.538911862373368, 39.692307472229004, 16.5 ],
 					"saved_attribute_attributes" : 					{
@@ -2663,17 +2813,6 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-238",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 654.741684317588806, 843.083333730697632, 94.0, 22.0 ],
-					"text" : "s --clear_history"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-135",
 					"maxclass" : "message",
 					"numinlets" : 2,
@@ -2869,7 +3008,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 654.741684317588806, 748.083333730697632, 96.0, 22.0 ],
+					"patching_rect" : [ 656.330000000000041, 716.079999999999927, 96.0, 22.0 ],
 					"text" : "s --clear_pattern"
 				}
 
@@ -2905,7 +3044,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 803.500012636184692, 605.833333730697632, 113.0, 20.0 ],
+					"patching_rect" : [ 804.500012636184692, 618.833333730697632, 113.0, 20.0 ],
 					"text" : "Dynamics toggle"
 				}
 
@@ -2949,11 +3088,12 @@
 					"fontname" : "Ableton Sans Medium",
 					"fontsize" : 11.0,
 					"id" : "obj-123",
+					"linecount" : 2,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 803.500012636184692, 536.333333730697632, 113.0, 20.0 ],
-					"text" : "Microtiming toggle"
+					"patching_rect" : [ 803.500012636184692, 535.333333730697632, 113.0, 33.0 ],
+					"text" : "Microtiming toggle (currently inactive)"
 				}
 
 			}
@@ -5134,9 +5274,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 48.125, 3173.0, 128.0, 17.0 ],
+					"patching_rect" : [ 39.291666150093079, 3434.946923732757568, 128.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 559.826839551329613, 128.099715739488602, 38.6836217045784, 17.0 ],
+					"presentation_rect" : [ 559.826839551329613, 128.099715739488602, 39.0, 17.0 ],
 					"text" : "interval",
 					"textcolor" : [ 0.819607843137255, 0.819607843137255, 0.819607843137255, 1.0 ]
 				}
@@ -5151,7 +5291,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "float" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 644.57084995508194, 435.833333730697632, 48.799999237060547, 15.0 ],
+					"patching_rect" : [ 658.57084995508194, 428.833333730697632, 48.799999237060547, 15.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 606.623772919178009, 128.671110583543793, 38.208333313465118, 15.0 ],
 					"saved_attribute_attributes" : 					{
@@ -5179,7 +5319,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 41.625, 3119.333340764045715, 138.0, 18.0 ],
+					"patching_rect" : [ 32.791666150093079, 3381.280264496803284, 138.0, 18.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 149.708475992083549, 62.76495032191275, 44.0, 18.0 ],
 					"text" : "density",
@@ -5196,7 +5336,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 35.125, 3091.541665732860565, 129.0, 18.0 ],
+					"patching_rect" : [ 26.291666150093079, 3353.488589465618134, 129.0, 18.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 148.708475992083549, 116.44920461058615, 46.0, 18.0 ],
 					"text" : "velocity",
@@ -5212,9 +5352,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 35.125, 3196.666674971580505, 133.0, 17.0 ],
+					"patching_rect" : [ 26.291666150093079, 3458.613598704338074, 133.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 58.74394553899765, 135.434365153312683, 62.0, 17.0 ],
+					"presentation_rect" : [ 58.74394553899765, 114.434365153312683, 62.0, 17.0 ],
 					"text" : "num samples",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5228,9 +5368,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 35.125, 3069.0, 125.0, 17.0 ],
+					"patching_rect" : [ 26.291666150093079, 3330.946923732757568, 125.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 59.091167777776718, 113.337142914533615, 57.0, 17.0 ],
+					"presentation_rect" : [ 59.091167777776718, 92.337142914533615, 57.0, 17.0 ],
 					"text" : "syncopation",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5244,9 +5384,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 35.125, 3025.666674971580505, 123.0, 17.0 ],
+					"patching_rect" : [ 26.291666150093079, 3287.613598704338074, 123.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 58.74394553899765, 70.472600385546684, 57.0, 17.0 ],
+					"presentation_rect" : [ 58.74394553899765, 49.472600385546684, 57.0, 17.0 ],
 					"text" : "max density",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5260,9 +5400,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 28.75, 3239.416674971580505, 119.0, 17.0 ],
+					"patching_rect" : [ 19.916666150093079, 3501.363598704338074, 119.0, 17.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 59.091167777776718, 91.906587302684784, 54.0, 17.0 ],
+					"presentation_rect" : [ 59.091167777776718, 70.906587302684784, 54.0, 17.0 ],
 					"text" : "min density",
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ]
 				}
@@ -5512,7 +5652,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 226.5, 221.036669595241619, 51.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 12.021723449230194, 68.389266952872276, 51.0, 22.0 ],
+					"presentation_rect" : [ 12.021723449230194, 47.389266952872276, 51.0, 22.0 ],
 					"textcolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
 					"tricolor" : [ 1.0, 0.76078431372549, 0.329411764705882, 0.42 ],
 					"varname" : "max_density"
@@ -5535,7 +5675,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 226.5, 274.536669595241619, 51.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 12.021723449230194, 90.100920004844681, 51.0, 22.0 ],
+					"presentation_rect" : [ 12.021723449230194, 69.100920004844681, 51.0, 22.0 ],
 					"textcolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
 					"tricolor" : [ 1.0, 0.76078431372549, 0.329411764705882, 0.42 ],
 					"varname" : "min_density"
@@ -5558,7 +5698,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 226.5, 334.536669595241619, 50.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 11.271723449230194, 111.700920386314408, 50.0, 22.0 ],
+					"presentation_rect" : [ 11.271723449230194, 90.700920386314408, 50.0, 22.0 ],
 					"textcolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
 					"tricolor" : [ 1.0, 0.76078431372549, 0.329411764705882, 0.42 ],
 					"varname" : "syncopation"
@@ -5727,7 +5867,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 683.220849573612213, 271.833333730697632, 110.0, 22.0 ],
+					"patching_rect" : [ 659.220849573612213, 242.833333730697632, 110.0, 22.0 ],
 					"text" : "s --set_sync_mode"
 				}
 
@@ -5766,7 +5906,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 803.500012636184692, 149.333333730697632, 150.0, 138.0 ],
+					"patching_rect" : [ 797.500012636184692, 133.333333730697632, 150.0, 138.0 ],
 					"text" : "Sync mode defines how the rhythm is syncopated. Snap means the rhythm is syncopated when a user toggles the snap toggle. Off means the rhythm is not syncopated. Wait means the rhythm is syncopated on an interval as defined by the sync rate."
 				}
 
@@ -5812,7 +5952,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 226.5, 398.286669595241619, 46.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 11.271723449230194, 134.097600668668747, 49.0, 22.0 ],
+					"presentation_rect" : [ 11.271723449230194, 113.097600668668747, 49.0, 22.0 ],
 					"textcolor" : [ 1.0, 0.709804, 0.196078, 1.0 ],
 					"tricolor" : [ 1.0, 0.76078431372549, 0.329411764705882, 0.42 ],
 					"varname" : "num_samples"
@@ -7432,16 +7572,17 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 402.875, 1933.083349943161011, 159.0, 22.0 ],
+					"patching_rect" : [ 402.875, 1933.083349943161011, 407.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
 						"node_bin_path" : "",
 						"npm_bin_path" : "",
-						"watch" : 0
+						"options" : [ "--inspect=127.0.1.1:9229" ],
+						"watch" : 1
 					}
 ,
-					"text" : "node.script code/regroove.js"
+					"text" : "node.script code/regroove.js @watch 1 @options --inspect=127.0.1.1:9229"
 				}
 
 			}
@@ -7564,7 +7705,7 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 169.625000000000227, 2887.000009179115295, 128.0, 128.0 ],
+					"patching_rect" : [ 160.791666150093306, 3148.946932911872864, 128.0, 128.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 134.709050393700636, 2.519679725170135, 84.366666972637177, 166.640042901039124 ],
 					"proportion" : 0.5,
@@ -7581,7 +7722,7 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 30.333333849906921, 2887.000009179115295, 128.0, 128.0 ],
+					"patching_rect" : [ 21.5, 3148.946932911872864, 128.0, 128.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 198.613480256795924, 2.379652380943298, 353.61514276266098, 166.667513906955719 ],
 					"proportion" : 0.5,
@@ -7598,7 +7739,7 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 45.333333849906921, 2902.000009179115295, 128.0, 128.0 ],
+					"patching_rect" : [ 36.5, 3163.946932911872864, 128.0, 128.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 525.620729045867961, 3.206566363573074, 129.692456185817719, 166.648160517215729 ],
 					"proportion" : 0.5,
@@ -7621,7 +7762,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 230.497605323791504, 111.040526760816647, 36.5, 36.5 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 77.712970614433289, 7.307303100824356, 43.0, 43.0 ],
+					"presentation_rect" : [ 83.050669275224209, 5.912088982760906, 32.386655226349831, 32.386655226349831 ],
 					"size" : 100.0,
 					"varname" : "dynamics[2]"
 				}
@@ -7636,9 +7777,9 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 308.333333849906921, 2887.000009179115295, 128.0, 128.0 ],
+					"patching_rect" : [ 299.5, 3148.946932911872864, 128.0, 128.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 2.61666664481163, 2.519679725170135, 128.5, 166.88031792640686 ],
+					"presentation_rect" : [ 2.875840164721012, 2.519679725170135, 128.5, 166.88031792640686 ],
 					"proportion" : 0.5,
 					"rounded" : 4
 				}
@@ -7832,15 +7973,6 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-137", 0 ],
-					"order" : 0,
-					"source" : [ "obj-136", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-241", 0 ],
-					"order" : 1,
 					"source" : [ "obj-136", 0 ]
 				}
 
@@ -7871,7 +8003,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-141", 0 ],
-					"midpoints" : [ 552.375, 1996.083349943161011, 450.875, 1996.083349943161011 ],
+					"midpoints" : [ 800.375, 1996.083349943161011, 450.875, 1996.083349943161011 ],
 					"order" : 1,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -7888,7 +8020,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-31", 0 ],
-					"midpoints" : [ 552.375, 1992.0, 725.083333849906921, 1992.0 ],
+					"midpoints" : [ 800.375, 1992.0, 725.083333849906921, 1992.0 ],
 					"order" : 2,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -7897,7 +8029,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-43", 0 ],
-					"midpoints" : [ 552.375, 2025.0, 578.416671097278595, 2025.0 ],
+					"midpoints" : [ 800.375, 2025.0, 578.416671097278595, 2025.0 ],
 					"order" : 0,
 					"source" : [ "obj-140", 1 ]
 				}
@@ -8168,6 +8300,13 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-203", 0 ],
+					"source" : [ "obj-192", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-164", 1 ],
 					"midpoints" : [ 1963.333334773778915, 1863.0, 1844.833346456289291, 1863.0 ],
 					"order" : 0,
@@ -8235,6 +8374,13 @@
 					"destination" : [ "obj-194", 0 ],
 					"midpoints" : [ 412.375000000000057, 2337.0, 412.375, 2337.0 ],
 					"source" : [ "obj-200", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-222", 0 ],
+					"source" : [ "obj-203", 0 ]
 				}
 
 			}
@@ -8373,9 +8519,31 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-196", 0 ],
+					"source" : [ "obj-222", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-275", 0 ],
 					"midpoints" : [ 2195.666666666666515, 1644.0, 2195.66666666666697, 1644.0 ],
 					"source" : [ "obj-223", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-225", 0 ],
+					"source" : [ "obj-224", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-140", 0 ],
+					"midpoints" : [ 49.5, 2886.0, 27.0, 2886.0, 27.0, 2820.0, 387.0, 2820.0, 387.0, 1929.0, 412.375, 1929.0 ],
+					"source" : [ "obj-225", 0 ]
 				}
 
 			}
@@ -8422,6 +8590,28 @@
 				"patchline" : 				{
 					"destination" : [ "obj-130", 0 ],
 					"source" : [ "obj-230", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-140", 0 ],
+					"midpoints" : [ 49.5, 2961.0, 387.0, 2961.0, 387.0, 1929.0, 412.375, 1929.0 ],
+					"source" : [ "obj-231", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-231", 0 ],
+					"source" : [ "obj-232", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-195", 0 ],
+					"source" : [ "obj-233", 1 ]
 				}
 
 			}
@@ -8600,6 +8790,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-237", 0 ],
+					"midpoints" : [ 102.229996566772456, 189.0, 213.0, 189.0, 213.0, 105.0, 239.997605323791504, 105.0 ],
 					"source" : [ "obj-257", 0 ]
 				}
 
@@ -9655,7 +9846,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-266", 0 ],
-					"midpoints" : [ 235.922807352542804, 162.0, 148.700002074241638, 162.0 ],
+					"midpoints" : [ 235.922807352542804, 153.0, 174.0, 153.0, 174.0, 114.0, 101.700002074241638, 114.0 ],
 					"order" : 1,
 					"source" : [ "obj-91", 0 ]
 				}
@@ -9807,6 +9998,13 @@
 				"implicit" : 1
 			}
 , 			{
+				"name" : "save-solid.png",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+, 			{
 				"name" : "jit.pass.mxe64",
 				"type" : "mx64"
 			}
@@ -9816,13 +10014,16 @@
 				"boxes" : [ "obj-47", "obj-11" ]
 			}
 , 			{
-				"boxes" : [ "obj-237", "obj-302", "obj-91" ]
-			}
-, 			{
 				"boxes" : [ "obj-306", "obj-1" ]
 			}
 , 			{
 				"boxes" : [ "obj-270", "obj-136" ]
+			}
+, 			{
+				"boxes" : [ "obj-237", "obj-91", "obj-302" ]
+			}
+, 			{
+				"boxes" : [ "obj-192", "obj-129" ]
 			}
  ],
 		"bgcolor" : [ 0.258823529411765, 0.258823529411765, 0.258823529411765, 1.0 ],
