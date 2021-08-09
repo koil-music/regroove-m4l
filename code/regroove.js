@@ -6,11 +6,11 @@ const Max = require("max-api");
 const path = require("path");
 const process = require("process");
 
-const { AppData } = require("regroove-lib/dist/appdata");
-const { Pattern } = require("regroove-lib/dist/pattern");
-const { PatternHistory } = require("regroove-lib/dist/history");
-const { Generator } = require("regroove-lib/dist/generate");
-const { CHANNELS, LOOP_DURATION } = require("regroove-lib/dist/constants");
+const { AppData } = require("regroovejs/dist/appdata");
+const { Pattern } = require("regroovejs/dist/pattern");
+const { PatternHistory } = require("regroovejs/dist/history");
+const { Generator } = require("regroovejs/dist/generate");
+const { CHANNELS, LOOP_DURATION } = require("regroovejs/dist/constants");
 
 const { validModelDir } = require("./utils");
 

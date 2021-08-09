@@ -10,10 +10,10 @@
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
-    "regroove-lib": "^1.0.5"
+    "regroovejs": "^0.1.0-b3"
   },
   "devDependencies": {
-    "eslint": "^7.31.0",
+    "eslint": "^7.32.0",
     "prettier": "^2.3.2"
   }
 }

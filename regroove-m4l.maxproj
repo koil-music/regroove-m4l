@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3708602893,
-	"viewrect" : [ 1274.0, 65.0, 1278.0, 1310.0 ],
+	"modificationdate" : 3709549393,
+	"viewrect" : [ 251.0, 66.0, 1278.0, 1310.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -31,10 +31,6 @@
 				"kind" : "json",
 				"local" : 1
 			}
-
-		}
-,
-		"externals" : 		{
 
 		}
 
