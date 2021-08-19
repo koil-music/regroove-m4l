@@ -10,7 +10,7 @@
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
-    "regroovejs": "^0.1.0-b3"
+    "regroovejs": "0.1.0-b5"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
