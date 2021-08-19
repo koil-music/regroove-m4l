@@ -14,8 +14,9 @@ const { CHANNELS, LOOP_DURATION } = require("regroovejs/dist/constants");
 
 const { validModelDir } = require("./utils");
 
-/**
- * Ops and environment
+/* ===================================================================
+ * Ops, environment, appData
+ * ===================================================================
  */
 let DEBUG = false;
 function debug(value) {
@@ -41,17 +42,21 @@ for (const dir of [factoryDir, userDir, stateDir]) {
 
 const appMidiData = new AppData(root, ".mid");
 
-/**
- * Global state variables
+/** ===================================================================
+ * Stateful variables
+ * TODO: Implement redux for updating state
+ * ===================================================================
  */
 // MatrixCtrl
+const syncRateOptions = [1, 2, 4];
 let densityIndex = 0;
-let syncOn = true;
-let syncMode = "snap";
-let syncRate = 16; // in sixteenth notes
+let syncOn = false;
+let syncMode = "wait";
+let syncRate = Math.min(...syncRateOptions); // in sixteenth notes
 let isSyncing = false;
+let activeChannels = "111111111";
 
-// Patterns
+// Patterns and PatternHistory
 const dims = [1, LOOP_DURATION, CHANNELS];
 const data = Float32Array.from(
   { length: dims[0] * dims[1] * dims[2] },
@@ -64,7 +69,6 @@ let offsetsPattern = new Pattern(data, dims);
 
 let tempOnsetsPattern = new Pattern(data, dims);
 let tempVelocitiesPattern = new Pattern(data, dims);
-let tempOffsetsPattern = new Pattern(data, dims);
 
 const onsetsHistory = new PatternHistory(20);
 const velocitiesHistory = new PatternHistory(20);
@@ -72,13 +76,23 @@ const offsetsHistory = new PatternHistory(20);
 
 let velocityScale;
 
-// Initialize default generator instance
+// Generator
 let numSamples = 400;
 let minOnsetThreshold = 0.3;
 let maxOnsetThreshold = 0.7;
 let noteDropout = 0.5;
 let generator;
-Generator.build(
+let generatorReady = false;
+let isGenerating = false;
+
+// other
+const syncModeOptions = ["snap", "toggle", "wait"];
+
+/** ===================================================================
+ * Generator
+ * ====================================================================
+ */
+ Generator.build(
   onsetsPattern.data,
   velocitiesPattern.data,
   offsetsPattern.data,
@@ -89,36 +103,9 @@ Generator.build(
   noteDropout,
   CHANNELS,
   LOOP_DURATION
-  )
-  .then(gen => generator = gen)
-  .catch((e) => {throw e})
-
-let generatorReady = false;
-let isGenerating = false;
-
-/**
- * Functions that act on state variables
- */
-
-function updateCell(step, instrument, value) {
-  const onsetsTensor = onsetsPattern.tensor();
-  const velocitiesTensor = velocitiesPattern.tensor();
-  const offsetsTensor = offsetsPattern.tensor();
-
-  onsetsTensor[0][step][instrument - 1] = value;
-  velocitiesTensor[0][step][instrument - 1] = value * velocityScale;
-  offsetsTensor[0][step][instrument - 1] = 0;
-
-  const dims = onsetsPattern.dims;
-  onsetsPattern = new Pattern(onsetsTensor, dims);
-  velocitiesPattern = new Pattern(velocitiesTensor, dims);
-  offsetsPattern = new Pattern(offsetsTensor, dims);
-}
-
-
-/**
- * Generate
- */
+)
+.then(gen => generator = gen)
+.catch((e) => {throw e})
 
 async function generate() {
   if (!isGenerating) {
@@ -160,9 +147,24 @@ async function loadGeneratorState(filepath) {
   }
 }
 
-/**
+/** ===================================================================
  * MatrixCtrl
+ * ====================================================================
  */
+ function updateCell(step, instrument, value) {
+  const onsetsTensor = onsetsPattern.tensor();
+  const velocitiesTensor = velocitiesPattern.tensor();
+  const offsetsTensor = offsetsPattern.tensor();
+
+  onsetsTensor[0][step][instrument - 1] = value;
+  velocitiesTensor[0][step][instrument - 1] = value * velocityScale;
+  offsetsTensor[0][step][instrument - 1] = 0;
+
+  const dims = onsetsPattern.dims;
+  onsetsPattern = new Pattern(onsetsTensor, dims);
+  velocitiesPattern = new Pattern(velocitiesTensor, dims);
+  offsetsPattern = new Pattern(offsetsTensor, dims);
+}
 
 async function updatePattern() {
   if (generatorReady) {
@@ -221,10 +223,6 @@ async function tempPatternOff() {
     velocitiesPattern = tempVelocitiesPattern;
   }
 }
-/**
- * Sync with Max MatrixCtrl
- */
-let activeChannels = "111111111";
 
 function createMatrixCtrlData() {
   const onsetsData = [];
@@ -259,6 +257,10 @@ function createMatrixCtrlData() {
   return [onsetsData, velocitiesData];
 }
 
+/** ===================================================================
+ * syncopate
+ * ====================================================================
+ */
 async function sync() {
   const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
   await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -266,14 +268,19 @@ async function sync() {
   await Max.outlet("penultimateSync", isSyncing);
 }
 
+let barsPassed = 1;
 async function waitSync(step) {
   if (syncOn) {
     if (!isSyncing && syncMode === "wait") {
-      if (step % (syncRate * LOOP_DURATION) === 0) {
-        isSyncing = true;
-        await updatePattern();
-        await sync();
-        isSyncing = false;
+      if (step % LOOP_DURATION === 0) {
+        barsPassed += 1
+        if (barsPassed % (syncRate * 2) === 0) {
+          isSyncing = true;
+          await updatePattern();
+          await sync();
+          isSyncing = false;
+          barsPassed = 1;
+        }
       }
     }
   }
@@ -308,8 +315,9 @@ async function snapSync() {
   }
 }
 
-/**
+/** ====================================================================
  * Max request handlers
+ * ====================================================================
  */
 Max.addHandler("debug", (value) => {
   if (value === 1) {
@@ -366,7 +374,6 @@ Max.addHandler("set_num_samples", (value) => {
   }
 });
 
-const syncModeOptions = ["snap", "toggle", "wait"];
 Max.addHandler("set_sync_mode", (value) => {
   if (syncModeOptions.includes(value)) {
     syncMode = value;
@@ -375,8 +382,6 @@ Max.addHandler("set_sync_mode", (value) => {
     debug(`invalid syncMode ${value} - must be one of ${syncModeOptions}`);
   }
 });
-
-const syncRateOptions = [0.25, 0.5, 1, 2, 4];
 
 Max.addHandler("set_sync_rate", (value) => {
   if (syncRateOptions.includes(parseFloat(value))) {
