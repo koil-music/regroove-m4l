@@ -26,16 +26,16 @@ function debug(value) {
 }
 
 let ENV = "staging";
-const root = path.dirname(process.cwd())
+const root = path.dirname(process.cwd());
 let modelPath = path.join(root, `regroove-models/${ENV}/`);
 assert.ok(validModelDir(modelPath));
 
-const factoryDir = path.join(root, '.data/factory')
-const userDir = path.join(root, '.data/user')
-const stateDir = path.join(root, '.data/state')
+const factoryDir = path.join(root, ".data/factory");
+const userDir = path.join(root, ".data/user");
+const stateDir = path.join(root, ".data/state");
 for (const dir of [factoryDir, userDir, stateDir]) {
   if (!fs.existsSync(dir)) {
-    Max.post(`Creating directory: ${dir}`)
+    Max.post(`Creating directory: ${dir}`);
     fs.mkdirSync(dir);
   }
 }
@@ -51,7 +51,7 @@ const appMidiData = new AppData(root, ".mid");
 const syncRateOptions = [1, 2, 4];
 let densityIndex = 0;
 let syncOn = false;
-let syncMode = "wait";
+let syncMode = "0";
 let syncRate = Math.min(...syncRateOptions); // in sixteenth notes
 let isSyncing = false;
 let activeChannels = "111111111";
@@ -86,13 +86,17 @@ let generatorReady = false;
 let isGenerating = false;
 
 // other
-const syncModeOptions = ["snap", "toggle", "wait"];
+const syncModeMapping = {
+  0: "wait",
+  1: "snap",
+  2: "toggle",
+};
 
 /** ===================================================================
  * Generator
  * ====================================================================
  */
- Generator.build(
+Generator.build(
   onsetsPattern.data,
   velocitiesPattern.data,
   offsetsPattern.data,
@@ -104,8 +108,10 @@ const syncModeOptions = ["snap", "toggle", "wait"];
   CHANNELS,
   LOOP_DURATION
 )
-.then(gen => generator = gen)
-.catch((e) => {throw e})
+  .then((gen) => (generator = gen))
+  .catch((e) => {
+    throw e;
+  });
 
 async function generate() {
   if (!isGenerating) {
@@ -135,8 +141,8 @@ async function generate() {
 
 async function saveGeneratorState(name) {
   if (!isGenerating && generatorReady) {
-    const savePath = path.join(stateDir, name)
-    await generator.save(savePath)
+    const savePath = path.join(stateDir, name);
+    await generator.save(savePath);
   }
 }
 
@@ -151,7 +157,7 @@ async function loadGeneratorState(filepath) {
  * MatrixCtrl
  * ====================================================================
  */
- function updateCell(step, instrument, value) {
+function updateCell(step, instrument, value) {
   const onsetsTensor = onsetsPattern.tensor();
   const velocitiesTensor = velocitiesPattern.tensor();
   const offsetsTensor = offsetsPattern.tensor();
@@ -242,9 +248,8 @@ function createMatrixCtrlData() {
         // velocities
         velocitiesData.push(step);
         velocitiesData.push(channel);
-        const velocityValue = velocities[step][CHANNELS - channel - 1].toFixed(
-          3
-        );
+        const velocityValue =
+          velocities[step][CHANNELS - channel - 1].toFixed(3);
 
         if (value === 1) {
           velocitiesData.push(velocityValue);
@@ -271,9 +276,9 @@ async function sync() {
 let barsPassed = 1;
 async function waitSync(step) {
   if (syncOn) {
-    if (!isSyncing && syncMode === "wait") {
+    if (!isSyncing && syncModeMapping[syncMode] === "wait") {
       if (step % LOOP_DURATION === 0) {
-        barsPassed += 1
+        barsPassed += 1;
         if (barsPassed % (syncRate * 2) === 0) {
           isSyncing = true;
           await updatePattern();
@@ -289,9 +294,9 @@ async function waitSync(step) {
 let oddSnap = true;
 async function snapSync() {
   if (syncOn) {
-    if (!isSyncing && syncMode === "snap") {
+    if (!isSyncing && syncModeMapping[syncMode] === "snap") {
       if (oddSnap) {
-        debug("oddSnap")
+        debug("oddSnap");
         oddSnap = false;
         isSyncing = true;
         await updatePattern();
@@ -300,7 +305,7 @@ async function snapSync() {
       } else {
         oddSnap = true;
       }
-    } else if (!isSyncing && syncMode == "toggle") {
+    } else if (!isSyncing && syncModeMapping[syncMode] == "toggle") {
       isSyncing = true;
       if (syncToggle) {
         await tempPatternOff();
@@ -329,7 +334,7 @@ Max.addHandler("debug", (value) => {
   }
 });
 
-Max.addHandler("set_density", (value) => {
+Max.addHandler("/params/density", (value) => {
   if (value >= 0 && value <= 1) {
     densityIndex = Math.round((1 - value) * Math.sqrt(numSamples)) - 1;
     debug(densityIndex);
@@ -338,7 +343,7 @@ Max.addHandler("set_density", (value) => {
   }
 });
 
-Max.addHandler("set_min_density", (value) => {
+Max.addHandler("/params/minDensity", (value) => {
   if (value >= 0 && value <= 1) {
     maxOnsetThreshold = 1 - value;
     debug(`Set maxOnsetThreshold to ${value}`);
@@ -347,7 +352,7 @@ Max.addHandler("set_min_density", (value) => {
   }
 });
 
-Max.addHandler("set_max_density", (value) => {
+Max.addHandler("/params/maxDensity", (value) => {
   if (value >= 0 && value <= 1) {
     minOnsetThreshold = 1 - value;
     debug(`Set minOnsetThreshold to ${value}`);
@@ -356,7 +361,7 @@ Max.addHandler("set_max_density", (value) => {
   }
 });
 
-Max.addHandler("set_note_dropout", (value) => {
+Max.addHandler("/params/random", (value) => {
   if (value >= 0 && value <= 1) {
     noteDropout = 1 - value;
     debug(`Set noteDropout to ${value}`);
@@ -365,7 +370,7 @@ Max.addHandler("set_note_dropout", (value) => {
   }
 });
 
-Max.addHandler("set_num_samples", (value) => {
+Max.addHandler("/params/samples", (value) => {
   if (value >= 0 && value <= 1000) {
     numSamples = value;
     debug(numSamples);
@@ -374,16 +379,21 @@ Max.addHandler("set_num_samples", (value) => {
   }
 });
 
-Max.addHandler("set_sync_mode", (value) => {
-  if (syncModeOptions.includes(value)) {
+Max.addHandler("/params/syncMode", (v) => {
+  const value = v.toString();
+  if (Object.keys(syncModeMapping).includes(value)) {
     syncMode = value;
-    debug(`Set sync_mode to ${value}`);
+    debug(`Set sync_mode to ${syncModeMapping[value]}`);
   } else {
-    debug(`invalid syncMode ${value} - must be one of ${syncModeOptions}`);
+    debug(
+      `invalid syncMode id: ${value} - must be one of ${Object.keys(
+        syncModeMapping
+      )}`
+    );
   }
 });
 
-Max.addHandler("set_sync_rate", (value) => {
+Max.addHandler("/params/syncRate", (value) => {
   if (syncRateOptions.includes(parseFloat(value))) {
     debug(`Set sync_rate to ${value}`);
     syncRate = value;
@@ -392,7 +402,7 @@ Max.addHandler("set_sync_rate", (value) => {
   }
 });
 
-Max.addHandler("velocity", (value) => {
+Max.addHandler("/params/velocity", (value) => {
   if (value >= 0 && value <= 127) {
     debug(`Set velocity to ${value}`);
     velocityScale = value / 127;
@@ -401,19 +411,19 @@ Max.addHandler("velocity", (value) => {
   }
 });
 
-Max.addHandler("generate", () => {
+Max.addHandler("/params/generate", () => {
   generate();
 });
 
 Max.addHandler("save_generator_state", (name) => {
   saveGeneratorState(name);
-})
+});
 
 Max.addHandler("load_generator_state", (name) => {
   loadGeneratorState(name);
-})
+});
 
-Max.addHandler("snap_sync", async () => {
+Max.addHandler("/params/sync", async () => {
   await snapSync();
 });
 
@@ -480,11 +490,8 @@ Max.addHandler("load_pattern", async (filename) => {
   if (filename.endsWith(".mid")) {
     isSyncing = true;
     const name = filename.replace(".mid", "");
-    const [
-      loadedOnsetsPattern,
-      loadedVelocitiesPattern,
-      loadedOffsetsPattern,
-    ] = await appMidiData.loadPattern(name);
+    const [loadedOnsetsPattern, loadedVelocitiesPattern, loadedOffsetsPattern] =
+      await appMidiData.loadPattern(name);
 
     onsetsPattern = loadedOnsetsPattern;
     velocitiesPattern = loadedVelocitiesPattern;
@@ -498,17 +505,17 @@ Max.addHandler("load_pattern", async (filename) => {
   }
 });
 
-Max.addHandler("sync_on", (value) => {
+Max.addHandler("/params/syncOn", (value) => {
   syncOn = Boolean(parseInt(value));
-})
+});
 
 /**
- * Finally initialization
+ * Finally, initialization
  */
-// Load origin pattern if it exists in the appData index
-if ( typeof appMidiData.data['origin'] !== 'undefined') {
+if (typeof appMidiData.data["origin"] !== "undefined") {
   isSyncing = true;
-  appMidiData.loadPattern('origin')
+  appMidiData
+    .loadPattern("origin")
     .then((results) => {
       [onsetsPattern, velocitiesPattern, _] = results;
       const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
@@ -519,5 +526,5 @@ if ( typeof appMidiData.data['origin'] !== 'undefined') {
     })
     .catch((err) => {
       if (err) throw err;
-    })
+    });
 }
