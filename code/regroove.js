@@ -7,9 +7,7 @@ const path = require("path");
 const process = require("process");
 
 const { AppData } = require("regroovejs/dist/appdata");
-const { Pattern } = require("regroovejs/dist/pattern");
-const { PatternHistory } = require("regroovejs/dist/history");
-const { Generator } = require("regroovejs/dist/generate");
+const { Generator, Pattern, PatternHistory } = require("regroovejs");
 const { CHANNELS, LOOP_DURATION } = require("regroovejs/dist/constants");
 
 const { validModelDir } = require("./utils");
