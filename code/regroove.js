@@ -23,7 +23,7 @@ function debug(value) {
   }
 }
 
-let ENV = "v2";
+let ENV = "v1";
 const root = path.dirname(process.cwd());
 let modelPath = path.join(root, `regroove-models/${ENV}/`);
 assert.ok(validModelDir(modelPath));
@@ -173,7 +173,7 @@ function updateCell(step, instrument, value) {
 async function updatePattern() {
   if (generatorReady) {
     debug("Updating pattern");
-    const randomIndex = Math.floor(Math.random() * (generator.axisLength));
+    const randomIndex = Math.floor(Math.random() * generator.axisLength);
     onsetsHistory.append(onsetsPattern);
     velocitiesHistory.append(velocitiesPattern);
     offsetsHistory.append(offsetsPattern);

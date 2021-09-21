@@ -1,4 +1,3 @@
-function launch(val)
-{
-	max.launchbrowser(val);
+function launch(val) {
+  max.launchbrowser(val);
 }
