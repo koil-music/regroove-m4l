@@ -3,7 +3,7 @@ node_modules
 *.onnx
 *.log
 .github
-.data/.index.json
+.data
 
 # Max 8 built-ins
 code/fit_jweb_to_bounds.js
