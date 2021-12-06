@@ -53,6 +53,7 @@ let syncMode = "0";
 let syncRate = Math.min(...syncRateOptions); // in sixteenth notes
 let isSyncing = false;
 let activeChannels = "111111111";
+let TICKS_PER_16TH = 32;
 
 // Patterns and PatternHistory
 const dims = [1, LOOP_DURATION, CHANNELS];
@@ -67,6 +68,7 @@ let offsetsPattern = new Pattern(data, dims);
 
 let tempOnsetsPattern = new Pattern(data, dims);
 let tempVelocitiesPattern = new Pattern(data, dims);
+let tempOffsetsPattern = new Pattern(data, dims);
 
 const onsetsHistory = new PatternHistory(20);
 const velocitiesHistory = new PatternHistory(20);
@@ -173,7 +175,7 @@ function updateCell(step, instrument, value) {
 async function updatePattern() {
   if (generatorReady) {
     debug("Updating pattern");
-    const randomIndex = Math.floor(Math.random() * (generator.axisLength));
+    const randomIndex = Math.floor(Math.random() * generator.axisLength);
     onsetsHistory.append(onsetsPattern);
     velocitiesHistory.append(velocitiesPattern);
     offsetsHistory.append(offsetsPattern);
@@ -258,6 +260,45 @@ function createMatrixCtrlData() {
     }
   }
   return [onsetsData, velocitiesData];
+}
+
+function prepareOutputData() {
+  const onsetsData = [];
+  const eventSequence = [];
+
+  const onsets = onsetsPattern.tensor()[0];
+  const velocities = velocitiesPattern.tensor()[0];
+  const offsets = offsetsPattern.tensor()[0];
+
+  for (let channel = 8; channel >= 0; channel--) {
+    if (activeChannels[channel] == "1") {
+      for (let step = 0; step < LOOP_DURATION; step++) {
+        // onsets
+        onsetsData.push(step);
+        onsetsData.push(channel);
+        const inverseChannel = CHANNELS - channel - 1;
+        const value = onsets[step][inverseChannel];
+        onsetsData.push(value);
+
+        // flat pack eventSequence with event triplets:
+        //    [bufferIndex, channelIndex, velocity]
+        if (value === 1) {
+          eventSequence.push(
+            getOffsetIndex(step, offsets[step][inverseChannel])
+          );
+          eventSequence.push(inverseChannel);
+          const velocityValue =
+            velocities[step][CHANNELS - channel - 1].toFixed(3);
+          eventSequence.push(velocityValue);
+        }
+      }
+    }
+  }
+  return [onsetsData, eventSequence];
+}
+
+function getOffsetIndex(step, offset) {
+  return step * TICKS_PER_16TH + offset * (TICKS_PER_16TH / 2);
 }
 
 /** ===================================================================
@@ -493,7 +534,7 @@ Max.addHandler("load_pattern", async (filename) => {
 
     onsetsPattern = loadedOnsetsPattern;
     velocitiesPattern = loadedVelocitiesPattern;
-    // offsetsPattern = loadedOffsetsPattern;
+    offsetsPattern = loadedOffsetsPattern;
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);

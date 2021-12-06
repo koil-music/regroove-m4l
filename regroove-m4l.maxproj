@@ -2,15 +2,15 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3715618488,
-	"viewrect" : [ 2021.0, 65.0, 538.0, 1310.0 ],
+	"modificationdate" : 3721643468,
+	"viewrect" : [ 7.0, 64.0, 767.0, 765.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
 	"autolocalize" : 1,
 	"contents" : 	{
 		"patchers" : 		{
-			"regroove-v2.maxpat" : 			{
+			"regroove-v1.1.maxpat" : 			{
 				"kind" : "patcher",
 				"local" : 1,
 				"toplevel" : 1
