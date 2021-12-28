@@ -7131,8 +7131,8 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 3140.894414305686951, 263.70348355531678, 91.0, 22.0 ],
-					"text" : "r --current_step"
+					"patching_rect" : [ 3140.894414305686951, 263.70348355531678, 47.0, 22.0 ],
+					"text" : "r --step"
 				}
 
 			}
@@ -9916,7 +9916,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 35.0, 84.0, 699.0, 745.0 ],
+						"rect" : [ 41.0, 84.0, 699.0, 745.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
