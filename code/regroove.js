@@ -65,14 +65,17 @@ const data = Float32Array.from(
 let onsetsPattern = new Pattern(data, dims);
 let velocitiesPattern = new Pattern(data, dims);
 let offsetsPattern = new Pattern(data, dims);
-
+let sourceOnsetsPattern = new Pattern(data, dims);
+let sourceVelocitiesPattern = new Pattern(data, dims);
+let sourceOffsetsPattern = new Pattern(data, dims);
 let tempOnsetsPattern = new Pattern(data, dims);
 let tempVelocitiesPattern = new Pattern(data, dims);
 let tempOffsetsPattern = new Pattern(data, dims);
 
-const onsetsHistory = new PatternHistory(20);
-const velocitiesHistory = new PatternHistory(20);
-const offsetsHistory = new PatternHistory(20);
+let patternHistoryIndex = 0;
+const onsetsHistory = new PatternHistory(100);
+const velocitiesHistory = new PatternHistory(100);
+const offsetsHistory = new PatternHistory(100);
 
 let velocityScale;
 
@@ -129,6 +132,9 @@ async function generate() {
       LOOP_DURATION
     );
     await generator.run();
+    sourceOnsetsPattern = onsetsPattern;
+    sourceVelocitiesPattern = velocitiesPattern;
+    sourceOffsetsPattern = offsetsPattern;
     generatorReady = true;
     isGenerating = false;
     debug(
@@ -164,6 +170,7 @@ function updateCell(step, instrument, value) {
 
   onsetsTensor[0][step][instrument - 1] = value;
   velocitiesTensor[0][step][instrument - 1] = value * velocityScale;
+  // TODO: Currently settings offsets to 0 by default.
   offsetsTensor[0][step][instrument - 1] = 0;
 
   const dims = onsetsPattern.dims;
@@ -179,6 +186,7 @@ async function updatePattern() {
     onsetsHistory.append(onsetsPattern);
     velocitiesHistory.append(velocitiesPattern);
     offsetsHistory.append(offsetsPattern);
+    patternHistoryIndex = 0;
 
     try {
       const x = parseInt(densityIndex);
@@ -213,8 +221,10 @@ async function tempPatternOn() {
 
       tempOnsetsPattern = onsetsPattern;
       tempVelocitiesPattern = velocitiesPattern;
+      tempOffsetsPattern = offsetsPattern;
       onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
-      velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
+      velocitiesPattern = new Pattern(generator.velocities.sample(x)(y), dims);
+      offsetsPattern = new Pattern(generator.offsets.sample(x, y), dims);
     } catch (e) {
       debug(e);
     }
@@ -227,6 +237,7 @@ async function tempPatternOff() {
   if (syncToggle) {
     onsetsPattern = tempOnsetsPattern;
     velocitiesPattern = tempVelocitiesPattern;
+    offsetsPattern = tempOffsetsPattern;
   }
 }
 
@@ -493,13 +504,14 @@ Max.addHandler("set_active_channels", (channels) => {
   debug(activeChannels);
 });
 
-Max.addHandler("get_cached_pattern", async (idx) => {
-  debug(`Get pattern ${idx}`);
-  if (idx + 1 <= onsetsHistory._queue.length) {
+Max.addHandler("get_cached_pattern", async () => {
+  patternHistoryIndex += 1;
+  debug(`Get pattern ${patternHistoryIndex}`);
+  if (patternHistoryIndex < onsetsHistory._queue.length) {
     isSyncing = true;
-    onsetsPattern = onsetsHistory.sample(idx);
-    velocitiesPattern = velocitiesHistory.sample(idx);
-    // offsetsPattern = offsetsHistory.sample(idx);
+    onsetsPattern = onsetsHistory.sample(patternHistoryIndex);
+    velocitiesPattern = velocitiesHistory.sample(patternHistoryIndex);
+    offsetsPattern = offsetsHistory.sample(patternHistoryIndex);
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -507,7 +519,26 @@ Max.addHandler("get_cached_pattern", async (idx) => {
     await Max.outlet("penultimateSync", isSyncing);
     isSyncing = false;
   }
+  else {
+    debug(`Pattern history index ${patternHistoryIndex} > history length ${onsetsHistory._queue.length}`)
+  }
 });
+
+Max.addHandler("get_source_pattern", async () => {
+  debug(`Fetching source pattern`);
+  if (generatorReady) {
+    isSyncing = true;
+    onsetsPattern = sourceOnsetsPattern;
+    velocitiesPattern = sourceVelocitiesPattern;
+    offsetsPattern = sourceOffsetsPattern;
+
+    const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
+    await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
+    await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
+    await Max.outlet("penultimateSync", isSyncing);
+    isSyncing = false;
+  }
+})
 
 Max.addHandler("clear_pattern_history", () => {
   onsetsHistory._queue = [];
