@@ -323,18 +323,18 @@ async function sync() {
   await Max.outlet("penultimateSync", isSyncing);
 }
 
-let barsPassed = 1;
+let barsCount = 0;
 async function waitSync(step) {
   if (syncOn) {
     if (!isSyncing && syncModeMapping[syncMode] === "wait") {
       if (step % LOOP_DURATION === 0) {
-        barsPassed += 1;
-        if (barsPassed % (syncRate * 2) === 0) {
+        barsCount += 1
+        if (barsCount % syncRate === 0) {
           isSyncing = true;
           await updatePattern();
           await sync();
           isSyncing = false;
-          barsPassed = 1;
+          barsCount = 0;
         }
       }
     }
