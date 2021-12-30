@@ -8,9 +8,9 @@ const process = require("process");
 
 const { AppData } = require("regroovejs/dist/appdata");
 const { Generator, Pattern, PatternHistory } = require("regroovejs");
-const { CHANNELS, LOOP_DURATION } = require("regroovejs/dist/constants");
+const { CHANNELS, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD } = require("regroovejs/dist/constants");
 
-const { validModelDir } = require("./utils");
+const { validModelDir, normalize } = require("./utils");
 
 /* ===================================================================
  * Ops, environment, appData
@@ -395,7 +395,7 @@ Max.addHandler("/params/density", (value) => {
 
 Max.addHandler("/params/minDensity", (value) => {
   if (value >= 0 && value <= 1) {
-    maxOnsetThreshold = 1 - value;
+    maxOnsetThreshold = normalize(1 - value, MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD);
     debug(`Set maxOnsetThreshold to ${value}`);
   } else {
     debug(`invalid maxOnsetThreshold value ${value} - must be between 0 and 1`);
@@ -404,7 +404,7 @@ Max.addHandler("/params/minDensity", (value) => {
 
 Max.addHandler("/params/maxDensity", (value) => {
   if (value >= 0 && value <= 1) {
-    minOnsetThreshold = 1 - value;
+    minOnsetThreshold = normalize(1 - value, MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD);
     debug(`Set minOnsetThreshold to ${value}`);
   } else {
     debug(`invalid minOnsetThreshold value ${value} - must be between 0 and 1`);
