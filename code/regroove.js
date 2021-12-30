@@ -565,23 +565,6 @@ Max.addHandler("/params/syncOn", (value) => {
 /**
  * Finally, initialization
  */
-Generator.build(
-  onsetsPattern.data,
-  velocitiesPattern.data,
-  offsetsPattern.data,
-  modelPath,
-  minOnsetThreshold,
-  maxOnsetThreshold,
-  numSamples,
-  noteDropout,
-  CHANNELS,
-  LOOP_DURATION
-)
-.then((gen) => (generator = gen))
-.catch((e) => {
-  throw e;
-});
-
 if (typeof appMidiData.data["origin"] !== "undefined") {
   isSyncing = true;
   appMidiData
