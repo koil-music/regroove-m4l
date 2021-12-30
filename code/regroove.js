@@ -99,23 +99,6 @@ const syncModeMapping = {
  * Generator
  * ====================================================================
  */
-Generator.build(
-  onsetsPattern.data,
-  velocitiesPattern.data,
-  offsetsPattern.data,
-  modelPath,
-  minOnsetThreshold,
-  maxOnsetThreshold,
-  numSamples,
-  noteDropout,
-  CHANNELS,
-  LOOP_DURATION
-)
-  .then((gen) => (generator = gen))
-  .catch((e) => {
-    throw e;
-  });
-
 async function generate() {
   if (!isGenerating) {
     isGenerating = true;
@@ -582,12 +565,29 @@ Max.addHandler("/params/syncOn", (value) => {
 /**
  * Finally, initialization
  */
+Generator.build(
+  onsetsPattern.data,
+  velocitiesPattern.data,
+  offsetsPattern.data,
+  modelPath,
+  minOnsetThreshold,
+  maxOnsetThreshold,
+  numSamples,
+  noteDropout,
+  CHANNELS,
+  LOOP_DURATION
+)
+.then((gen) => (generator = gen))
+.catch((e) => {
+  throw e;
+});
+
 if (typeof appMidiData.data["origin"] !== "undefined") {
   isSyncing = true;
   appMidiData
     .loadPattern("origin")
     .then((results) => {
-      [onsetsPattern, velocitiesPattern, _] = results;
+      [onsetsPattern, velocitiesPattern, offsetsPattern] = results;
       const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
       Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
       Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
