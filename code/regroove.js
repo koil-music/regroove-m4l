@@ -23,9 +23,8 @@ function debug(value) {
   }
 }
 
-let ENV = "v1";
 const root = path.dirname(process.cwd());
-let modelPath = path.join(root, `regroove-models/${ENV}/`);
+let modelPath = path.join(root, `regroove-models/v2/`);
 assert.ok(validModelDir(modelPath));
 
 const factoryDir = path.join(root, ".data/factory");
