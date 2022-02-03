@@ -8,9 +8,9 @@ const process = require("process");
 
 const { AppData } = require("regroovejs/dist/appdata");
 const { Generator, Pattern, PatternHistory } = require("regroovejs");
-const { CHANNELS, LOOP_DURATION } = require("regroovejs/dist/constants");
+const { CHANNELS, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD } = require("regroovejs/dist/constants");
 
-const { validModelDir } = require("./utils");
+const { validModelDir, normalize } = require("./utils");
 
 /* ===================================================================
  * Ops, environment, appData
@@ -53,6 +53,7 @@ let syncMode = "0";
 let syncRate = Math.min(...syncRateOptions); // in sixteenth notes
 let isSyncing = false;
 let activeChannels = "111111111";
+let TICKS_PER_16TH = 32;
 
 // Patterns and PatternHistory
 const dims = [1, LOOP_DURATION, CHANNELS];
@@ -64,13 +65,17 @@ const data = Float32Array.from(
 let onsetsPattern = new Pattern(data, dims);
 let velocitiesPattern = new Pattern(data, dims);
 let offsetsPattern = new Pattern(data, dims);
-
+let sourceOnsetsPattern = new Pattern(data, dims);
+let sourceVelocitiesPattern = new Pattern(data, dims);
+let sourceOffsetsPattern = new Pattern(data, dims);
 let tempOnsetsPattern = new Pattern(data, dims);
 let tempVelocitiesPattern = new Pattern(data, dims);
+let tempOffsetsPattern = new Pattern(data, dims);
 
-const onsetsHistory = new PatternHistory(20);
-const velocitiesHistory = new PatternHistory(20);
-const offsetsHistory = new PatternHistory(20);
+let patternHistoryIndex = 0;
+const onsetsHistory = new PatternHistory(100);
+const velocitiesHistory = new PatternHistory(100);
+const offsetsHistory = new PatternHistory(100);
 
 let velocityScale;
 
@@ -94,23 +99,6 @@ const syncModeMapping = {
  * Generator
  * ====================================================================
  */
-Generator.build(
-  onsetsPattern.data,
-  velocitiesPattern.data,
-  offsetsPattern.data,
-  modelPath,
-  minOnsetThreshold,
-  maxOnsetThreshold,
-  numSamples,
-  noteDropout,
-  CHANNELS,
-  LOOP_DURATION
-)
-  .then((gen) => (generator = gen))
-  .catch((e) => {
-    throw e;
-  });
-
 async function generate() {
   if (!isGenerating) {
     isGenerating = true;
@@ -127,6 +115,9 @@ async function generate() {
       LOOP_DURATION
     );
     await generator.run();
+    sourceOnsetsPattern = onsetsPattern;
+    sourceVelocitiesPattern = velocitiesPattern;
+    sourceOffsetsPattern = offsetsPattern;
     generatorReady = true;
     isGenerating = false;
     debug(
@@ -162,6 +153,7 @@ function updateCell(step, instrument, value) {
 
   onsetsTensor[0][step][instrument - 1] = value;
   velocitiesTensor[0][step][instrument - 1] = value * velocityScale;
+  // TODO: Currently settings offsets to 0 by default.
   offsetsTensor[0][step][instrument - 1] = 0;
 
   const dims = onsetsPattern.dims;
@@ -177,6 +169,7 @@ async function updatePattern() {
     onsetsHistory.append(onsetsPattern);
     velocitiesHistory.append(velocitiesPattern);
     offsetsHistory.append(offsetsPattern);
+    patternHistoryIndex = 0;
 
     try {
       const x = parseInt(densityIndex);
@@ -211,8 +204,10 @@ async function tempPatternOn() {
 
       tempOnsetsPattern = onsetsPattern;
       tempVelocitiesPattern = velocitiesPattern;
+      tempOffsetsPattern = offsetsPattern;
       onsetsPattern = new Pattern(generator.onsets.sample(x, y), dims);
-      velocitiesPattern = new Pattern(generator.velocities._T[x][y], dims);
+      velocitiesPattern = new Pattern(generator.velocities.sample(x)(y), dims);
+      offsetsPattern = new Pattern(generator.offsets.sample(x, y), dims);
     } catch (e) {
       debug(e);
     }
@@ -225,6 +220,7 @@ async function tempPatternOff() {
   if (syncToggle) {
     onsetsPattern = tempOnsetsPattern;
     velocitiesPattern = tempVelocitiesPattern;
+    offsetsPattern = tempOffsetsPattern;
   }
 }
 
@@ -260,6 +256,45 @@ function createMatrixCtrlData() {
   return [onsetsData, velocitiesData];
 }
 
+function prepareOutputData() {
+  const onsetsData = [];
+  const eventSequence = [];
+
+  const onsets = onsetsPattern.tensor()[0];
+  const velocities = velocitiesPattern.tensor()[0];
+  const offsets = offsetsPattern.tensor()[0];
+
+  for (let channel = 8; channel >= 0; channel--) {
+    if (activeChannels[channel] == "1") {
+      for (let step = 0; step < LOOP_DURATION; step++) {
+        // onsets
+        onsetsData.push(step);
+        onsetsData.push(channel);
+        const inverseChannel = CHANNELS - channel - 1;
+        const value = onsets[step][inverseChannel];
+        onsetsData.push(value);
+
+        // flat pack eventSequence with event triplets:
+        //    [bufferIndex, channelIndex, velocity]
+        if (value === 1) {
+          eventSequence.push(
+            getOffsetIndex(step, offsets[step][inverseChannel])
+          );
+          eventSequence.push(inverseChannel);
+          const velocityValue =
+            velocities[step][CHANNELS - channel - 1].toFixed(3);
+          eventSequence.push(velocityValue);
+        }
+      }
+    }
+  }
+  return [onsetsData, eventSequence];
+}
+
+function getOffsetIndex(step, offset) {
+  return step * TICKS_PER_16TH + offset * (TICKS_PER_16TH / 2);
+}
+
 /** ===================================================================
  * syncopate
  * ====================================================================
@@ -271,18 +306,18 @@ async function sync() {
   await Max.outlet("penultimateSync", isSyncing);
 }
 
-let barsPassed = 1;
+let barsCount = 0;
 async function waitSync(step) {
   if (syncOn) {
     if (!isSyncing && syncModeMapping[syncMode] === "wait") {
       if (step % LOOP_DURATION === 0) {
-        barsPassed += 1;
-        if (barsPassed % (syncRate * 2) === 0) {
+        barsCount += 1
+        if (barsCount % syncRate === 0) {
           isSyncing = true;
           await updatePattern();
           await sync();
           isSyncing = false;
-          barsPassed = 1;
+          barsCount = 0;
         }
       }
     }
@@ -343,7 +378,7 @@ Max.addHandler("/params/density", (value) => {
 
 Max.addHandler("/params/minDensity", (value) => {
   if (value >= 0 && value <= 1) {
-    maxOnsetThreshold = 1 - value;
+    maxOnsetThreshold = normalize(1 - value, MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD);
     debug(`Set maxOnsetThreshold to ${value}`);
   } else {
     debug(`invalid maxOnsetThreshold value ${value} - must be between 0 and 1`);
@@ -352,7 +387,7 @@ Max.addHandler("/params/minDensity", (value) => {
 
 Max.addHandler("/params/maxDensity", (value) => {
   if (value >= 0 && value <= 1) {
-    minOnsetThreshold = 1 - value;
+    minOnsetThreshold = normalize(1 - value, MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD);
     debug(`Set minOnsetThreshold to ${value}`);
   } else {
     debug(`invalid minOnsetThreshold value ${value} - must be between 0 and 1`);
@@ -452,13 +487,14 @@ Max.addHandler("set_active_channels", (channels) => {
   debug(activeChannels);
 });
 
-Max.addHandler("get_cached_pattern", async (idx) => {
-  debug(`Get pattern ${idx}`);
-  if (idx + 1 <= onsetsHistory._queue.length) {
+Max.addHandler("get_cached_pattern", async () => {
+  patternHistoryIndex += 1;
+  debug(`Get pattern ${patternHistoryIndex}`);
+  if (patternHistoryIndex < onsetsHistory._queue.length) {
     isSyncing = true;
-    onsetsPattern = onsetsHistory.sample(idx);
-    velocitiesPattern = velocitiesHistory.sample(idx);
-    // offsetsPattern = offsetsHistory.sample(idx);
+    onsetsPattern = onsetsHistory.sample(patternHistoryIndex);
+    velocitiesPattern = velocitiesHistory.sample(patternHistoryIndex);
+    offsetsPattern = offsetsHistory.sample(patternHistoryIndex);
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -466,7 +502,26 @@ Max.addHandler("get_cached_pattern", async (idx) => {
     await Max.outlet("penultimateSync", isSyncing);
     isSyncing = false;
   }
+  else {
+    debug(`Pattern history index ${patternHistoryIndex} > history length ${onsetsHistory._queue.length}`)
+  }
 });
+
+Max.addHandler("get_source_pattern", async () => {
+  debug(`Fetching source pattern`);
+  if (generatorReady) {
+    isSyncing = true;
+    onsetsPattern = sourceOnsetsPattern;
+    velocitiesPattern = sourceVelocitiesPattern;
+    offsetsPattern = sourceOffsetsPattern;
+
+    const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
+    await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
+    await Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);
+    await Max.outlet("penultimateSync", isSyncing);
+    isSyncing = false;
+  }
+})
 
 Max.addHandler("clear_pattern_history", () => {
   onsetsHistory._queue = [];
@@ -493,7 +548,7 @@ Max.addHandler("load_pattern", async (filename) => {
 
     onsetsPattern = loadedOnsetsPattern;
     velocitiesPattern = loadedVelocitiesPattern;
-    // offsetsPattern = loadedOffsetsPattern;
+    offsetsPattern = loadedOffsetsPattern;
 
     const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
     await Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
@@ -515,7 +570,7 @@ if (typeof appMidiData.data["origin"] !== "undefined") {
   appMidiData
     .loadPattern("origin")
     .then((results) => {
-      [onsetsPattern, velocitiesPattern, _] = results;
+      [onsetsPattern, velocitiesPattern, offsetsPattern] = results;
       const [onsetsMatrixCtrl, velocitiesMatrixCtrl] = createMatrixCtrlData();
       Max.outlet("fillOnsetsMatrix", ...onsetsMatrixCtrl);
       Max.outlet("fillVelocitiesMatrix", ...velocitiesMatrixCtrl);

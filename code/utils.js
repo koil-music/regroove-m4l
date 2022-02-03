@@ -16,4 +16,8 @@ function validModelDir(dir) {
   return valid;
 }
 
-module.exports = { validModelDir };
+const normalize = (value, min, max) => {
+  return (max - min) * value + min
+}
+
+module.exports = { validModelDir, normalize };

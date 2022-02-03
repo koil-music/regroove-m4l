@@ -3,10 +3,11 @@ node_modules
 *.onnx
 *.log
 .github
-.data/.index.json
+.data
 
 # Max 8 built-ins
 code/fit_jweb_to_bounds.js
 code/resize_n4m_monitor_patcher.js
 patchers/M4L.api.ObserveTransport.maxpat
 patchers/n4m.monitor.maxpat
+tmp
