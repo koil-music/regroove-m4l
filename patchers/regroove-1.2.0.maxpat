@@ -5479,7 +5479,7 @@
 					"autosize" : 1,
 					"bgcolor" : [ 0.2, 0.2, 0.2, 0.12 ],
 					"color" : [ 0.607843137254902, 0.435294117647059, 0.109803921568627, 1.0 ],
-					"columns" : 5,
+					"columns" : 16,
 					"elementcolor" : [ 0.0, 0.694117647058824, 0.682352941176471, 0.0 ],
 					"hint" : "",
 					"horizontalmargin" : 0,
@@ -5492,9 +5492,9 @@
 					"one/row" : 1,
 					"outlettype" : [ "list", "list" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 1628.542102347973014, 486.186490628719184, 85.0, 153.0 ],
+					"patching_rect" : [ 1628.542102347973014, 486.186490628719184, 272.0, 153.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 259.346304938197136, 8.492980955904006, 85.0, 153.0 ],
+					"presentation_rect" : [ 259.346304938197136, 8.492980955904006, 272.0, 153.0 ],
 					"rows" : 9,
 					"scale" : 0,
 					"verticalmargin" : 0,
@@ -9540,7 +9540,6 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
-						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-47",
