@@ -2,7 +2,7 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3726880716,
+	"modificationdate" : 3726989019,
 	"viewrect" : [ 7.0, 64.0, 767.0, 765.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
@@ -34,7 +34,7 @@
 
 		}
 ,
-		"externals" : 		{
+		"other" : 		{
 
 		}
 

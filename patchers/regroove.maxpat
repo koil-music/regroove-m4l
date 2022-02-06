@@ -63,7 +63,7 @@
 					"outlettype" : [ "bang" ],
 					"outlinecolor" : [ 0.349019607843137, 0.349019607843137, 0.349019607843137, 0.0 ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 644.087528765201569, 1196.942924244403912, 51.578951120376587, 51.578951120376587 ],
+					"patching_rect" : [ 644.049999999999955, 1196.942924244403912, 51.578951120376587, 51.578951120376587 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 540.912977700574515, 12.492980955904017, 14.965633080999055, 14.965633080999055 ]
 				}
@@ -80,7 +80,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "jit_matrix" ],
 					"patching_rect" : [ 644.087528765201569, 1196.942924244403912, 51.578951120376587, 51.535968661109607 ],
-					"pic" : "C:/Users/maxkr/OneDrive/Pictures/Icons/target.png",
+					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/target.png",
 					"presentation" : 1,
 					"presentation_rect" : [ 540.912977700574515, 11.492980955904017, 14.97811484336853, 14.965633080999057 ]
 				}
@@ -135,7 +135,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "jit_matrix" ],
 					"patching_rect" : [ 647.438452668189939, 993.044101531791512, 34.821429193019867, 36.536403221798146 ],
-					"pic" : "C:/Users/maxkr/OneDrive/Pictures/Icons/trash.png",
+					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/trash.png",
 					"presentation" : 1,
 					"presentation_rect" : [ 541.67973869153559, 72.302652162378322, 13.676709280014052, 14.350294533633587 ]
 				}
@@ -151,7 +151,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "jit_matrix" ],
 					"patching_rect" : [ 644.087528765201569, 1095.10312408208847, 35.434827046394389, 35.434827046394389 ],
-					"pic" : "C:/Users/maxkr/OneDrive/Pictures/Icons/return.png",
+					"pic" : "C:/Users/maxkr/Music/software/regroove/regroove-m4l/assets/images/return.png",
 					"presentation" : 1,
 					"presentation_rect" : [ 541.632402186734794, 40.51800775236412, 13.594290852546692, 13.594290852546692 ]
 				}
@@ -5025,10 +5025,6 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 631.054355708452363, 21.196107280319119, 34.680017694830894, 34.205975025892258 ],
 					"saved_attribute_attributes" : 					{
-						"activebgcolor" : 						{
-							"expression" : ""
-						}
-,
 						"bgcolor" : 						{
 							"expression" : ""
 						}
@@ -5037,11 +5033,15 @@
 							"expression" : ""
 						}
 ,
-						"focusbordercolor" : 						{
+						"activebgoncolor" : 						{
 							"expression" : ""
 						}
 ,
-						"activebgoncolor" : 						{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"focusbordercolor" : 						{
 							"expression" : ""
 						}
 ,
@@ -5214,14 +5214,6 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 41.646716321586609, 33.236321060061414, 36.281385421752901, 36.459920167922974 ],
 					"saved_attribute_attributes" : 					{
-						"activebgcolor" : 						{
-							"expression" : ""
-						}
-,
-						"bgoncolor" : 						{
-							"expression" : ""
-						}
-,
 						"bgcolor" : 						{
 							"expression" : ""
 						}
@@ -5230,11 +5222,19 @@
 							"expression" : ""
 						}
 ,
-						"focusbordercolor" : 						{
+						"activebgoncolor" : 						{
 							"expression" : ""
 						}
 ,
-						"activebgoncolor" : 						{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgoncolor" : 						{
+							"expression" : ""
+						}
+,
+						"focusbordercolor" : 						{
 							"expression" : ""
 						}
 ,
@@ -7846,7 +7846,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 1863.190364003181458, 2163.550333900451733, 217.54667379140858, 22.0 ],
-					"text" : "50 50 50 50 50 50 50 50 50"
+					"text" : "90 90 90 90 90 90 90 90 90"
 				}
 
 			}
@@ -7882,7 +7882,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 1265.69035816192627, 1848.550333900451733, 245.0, 22.0 ],
-					"text" : "50 50 50 50 50 50 50 50 50"
+					"text" : "90 90 90 90 90 90 90 90 90"
 				}
 
 			}
@@ -10174,6 +10174,8 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 1,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 1
 					}
 ,
@@ -12358,22 +12360,22 @@
 			}
 , 			{
 				"name" : "return.png",
-				"bootpath" : "~/OneDrive/Pictures/Icons",
-				"patcherrelativepath" : "../../../../../OneDrive/Pictures/Icons",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
 				"type" : "PNG",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "trash.png",
-				"bootpath" : "~/OneDrive/Pictures/Icons",
-				"patcherrelativepath" : "../../../../../OneDrive/Pictures/Icons",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
 				"type" : "PNG",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "target.png",
-				"bootpath" : "~/OneDrive/Pictures/Icons",
-				"patcherrelativepath" : "../../../../../OneDrive/Pictures/Icons",
+				"bootpath" : "~/Music/software/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
 				"type" : "PNG",
 				"implicit" : 1
 			}
