@@ -1026,12 +1026,11 @@
 			}
 , 			{
 				"box" : 				{
-					"annotation" : "Available in regroove v2.",
+					"annotation" : "",
 					"fontname" : "Ableton Sans",
 					"fontsize" : 9.0,
-					"hint" : "Available in regroove v2.",
+					"hint" : "",
 					"id" : "obj-21",
-					"ignoreclick" : 1,
 					"maxclass" : "live.text",
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -1043,7 +1042,6 @@
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_enum" : [ "val1", "val2" ],
-							"parameter_info" : "Available in regroove v2.",
 							"parameter_longname" : "dynamics-toggle",
 							"parameter_mmax" : 1,
 							"parameter_shortname" : "dynamics-toggle",
@@ -1079,7 +1077,6 @@
 				"box" : 				{
 					"floatoutput" : 1,
 					"id" : "obj-8",
-					"ignoreclick" : 1,
 					"maxclass" : "dial",
 					"mult" : 0.009999999776483,
 					"needlecolor" : [ 1.0, 0.709803921568627, 0.196078431372549, 1.0 ],
@@ -5025,11 +5022,7 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 631.054355708452363, 21.196107280319119, 34.680017694830894, 34.205975025892258 ],
 					"saved_attribute_attributes" : 					{
-						"bgcolor" : 						{
-							"expression" : ""
-						}
-,
-						"bordercolor" : 						{
+						"focusbordercolor" : 						{
 							"expression" : ""
 						}
 ,
@@ -5037,11 +5030,15 @@
 							"expression" : ""
 						}
 ,
-						"activebgcolor" : 						{
+						"bordercolor" : 						{
 							"expression" : ""
 						}
 ,
-						"focusbordercolor" : 						{
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"activebgcolor" : 						{
 							"expression" : ""
 						}
 ,
@@ -5214,19 +5211,7 @@
 					"presentation" : 1,
 					"presentation_rect" : [ 41.646716321586609, 33.236321060061414, 36.281385421752901, 36.459920167922974 ],
 					"saved_attribute_attributes" : 					{
-						"bgcolor" : 						{
-							"expression" : ""
-						}
-,
-						"bordercolor" : 						{
-							"expression" : ""
-						}
-,
-						"activebgoncolor" : 						{
-							"expression" : ""
-						}
-,
-						"activebgcolor" : 						{
+						"focusbordercolor" : 						{
 							"expression" : ""
 						}
 ,
@@ -5234,7 +5219,19 @@
 							"expression" : ""
 						}
 ,
-						"focusbordercolor" : 						{
+						"activebgoncolor" : 						{
+							"expression" : ""
+						}
+,
+						"bordercolor" : 						{
+							"expression" : ""
+						}
+,
+						"bgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"activebgcolor" : 						{
 							"expression" : ""
 						}
 ,
