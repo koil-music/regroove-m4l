@@ -110,7 +110,7 @@ class PatternStore {
     const offsetsTensor = this.currentOffsets.tensor();
 
     onsetsTensor[0][step][instrumentIndex] = value;
-    velocitiesTensor[0][step][instrumentIndex] = this.root.uiParamsStore.velocity;
+    velocitiesTensor[0][step][instrumentIndex] = this.currentMeanVelocity;
     offsetsTensor[0][step][instrumentIndex] = 0;
 
     this.currentOnsets = new Pattern(onsetsTensor, this.dims);
@@ -207,7 +207,11 @@ class PatternStore {
         total += v;
       }
     }
-    return total / count;
+    if (count < 4) {
+      return 0.5
+    } else {
+      return total / count;
+    }
   }
 }
 
