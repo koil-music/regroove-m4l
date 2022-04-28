@@ -14,7 +14,6 @@ let modelDir = path.join(cwd, `regroove-models/v2/`);
 assert.ok(validModelDir(modelDir));
 const store = new RootStore(modelDir);
 
-
 /**
  * ========================
  * Inference
@@ -62,7 +61,7 @@ Max.addHandler("/params/random", (value) => {
  */
 Max.addHandler("/params/generate", () => {
   store.inferenceStore.run();
-  log("Generator successfully ran.")
+  log("Generator successfully ran.");
 });
 
 /**
@@ -78,9 +77,7 @@ Max.addHandler("/params/syncMode", (value) => {
     log(`Set syncMode to ${store.uiParamsStore.syncModeName}`);
   } else {
     log(
-      `invalid syncMode id: ${value} - must be one of ${Object.keys(
-        SyncMode
-      )}`
+      `invalid syncMode id: ${value} - must be one of ${Object.keys(SyncMode)}`
     );
   }
 });
@@ -91,7 +88,7 @@ Max.addHandler("/params/syncMode", (value) => {
  */
 Max.addHandler("/params/syncOn", (value) => {
   store.uiParamsStore.syncOn = Boolean(parseInt(value));
-  log(`Sync: ${store.uiParamsStore.syncOn}`)
+  log(`Sync: ${store.uiParamsStore.syncOn}`);
 });
 
 /**
@@ -103,7 +100,9 @@ Max.addHandler("/params/syncRate", (value) => {
     log(`Set sync_rate to ${value}`);
     store.uiParamsStore.syncRate = value;
   } else {
-    Max.post(`invalid syncRate ${value} - must be one of ${store.uiParamsStore.syncRateOptions}`);
+    Max.post(
+      `invalid syncRate ${value} - must be one of ${store.uiParamsStore.syncRateOptions}`
+    );
   }
 });
 
@@ -122,7 +121,10 @@ Max.addHandler("/params/sync", () => {
  * @param {float} step: range = [0, loopDuration]
  */
 Max.addHandler("auto_sync", (step) => {
-  if (store.uiParamsStore.syncOn && store.uiParamsStore.syncModeName == "Auto") {
+  if (
+    store.uiParamsStore.syncOn &&
+    store.uiParamsStore.syncModeName == "Auto"
+  ) {
     log(`autoSync: ${step}`);
     const [onsetsData, velocitiesData] = store.matrixCtrlStore.autoSync(step);
     Max.outlet("fillOnsetsMatrix", ...onsetsData);
@@ -143,7 +145,29 @@ Max.addHandler("/params/velocity", (value) => {
     log(`Set velocity to ${value}`);
     store.uiParamsStore.velocity = value;
   } else {
-    Max.post(`invalid velocity value ${value} - must be between 0 and 1`);
+    log(`invalid velocity value ${value} - must be between 0 and 1`);
+  }
+});
+
+/**
+ * Trigger a sync with the matrixCtrl view if step is at downbeat
+ * @param {float} step: range = [0, loopDuration]
+ */
+Max.addHandler("/params/dynamics", (value) => {
+  if (value >= 0 && value <= 1) {
+    log(`Set dynamics to ${value}`);
+    store.uiParamsStore.dynamics = value;
+  } else {
+    log(`invalid dynamics value ${value} - must be between 0 and 1`);
+  }
+});
+
+Max.addHandler("/params/microtiming", (value) => {
+  if (value >= 0 && value <= 1) {
+    log(`Set microtiming to ${value}`);
+    store.uiParamsStore.microtiming = value;
+  } else {
+    log(`invalid microtiming value ${value} - must be between 0 and 1`);
   }
 });
 
@@ -164,7 +188,7 @@ Max.addHandler("/params/dynamics", (value) => {
  * Set microtiming parameter
  * @param {float} value: range = [0, 1]
  */
- Max.addHandler("/params/microtiming", (value) => {
+Max.addHandler("/params/microtiming", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set microtiming to ${value}`);
     store.uiParamsStore.microtiming = value;
@@ -177,7 +201,7 @@ Max.addHandler("/params/dynamics", (value) => {
  * Set density parameter
  * @param {float} value: range = [0, 1]
  */
- Max.addHandler("/params/density", (value) => {
+Max.addHandler("/params/density", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set density to ${value}`);
     store.uiParamsStore.density = value;
@@ -197,8 +221,26 @@ Max.addHandler("/params/dynamics", (value) => {
  */
 Max.addHandler("update_note", (step, instrument, value) => {
   const instrumentIndex = store.uiParamsStore.channels - instrument - 1;
-  if (step < store.uiParamsStore.loopDuration && instrument < store.uiParamsStore.channels) {
-    store.patternStore.updateNote(step, instrumentIndex, value);
+  if (
+    step < store.uiParamsStore.loopDuration &&
+    instrument < store.uiParamsStore.channels
+  ) {
+    if (!store.eventSequence.ignoreNoteUpdate) {
+      store.patternStore.updateNote(step, instrumentIndex, value);
+      const midiNoteEvents = store.eventSequence.getMidiNoteEventsForCell(
+        step,
+        instrumentIndex,
+        value,
+        store.uiParamsStore.dynamics,
+        store.uiParamsStore.microtiming,
+        store.uiParamsStore.velocity,
+        store.uiParamsStore.activeChannels
+      );
+      for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
+        log("Updating dictionary");
+        Max.updateDict("midiEventSequence", idx, noteEvents);
+      }
+    }
   } else {
     log(`Invalid pattern index: [${step}, ${instrument}]`);
   }
@@ -238,7 +280,7 @@ Max.addHandler("set_input_pattern", () => {
   const [onsetsData, velocitiesData] = store.patternStore.matrixCtrlData;
   Max.outlet("fillOnsetsMatrix", ...onsetsData);
   Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
-})
+});
 
 /**
  * Reset the pattern history

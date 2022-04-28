@@ -6,13 +6,13 @@ const log = (value) => {
   if (DEBUG) {
     Max.post(`${value}`);
   }
-}
+};
 
 /**
  * Turns debug on or off.
  * @param {bool} value
  */
- Max.addHandler("debug", (value) => {
+Max.addHandler("debug", (value) => {
   if (value === 1) {
     DEBUG = true;
   } else if (value == 0) {
@@ -38,7 +38,7 @@ function validModelDir(dir) {
 }
 
 const normalize = (value, min, max) => {
-  return (max - min) * value + min
-}
+  return (max - min) * value + min;
+};
 
 module.exports = { log, validModelDir, normalize };
