@@ -35,10 +35,20 @@ class InferenceStore {
   async run() {
     if (!this.isGenerating) {
       this.toggleGenerating();
-      const syncInferenceSession = await InferenceSession.create(path.join(this.modelDir, this.syncModelName));
-      const syncModel = new ONNXModel(syncInferenceSession, this.syncLatentSize);
-      const grooveInferenceSession = await InferenceSession.create(path.join(this.modelDir, this.grooveModelName));
-      const grooveModel = new ONNXModel(grooveInferenceSession, this.grooveLatentSize);
+      const syncInferenceSession = await InferenceSession.create(
+        path.join(this.modelDir, this.syncModelName)
+      );
+      const syncModel = new ONNXModel(
+        syncInferenceSession,
+        this.syncLatentSize
+      );
+      const grooveInferenceSession = await InferenceSession.create(
+        path.join(this.modelDir, this.grooveModelName)
+      );
+      const grooveModel = new ONNXModel(
+        grooveInferenceSession,
+        this.grooveLatentSize
+      );
       this.generator = new Generator(
         syncModel,
         grooveModel,
@@ -50,8 +60,8 @@ class InferenceStore {
         CHANNELS,
         LOOP_DURATION,
         this.minOnsetThreshold,
-        this.maxOnsetThreshold,
-      )
+        this.maxOnsetThreshold
+      );
       await this.generator.run();
       this.rootStore.patternStore.resetInput();
       this.toggleGenerating();
