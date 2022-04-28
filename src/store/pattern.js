@@ -56,6 +56,7 @@ class PatternStore {
   }
 
   setCurrentFromTemp() {
+    this.root.eventSequence.togglePatternUpdate();
     this.currentOnsets = this.tempOnsets;
     this.currentVelocities = this.tempVelocities;
     this.currentOffsets = this.tempOffsets;
@@ -80,6 +81,7 @@ class PatternStore {
 
   clearCurrent() {
     this.updateHistory();
+    this.root.eventSequence.togglePatternUpdate();
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
@@ -88,6 +90,7 @@ class PatternStore {
   updateCurrent() {
     const randomIndex = Math.floor(Math.random() * Math.sqrt(NUM_SAMPLES));
     this.updateHistory();
+    this.root.eventSequence.togglePatternUpdate();
     const x = parseInt(this.root.uiParamsStore.densityIndex);
     const y = parseInt(randomIndex);
     this.currentOnsets = new Pattern(
@@ -148,42 +151,13 @@ class PatternStore {
     return [onsetsData, velocitiesData];
   }
 
-  get eventSequence() {
-    const eventSequence = [];
-
-    const onsets = onsetsPattern.tensor()[0];
-    const velocities = velocitiesPattern.tensor()[0];
-    const offsets = offsetsPattern.tensor()[0];
-
-    for (let channel = 8; channel >= 0; channel--) {
-      if (activeChannels[channel] == "1") {
-        for (let step = 0; step < LOOP_DURATION; step++) {
-          const inverseChannel = CHANNELS - channel - 1;
-          const value = onsets[step][inverseChannel];
-
-          // flat pack eventSequence with event triplets:
-          //    [bufferIndex, channelIndex, velocity]
-          if (value === 1) {
-            eventSequence.push(
-              _getOffsetIndex(step, offsets[step][inverseChannel])
-            );
-            eventSequence.push(inverseChannel);
-            const velocityValue =
-              velocities[step][CHANNELS - channel - 1].toFixed(3);
-            eventSequence.push(velocityValue);
-          }
-        }
-      }
-    }
-    return eventSequence;
-  }
-
   get current() {
     return [this.currentOnsets, this.currentVelocities, this.currentOffsets];
   }
 
   setInput() {
     this.updateHistory();
+    this.root.eventSequence.togglePatternUpdate();
     this.currentOnsets = this.inputOnsets;
     this.currentVelocities = this.inputVelocities;
     this.currentOffsets = this.inputOffsets;
@@ -192,6 +166,7 @@ class PatternStore {
   setPrevious() {
     this.currentHistoryIndex += 1;
     if (this.currentHistoryIndex < this.onsetsHistory._queue.length) {
+      this.root.eventSequence.togglePatternUpdate();
       this.currentOnsets = this.onsetsHistory[this.currentHistoryIndex];
       this.currentVelocities = this.velocitiesHistory[this.currentHistoryIndex];
       this.currentOffsets = this.offsetsHistory[this.currentHistoryIndex];
