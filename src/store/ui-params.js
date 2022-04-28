@@ -36,6 +36,14 @@ class UIParamsStore {
     this.rootStore = rootStore;
   }
 
+  get expressionParams() {
+    return {
+      dynamics: this.dynamics,
+      microtiming: this.microtiming,
+      velocity: this.velocity,
+    };
+  }
+
   get syncModeName() {
     return Object.keys(SyncMode)[this.syncModeIndex];
   }
