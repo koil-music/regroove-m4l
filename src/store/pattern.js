@@ -39,8 +39,8 @@ class PatternStore {
   get emptyPatternData() {
     return Float32Array.from(
       { length: this.dims[0] * this.dims[1] * this.dims[2] },
-      () => 0.
-    )
+      () => 0
+    );
   }
 
   resetInput() {
@@ -207,16 +207,12 @@ class PatternStore {
         total += v;
       }
     }
-    if (count < 4) {
-      return 0.5
+    if (count < 8) {
+      return 1.0;
     } else {
       return total / count;
     }
   }
-}
-
-function _getOffsetIndex(step, offset) {
-  return step * TICKS_PER_16TH + offset * (TICKS_PER_16TH / 2);
 }
 
 module.exports = { PatternStore };
