@@ -7,37 +7,12 @@ const process = require("process");
 
 const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
-const { validModelDir } = require("./utils");
+const { log, validModelDir } = require("./utils");
 
-/* ===================================================================
- * Ops, environment, appData
- * ===================================================================
- */
-let DEBUG = true;
-function debug(value) {
-  if (DEBUG) {
-    Max.post(`${value}`);
-  }
-}
-
-const root = path.dirname(process.cwd());
-let modelDir = path.join(root, `regroove-models/v2/`);
+const cwd = path.dirname(process.cwd());
+let modelDir = path.join(cwd, `regroove-models/v2/`);
 assert.ok(validModelDir(modelDir));
-
-const store = new RootStore(modelDir)
-
-/**
- * Turns debug on or off.
- * @param {bool} value
- */
-Max.addHandler("debug", (value) => {
-  if (value === 1) {
-    DEBUG = true;
-  } else if (value == 0) {
-    DEBUG = false;
-  }
-  debug(`DEBUG: ${DEBUG}`);
-});
+const store = new RootStore(modelDir);
 
 
 /**
@@ -50,9 +25,9 @@ Max.addHandler("debug", (value) => {
 Max.addHandler("/params/minDensity", (value) => {
   if (value >= 0 && value <= 1) {
     store.uiParamsStore.minDensity = value;
-    debug(`Set maxOnsetThreshold to ${store.uiParamsStore.maxOnsetThreshold}`);
+    log(`Set maxOnsetThreshold to ${store.uiParamsStore.maxOnsetThreshold}`);
   } else {
-    debug(`invalid minDensity value ${value} - must be between 0 and 1`);
+    log(`invalid minDensity value ${value} - must be between 0 and 1`);
   }
 });
 
@@ -63,9 +38,9 @@ Max.addHandler("/params/minDensity", (value) => {
 Max.addHandler("/params/maxDensity", (value) => {
   if (value >= 0 && value <= 1) {
     store.uiParamsStore.maxDensity = value;
-    debug(`Set minOnsetThreshold to ${store.uiParamsStore.minOnsetThreshold}`);
+    log(`Set minOnsetThreshold to ${store.uiParamsStore.minOnsetThreshold}`);
   } else {
-    debug(`invalid minOnsetThreshold value ${value} - must be between 0 and 1`);
+    log(`invalid minOnsetThreshold value ${value} - must be between 0 and 1`);
   }
 });
 
@@ -76,9 +51,9 @@ Max.addHandler("/params/maxDensity", (value) => {
 Max.addHandler("/params/random", (value) => {
   if (value >= 0 && value <= 1) {
     store.uiParamsStore.random = value;
-    debug(`Set noteDropout to ${store.uiParamsStore.noteDropout}`);
+    log(`Set noteDropout to ${store.uiParamsStore.noteDropout}`);
   } else {
-    debug(`invalid random value ${value} - must be between 0 and 1`);
+    log(`invalid random value ${value} - must be between 0 and 1`);
   }
 });
 
@@ -87,7 +62,7 @@ Max.addHandler("/params/random", (value) => {
  */
 Max.addHandler("/params/generate", () => {
   store.inferenceStore.run();
-  debug("Generator successfully ran.")
+  log("Generator successfully ran.")
 });
 
 /**
@@ -100,9 +75,9 @@ Max.addHandler("/params/generate", () => {
 Max.addHandler("/params/syncMode", (value) => {
   if (Object.values(SyncMode).includes(value)) {
     store.uiParamsStore.syncModeIndex = value;
-    debug(`Set syncMode to ${store.uiParamsStore.syncModeName}`);
+    log(`Set syncMode to ${store.uiParamsStore.syncModeName}`);
   } else {
-    debug(
+    log(
       `invalid syncMode id: ${value} - must be one of ${Object.keys(
         SyncMode
       )}`
@@ -116,7 +91,7 @@ Max.addHandler("/params/syncMode", (value) => {
  */
 Max.addHandler("/params/syncOn", (value) => {
   store.uiParamsStore.syncOn = Boolean(parseInt(value));
-  debug(`Sync: ${store.uiParamsStore.syncOn}`)
+  log(`Sync: ${store.uiParamsStore.syncOn}`)
 });
 
 /**
@@ -125,7 +100,7 @@ Max.addHandler("/params/syncOn", (value) => {
  */
 Max.addHandler("/params/syncRate", (value) => {
   if (store.uiParamsStore.syncRateOptions.includes(parseFloat(value))) {
-    debug(`Set sync_rate to ${value}`);
+    log(`Set sync_rate to ${value}`);
     store.uiParamsStore.syncRate = value;
   } else {
     Max.post(`invalid syncRate ${value} - must be one of ${store.uiParamsStore.syncRateOptions}`);
@@ -148,7 +123,7 @@ Max.addHandler("/params/sync", () => {
  */
 Max.addHandler("auto_sync", (step) => {
   if (store.uiParamsStore.syncOn && store.uiParamsStore.syncModeName == "Auto") {
-    debug(`autoSync: ${step}`);
+    log(`autoSync: ${step}`);
     const [onsetsData, velocitiesData] = store.matrixCtrlStore.autoSync(step);
     Max.outlet("fillOnsetsMatrix", ...onsetsData);
     Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
@@ -165,7 +140,7 @@ Max.addHandler("auto_sync", (step) => {
  */
 Max.addHandler("/params/velocity", (value) => {
   if (value >= 0 && value <= 1) {
-    debug(`Set velocity to ${value}`);
+    log(`Set velocity to ${value}`);
     store.uiParamsStore.velocity = value;
   } else {
     Max.post(`invalid velocity value ${value} - must be between 0 and 1`);
@@ -178,7 +153,7 @@ Max.addHandler("/params/velocity", (value) => {
  */
 Max.addHandler("/params/dynamics", (value) => {
   if (value >= 0 && value <= 1) {
-    debug(`Set dynamics to ${value}`);
+    log(`Set dynamics to ${value}`);
     store.uiParamsStore.dynamics = value;
   } else {
     Max.post(`invalid dynamics value ${value} - must be between 0 and 1`);
@@ -191,7 +166,7 @@ Max.addHandler("/params/dynamics", (value) => {
  */
  Max.addHandler("/params/microtiming", (value) => {
   if (value >= 0 && value <= 1) {
-    debug(`Set microtiming to ${value}`);
+    log(`Set microtiming to ${value}`);
     store.uiParamsStore.microtiming = value;
   } else {
     Max.post(`invalid microtiming value ${value} - must be between 0 and 1`);
@@ -204,7 +179,7 @@ Max.addHandler("/params/dynamics", (value) => {
  */
  Max.addHandler("/params/density", (value) => {
   if (value >= 0 && value <= 1) {
-    debug(`Set density to ${value}`);
+    log(`Set density to ${value}`);
     store.uiParamsStore.density = value;
   } else {
     Max.post(`invalid microtiming value ${value} - must be between 0 and 1`);
@@ -225,7 +200,7 @@ Max.addHandler("update_note", (step, instrument, value) => {
   if (step < store.uiParamsStore.loopDuration && instrument < store.uiParamsStore.channels) {
     store.patternStore.updateNote(step, instrumentIndex, value);
   } else {
-    Max.post(`Invalid pattern index: [${step}, ${instrument}]`);
+    log(`Invalid pattern index: [${step}, ${instrument}]`);
   }
 });
 
@@ -242,7 +217,7 @@ Max.addHandler("clear_pattern", () => {
  */
 Max.addHandler("set_active_channels", (channels) => {
   store.uiParamsStore._channels = channels;
-  debug(`Set active channels to ${store.uiParamsStore.activeChannels}`);
+  log(`Set active channels to ${store.uiParamsStore.activeChannels}`);
 });
 
 /**
