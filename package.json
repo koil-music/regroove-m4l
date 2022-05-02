@@ -5,12 +5,13 @@
   "main": "code/regroove.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "npx prettier --write  code"
+    "prettier": "npx prettier --write src"
   },
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
-    "regroovejs": "0.1.3"
+    "mobx": "^6.5.0",
+    "regroovejs": "0.2.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
