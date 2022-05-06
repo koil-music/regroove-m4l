@@ -234,7 +234,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 50.0, 158.0, 79.5, 22.0 ],
-									"text" : "0.479863"
+									"text" : "0.51"
 								}
 
 							}
@@ -429,7 +429,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 50.0, 158.0, 79.5, 22.0 ],
-									"text" : "0.453014"
+									"text" : "0.51"
 								}
 
 							}
@@ -1312,7 +1312,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 50.0, 158.0, 79.5, 22.0 ],
-									"text" : "0.939589"
+									"text" : "0.51"
 								}
 
 							}
@@ -11199,15 +11199,16 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 149.251784801483097, 1725.706949038505627, 448.0, 22.0 ],
+					"patching_rect" : [ 149.251784801483097, 1725.706949038505627, 257.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 1,
 						"defer" : 0,
-						"options" : [ "--inspect=127.0.0.1:9229" ],
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 1
 					}
 ,
-					"text" : "node.script src/main.js @watch 1 @autostart 1 @options --inspect=127.0.0.1:9229"
+					"text" : "node.script src/main.js @watch 1 @autostart 1"
 				}
 
 			}
@@ -11625,7 +11626,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-201", 1 ],
-					"midpoints" : [ 587.751784801483154, 1761.623599095344616, 374.751784801483097, 1761.623599095344616 ],
+					"midpoints" : [ 396.751784801483097, 1761.623599095344616, 374.751784801483097, 1761.623599095344616 ],
 					"order" : 0,
 					"source" : [ "obj-140", 1 ]
 				}
