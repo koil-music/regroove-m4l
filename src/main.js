@@ -9,8 +9,8 @@ const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
-const cwd = path.dirname(process.cwd());
-let modelDir = path.join(cwd, `regroove-models/v2/`);
+const root = path.dirname(process.cwd());
+let modelDir = path.join(root, `regroove-models/current/`);
 assert.ok(validModelDir(modelDir));
 const store = new RootStore(modelDir);
 

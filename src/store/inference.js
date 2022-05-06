@@ -21,9 +21,9 @@ class InferenceStore {
   numSamples = NUM_SAMPLES;
   isGenerating = false;
   syncLatentSize = 2;
-  syncModelName = "graceful-fire-240/model.onnx";
-  grooveLatentSize = 8;
-  grooveModelName = "happy-glade-59/model.onnx";
+  syncModelName = "syncopate.onnx";
+  grooveLatentSize = 256;
+  grooveModelName = "groove.onnx";
 
   constructor(rootStore, modelDir) {
     makeAutoObservable(this);
