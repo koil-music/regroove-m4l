@@ -1,7 +1,6 @@
 const Max = require("max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 const { CHANNELS, LOOP_DURATION } = require("./ui-params");
-const midiPitchMapping = require("../data/midi-pitch-mapping.json");
 const { log } = require("../utils");
 
 const BUFFER_LENGTH = 512;
@@ -38,8 +37,8 @@ class MidiEvent {
     this.dynamicsMagnitude = dynamicsMagnitude;
   }
 
-  get pitch() {
-    return midiPitchMapping[this.instrumentIndex];
+  get instrument() {
+    return this.instrumentIndex;
   }
 
   get bufferIndex() {
@@ -142,34 +141,32 @@ class EventSequence {
 
     const existingNotes = this.quantizedEventSequence[event.step];
     if (Object.keys(existingNotes) === undefined) {
-      // pitch does not yet exist -> add
+      // instrument does not yet exist -> add
       if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
-        existingNotes[event.pitch] = [event.bufferIndex, event.velocity];
+        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
-    } else if (Object.keys(existingNotes).includes(event.pitch)) {
-      // event.pitch exists in this time step already -> remove
+    } else if (Object.keys(existingNotes).includes(event.instrument)) {
+      // event.instrument exists in this time step already -> remove
       if (event.onset == 0 && activeChannels[event.instrumentIndex] === "1") {
-        delete existingNotes[event.pitch];
+        delete existingNotes[event.instrument];
         this.quantizedEventSequence[step] = existingNotes;
       }
     } else {
-      // pitch does not yet exist -> add
+      // instrument does not yet exist -> add
       if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
-        existingNotes[event.pitch] = [event.bufferIndex, event.velocity];
+        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
     }
 
-    // update event sequence
-    // const updateNotes = pitchToBufferIndex(existingNotes)
+    // Transform to event sequence (index by bufferIndex)
     const updateBufferData = {};
-    for (const [p, [idx, v]] of Object.entries(existingNotes)) {
-      const pitch = parseInt(p);
-      if (Object.keys(updateBufferData).includes(idx.toString())) {
-        updateBufferData[idx].push(...[pitch, v]);
+    for (const [instr, [bufferIdx, v]] of Object.entries(existingNotes)) {
+      if (Object.keys(updateBufferData).includes(bufferIdx.toString())) {
+        updateBufferData[bufferIdx].push(...[instr, v]);
       } else {
-        updateBufferData[idx] = [pitch, v];
+        updateBufferData[bufferIdx] = [instr, v];
       }
     }
     return updateBufferData;
@@ -211,7 +208,7 @@ class EventSequence {
 const emptyEventSequenceDict = (length) => {
   const eventSequenceDict = {};
   for (let i = 0; i < length; i++) {
-    eventSequenceDict[i] = [0, 0];
+    eventSequenceDict[i] = [-1, 0];
   }
   return eventSequenceDict;
 };
