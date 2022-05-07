@@ -110,10 +110,8 @@ Max.addHandler("/params/syncRate", (value) => {
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  const [onsetsData, velocitiesData] = store.matrixCtrlStore.sync();
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
-  Max.outlet("penultimateSync", true);
+  const onsetsData = store.matrixCtrlStore.sync();
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**
@@ -126,10 +124,8 @@ Max.addHandler("auto_sync", (step) => {
     store.uiParamsStore.syncModeName == "Auto"
   ) {
     log(`autoSync: ${step}`);
-    const [onsetsData, velocitiesData] = store.matrixCtrlStore.autoSync(step);
-    Max.outlet("fillOnsetsMatrix", ...onsetsData);
-    Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
-    Max.outlet("penultimateSync", true);
+    const onsetsData = store.matrixCtrlStore.autoSync(step);
+    Max.outlet("updateMatrixCtrl", ...onsetsData);
   }
 });
 
@@ -267,9 +263,8 @@ Max.addHandler("set_active_channels", (channels) => {
  */
 Max.addHandler("set_previous_pattern", () => {
   store.patternStore.setPrevious();
-  const [onsetsData, velocitiesData] = store.patternStore.matrixCtrlData;
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
+  const onsetsData = store.patternStore.matrixCtrlData;
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**
@@ -277,9 +272,8 @@ Max.addHandler("set_previous_pattern", () => {
  */
 Max.addHandler("set_input_pattern", () => {
   store.patternStore.setInput();
-  const [onsetsData, velocitiesData] = store.patternStore.matrixCtrlData;
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
+  const onsetsData = store.patternStore.matrixCtrlData;
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**
