@@ -21,6 +21,8 @@ class UIParamsStore {
   numSamples = 400;
   microtiming = 0.5;
   dynamics = 0.5;
+  microtimingOn = true;
+  dynamicsOn = true;
   velocity = 0.5;
   density = 0.5;
   loopDuration = LOOP_DURATION;
@@ -41,6 +43,8 @@ class UIParamsStore {
       dynamics: this.dynamics,
       microtiming: this.microtiming,
       velocity: this.velocity,
+      dynamicsOn: this.dynamicsOn,
+      microtimingOn: this.microtimingOn,
     };
   }
 

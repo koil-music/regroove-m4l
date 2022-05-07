@@ -10,7 +10,7 @@ const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
 const root = path.dirname(process.cwd());
-let modelDir = path.join(root, `regroove-models/current/`);
+let modelDir = path.join(root, `current/`);
 assert.ok(validModelDir(modelDir));
 const store = new RootStore(modelDir);
 
@@ -84,7 +84,7 @@ Max.addHandler("/params/syncMode", (value) => {
 
 /**
  * Set sync on or off.
- * @param {bool} value
+ * @param {int} value: On or Off
  */
 Max.addHandler("/params/syncOn", (value) => {
   store.uiParamsStore.syncOn = Boolean(parseInt(value));
@@ -182,15 +182,20 @@ Max.addHandler("/params/dynamics", (value) => {
 
 /**
  * Set microtiming parameter
- * @param {float} value: range = [0, 1]
+ * @param {int} value: On or off
  */
-Max.addHandler("/params/microtiming", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set microtiming to ${value}`);
-    store.uiParamsStore.microtiming = value;
-  } else {
-    Max.post(`invalid microtiming value ${value} - must be between 0 and 1`);
-  }
+Max.addHandler("/params/microtimingOn", (value) => {
+  store.uiParamsStore.microtimingOn = Boolean(parseInt(value));
+  log(`Set microtimingOn to ${store.uiParamsStore.microtimingOn}`);
+});
+
+/**
+ * Set microtiming parameter
+ * @param {int} value: On or off
+ */
+ Max.addHandler("/params/dynamicsOn", (value) => {
+  store.uiParamsStore.dynamicsOn = Boolean(parseInt(value));
+  log(`Set dynamicsOn to ${store.uiParamsStore.dynamicsOn}`);
 });
 
 /**
@@ -230,6 +235,8 @@ Max.addHandler("update_note", (step, instrument, value) => {
         store.uiParamsStore.dynamics,
         store.uiParamsStore.microtiming,
         store.uiParamsStore.velocity,
+        store.uiParamsStore.dynamicsOn,
+        store.uiParamsStore.microtimingOn,
         store.uiParamsStore.activeChannels
       );
       for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {

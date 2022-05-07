@@ -13,9 +13,11 @@ class MidiEvent {
   step;
   offsetValue;
   offsetMagnitude;
+  offsetOn;
   velocityValue;
   velocityMagnitude;
   dynamicsMagnitude;
+  dynamicsOn;
 
   constructor(
     onset,
@@ -23,18 +25,22 @@ class MidiEvent {
     step,
     offsetValue,
     offsetMagnitude,
+    offsetOn,
     velocityValue,
     velocityMagnitude,
-    dynamicsMagnitude
+    dynamicsMagnitude,
+    dynamicsOn,
   ) {
     this.onset = onset;
     this.instrumentIndex = instrumentIndex;
     this.step = step;
     this.offsetValue = offsetValue;
     this.offsetMagnitude = offsetMagnitude;
+    this.offsetOn = offsetOn;
     this.velocityValue = velocityValue;
     this.velocityMagnitude = velocityMagnitude;
     this.dynamicsMagnitude = dynamicsMagnitude;
+    this.dynamicsOn = dynamicsOn;
   }
 
   get instrument() {
@@ -42,10 +48,11 @@ class MidiEvent {
   }
 
   get bufferIndex() {
-    const quantizedBufferIndex = this.step * TICKS_PER_16TH;
-    const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
-    const bufferIndex =
-      quantizedBufferIndex + Math.floor(offsetTicks * this.offsetMagnitude);
+    let bufferIndex = this.step * TICKS_PER_16TH;
+    if (this.offsetOn) {
+      const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
+      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude); 
+    }
     if (bufferIndex < 0) {
       return BUFFER_LENGTH + bufferIndex;
     } else {
@@ -54,9 +61,11 @@ class MidiEvent {
   }
 
   get velocity() {
-    const velocityBin = this.velocityValue * MAX_VELOCITY;
-    const dynamicVelocity = velocityBin * this.dynamicsMagnitude;
-    return Math.floor(dynamicVelocity * this.velocityMagnitude);
+    let velocity = this.velocityValue * MAX_VELOCITY;
+    if (this.dynamicsOn) {
+      velocity *= this.dynamicsMagnitude;
+    }
+    return Math.floor(velocity * this.velocityMagnitude);
   }
 }
 
@@ -80,6 +89,8 @@ class EventSequence {
           params.dynamics,
           params.microtiming,
           params.velocity,
+          params.dynamicsOn,
+          params.microtimingOn,
           this.root.uiParamsStore.activeChannels
         );
       }
@@ -95,6 +106,8 @@ class EventSequence {
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
             this.root.uiParamsStore.velocity,
+            this.root.uiParamsStore.dynamicsOn,
+            this.root.uiParamsStore.microtimingOn,
             this.root.uiParamsStore.activeChannels
           );
           this.togglePatternUpdate();
@@ -126,6 +139,8 @@ class EventSequence {
     dynamicsMagnitude,
     offsetMagnitude,
     velocityMagnitude,
+    dynamicsOn,
+    microtimingOn,
     activeChannels
   ) {
     const event = new MidiEvent(
@@ -134,9 +149,11 @@ class EventSequence {
       step,
       this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
       offsetMagnitude,
+      microtimingOn,
       this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
       velocityMagnitude,
-      dynamicsMagnitude
+      dynamicsMagnitude,
+      dynamicsOn,
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];
@@ -177,6 +194,8 @@ class EventSequence {
     dynamicsMagnitude,
     offsetMagnitude,
     velocityMagnitude,
+    dynamicsOn,
+    microtimingOn,
     activeChannels
   ) {
     this.resetQuantizedEventSequence();
@@ -192,6 +211,8 @@ class EventSequence {
             dynamicsMagnitude,
             offsetMagnitude,
             velocityMagnitude,
+            dynamicsOn,
+            microtimingOn,
             activeChannels
           );
           for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
