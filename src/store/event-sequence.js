@@ -29,7 +29,7 @@ class MidiEvent {
     velocityValue,
     velocityMagnitude,
     dynamicsMagnitude,
-    dynamicsOn,
+    dynamicsOn
   ) {
     this.onset = onset;
     this.instrumentIndex = instrumentIndex;
@@ -51,7 +51,7 @@ class MidiEvent {
     let bufferIndex = this.step * TICKS_PER_16TH;
     if (this.offsetOn) {
       const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
-      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude); 
+      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude);
     }
     if (bufferIndex < 0) {
       return BUFFER_LENGTH + bufferIndex;
@@ -153,7 +153,7 @@ class EventSequence {
       this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
       velocityMagnitude,
       dynamicsMagnitude,
-      dynamicsOn,
+      dynamicsOn
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];

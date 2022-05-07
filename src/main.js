@@ -193,7 +193,7 @@ Max.addHandler("/params/microtimingOn", (value) => {
  * Set microtiming parameter
  * @param {int} value: On or off
  */
- Max.addHandler("/params/dynamicsOn", (value) => {
+Max.addHandler("/params/dynamicsOn", (value) => {
   store.uiParamsStore.dynamicsOn = Boolean(parseInt(value));
   log(`Set dynamicsOn to ${store.uiParamsStore.dynamicsOn}`);
 });
