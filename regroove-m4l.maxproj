@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3734757753,
-	"viewrect" : [ 7.0, 68.0, 767.0, 765.0 ],
+	"modificationdate" : 3734846004,
+	"viewrect" : [ 7.0, 64.0, 1536.0, 773.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -32,7 +32,7 @@
 				"local" : 1
 			}
 ,
-			"midi-pitch-mapping.json" : 			{
+			"midi-mapping.json" : 			{
 				"kind" : "json",
 				"local" : 1
 			}
@@ -56,15 +56,6 @@
 		}
 ,
 		"1" : 		{
-			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/.data",
-			"projectrelativepath" : "./.data",
-			"label" : "data",
-			"recursive" : 1,
-			"enabled" : 1,
-			"includeincollective" : 1
-		}
-,
-		"2" : 		{
 			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/src",
 			"projectrelativepath" : "./src",
 			"label" : "src",
@@ -73,7 +64,7 @@
 			"includeincollective" : 1
 		}
 ,
-		"3" : 		{
+		"2" : 		{
 			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/regroove-models/current",
 			"projectrelativepath" : "./regroove-models/current",
 			"label" : "regroove-models",
