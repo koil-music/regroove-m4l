@@ -44,7 +44,7 @@ class MidiEvent {
   }
 
   get instrument() {
-    return this.instrumentIndex;
+    return CHANNELS - 1 - this.instrumentIndex;
   }
 
   get bufferIndex() {
