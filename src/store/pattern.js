@@ -123,32 +123,19 @@ class PatternStore {
 
   get matrixCtrlData() {
     const onsetsData = [];
-    const velocitiesData = [];
     const onsets = this.currentOnsets.tensor()[0];
-    const velocities = this.currentVelocities.tensor()[0];
 
     for (let channel = 8; channel >= 0; channel--) {
       if (this.root.uiParamsStore.activeChannels[channel] == "1") {
         for (let step = 0; step < LOOP_DURATION; step++) {
-          // onsets
           onsetsData.push(step);
           onsetsData.push(channel);
           const value = onsets[step][CHANNELS - channel - 1];
           onsetsData.push(value);
-
-          // velocities
-          velocitiesData.push(step);
-          velocitiesData.push(channel);
-          if (value === 1) {
-            const velocity = velocities[step][CHANNELS - channel - 1];
-            velocitiesData.push(velocity);
-          } else {
-            velocitiesData.push(0);
-          }
         }
       }
     }
-    return [onsetsData, velocitiesData];
+    return onsetsData;
   }
 
   get current() {

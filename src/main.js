@@ -9,8 +9,8 @@ const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
-const cwd = path.dirname(process.cwd());
-let modelDir = path.join(cwd, `regroove-models/v2/`);
+const root = path.dirname(process.cwd());
+let modelDir = path.join(root, `current/`);
 assert.ok(validModelDir(modelDir));
 const store = new RootStore(modelDir);
 
@@ -84,7 +84,7 @@ Max.addHandler("/params/syncMode", (value) => {
 
 /**
  * Set sync on or off.
- * @param {bool} value
+ * @param {int} value: On or Off
  */
 Max.addHandler("/params/syncOn", (value) => {
   store.uiParamsStore.syncOn = Boolean(parseInt(value));
@@ -110,10 +110,8 @@ Max.addHandler("/params/syncRate", (value) => {
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  const [onsetsData, velocitiesData] = store.matrixCtrlStore.sync();
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
-  Max.outlet("penultimateSync", true);
+  const onsetsData = store.matrixCtrlStore.sync();
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**
@@ -126,10 +124,8 @@ Max.addHandler("auto_sync", (step) => {
     store.uiParamsStore.syncModeName == "Auto"
   ) {
     log(`autoSync: ${step}`);
-    const [onsetsData, velocitiesData] = store.matrixCtrlStore.autoSync(step);
-    Max.outlet("fillOnsetsMatrix", ...onsetsData);
-    Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
-    Max.outlet("penultimateSync", true);
+    const onsetsData = store.matrixCtrlStore.autoSync(step);
+    Max.outlet("updateMatrixCtrl", ...onsetsData);
   }
 });
 
@@ -186,15 +182,20 @@ Max.addHandler("/params/dynamics", (value) => {
 
 /**
  * Set microtiming parameter
- * @param {float} value: range = [0, 1]
+ * @param {int} value: On or off
  */
-Max.addHandler("/params/microtiming", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set microtiming to ${value}`);
-    store.uiParamsStore.microtiming = value;
-  } else {
-    Max.post(`invalid microtiming value ${value} - must be between 0 and 1`);
-  }
+Max.addHandler("/params/microtimingOn", (value) => {
+  store.uiParamsStore.microtimingOn = Boolean(parseInt(value));
+  log(`Set microtimingOn to ${store.uiParamsStore.microtimingOn}`);
+});
+
+/**
+ * Set microtiming parameter
+ * @param {int} value: On or off
+ */
+Max.addHandler("/params/dynamicsOn", (value) => {
+  store.uiParamsStore.dynamicsOn = Boolean(parseInt(value));
+  log(`Set dynamicsOn to ${store.uiParamsStore.dynamicsOn}`);
 });
 
 /**
@@ -234,6 +235,8 @@ Max.addHandler("update_note", (step, instrument, value) => {
         store.uiParamsStore.dynamics,
         store.uiParamsStore.microtiming,
         store.uiParamsStore.velocity,
+        store.uiParamsStore.dynamicsOn,
+        store.uiParamsStore.microtimingOn,
         store.uiParamsStore.activeChannels
       );
       for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
@@ -267,9 +270,8 @@ Max.addHandler("set_active_channels", (channels) => {
  */
 Max.addHandler("set_previous_pattern", () => {
   store.patternStore.setPrevious();
-  const [onsetsData, velocitiesData] = store.patternStore.matrixCtrlData;
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
+  const onsetsData = store.patternStore.matrixCtrlData;
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**
@@ -277,9 +279,8 @@ Max.addHandler("set_previous_pattern", () => {
  */
 Max.addHandler("set_input_pattern", () => {
   store.patternStore.setInput();
-  const [onsetsData, velocitiesData] = store.patternStore.matrixCtrlData;
-  Max.outlet("fillOnsetsMatrix", ...onsetsData);
-  Max.outlet("fillVelocitiesMatrix", ...velocitiesData);
+  const onsetsData = store.patternStore.matrixCtrlData;
+  Max.outlet("updateMatrixCtrl", ...onsetsData);
 });
 
 /**

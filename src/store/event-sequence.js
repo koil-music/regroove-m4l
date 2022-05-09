@@ -1,7 +1,6 @@
 const Max = require("max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 const { CHANNELS, LOOP_DURATION } = require("./ui-params");
-const midiPitchMapping = require("../data/midi-pitch-mapping.json");
 const { log } = require("../utils");
 
 const BUFFER_LENGTH = 512;
@@ -14,9 +13,11 @@ class MidiEvent {
   step;
   offsetValue;
   offsetMagnitude;
+  offsetOn;
   velocityValue;
   velocityMagnitude;
   dynamicsMagnitude;
+  dynamicsOn;
 
   constructor(
     onset,
@@ -24,29 +25,34 @@ class MidiEvent {
     step,
     offsetValue,
     offsetMagnitude,
+    offsetOn,
     velocityValue,
     velocityMagnitude,
-    dynamicsMagnitude
+    dynamicsMagnitude,
+    dynamicsOn
   ) {
     this.onset = onset;
     this.instrumentIndex = instrumentIndex;
     this.step = step;
     this.offsetValue = offsetValue;
     this.offsetMagnitude = offsetMagnitude;
+    this.offsetOn = offsetOn;
     this.velocityValue = velocityValue;
     this.velocityMagnitude = velocityMagnitude;
     this.dynamicsMagnitude = dynamicsMagnitude;
+    this.dynamicsOn = dynamicsOn;
   }
 
-  get pitch() {
-    return midiPitchMapping[this.instrumentIndex];
+  get instrument() {
+    return CHANNELS - 1 - this.instrumentIndex;
   }
 
   get bufferIndex() {
-    const quantizedBufferIndex = this.step * TICKS_PER_16TH;
-    const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
-    const bufferIndex =
-      quantizedBufferIndex + Math.floor(offsetTicks * this.offsetMagnitude);
+    let bufferIndex = this.step * TICKS_PER_16TH;
+    if (this.offsetOn) {
+      const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
+      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude);
+    }
     if (bufferIndex < 0) {
       return BUFFER_LENGTH + bufferIndex;
     } else {
@@ -55,9 +61,11 @@ class MidiEvent {
   }
 
   get velocity() {
-    const velocityBin = this.velocityValue * MAX_VELOCITY;
-    const dynamicVelocity = velocityBin * this.dynamicsMagnitude;
-    return Math.floor(dynamicVelocity * this.velocityMagnitude);
+    let velocity = this.velocityValue * MAX_VELOCITY;
+    if (this.dynamicsOn) {
+      velocity *= this.dynamicsMagnitude;
+    }
+    return Math.floor(velocity * this.velocityMagnitude);
   }
 }
 
@@ -81,6 +89,8 @@ class EventSequence {
           params.dynamics,
           params.microtiming,
           params.velocity,
+          params.dynamicsOn,
+          params.microtimingOn,
           this.root.uiParamsStore.activeChannels
         );
       }
@@ -96,6 +106,8 @@ class EventSequence {
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
             this.root.uiParamsStore.velocity,
+            this.root.uiParamsStore.dynamicsOn,
+            this.root.uiParamsStore.microtimingOn,
             this.root.uiParamsStore.activeChannels
           );
           this.togglePatternUpdate();
@@ -127,6 +139,8 @@ class EventSequence {
     dynamicsMagnitude,
     offsetMagnitude,
     velocityMagnitude,
+    dynamicsOn,
+    microtimingOn,
     activeChannels
   ) {
     const event = new MidiEvent(
@@ -135,41 +149,41 @@ class EventSequence {
       step,
       this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
       offsetMagnitude,
+      microtimingOn,
       this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
       velocityMagnitude,
-      dynamicsMagnitude
+      dynamicsMagnitude,
+      dynamicsOn
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];
     if (Object.keys(existingNotes) === undefined) {
-      // pitch does not yet exist -> add
+      // instrument does not yet exist -> add
       if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
-        existingNotes[event.pitch] = [event.bufferIndex, event.velocity];
+        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
-    } else if (Object.keys(existingNotes).includes(event.pitch)) {
-      // event.pitch exists in this time step already -> remove
+    } else if (Object.keys(existingNotes).includes(event.instrument)) {
+      // event.instrument exists in this time step already -> remove
       if (event.onset == 0 && activeChannels[event.instrumentIndex] === "1") {
-        delete existingNotes[event.pitch];
+        delete existingNotes[event.instrument];
         this.quantizedEventSequence[step] = existingNotes;
       }
     } else {
-      // pitch does not yet exist -> add
+      // instrument does not yet exist -> add
       if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
-        existingNotes[event.pitch] = [event.bufferIndex, event.velocity];
+        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
     }
 
-    // update event sequence
-    // const updateNotes = pitchToBufferIndex(existingNotes)
+    // Transform to event sequence (index by bufferIndex)
     const updateBufferData = {};
-    for (const [p, [idx, v]] of Object.entries(existingNotes)) {
-      const pitch = parseInt(p);
-      if (Object.keys(updateBufferData).includes(idx.toString())) {
-        updateBufferData[idx].push(...[pitch, v]);
+    for (const [instr, [bufferIdx, v]] of Object.entries(existingNotes)) {
+      if (Object.keys(updateBufferData).includes(bufferIdx.toString())) {
+        updateBufferData[bufferIdx].push(...[instr, v]);
       } else {
-        updateBufferData[idx] = [pitch, v];
+        updateBufferData[bufferIdx] = [instr, v];
       }
     }
     return updateBufferData;
@@ -180,6 +194,8 @@ class EventSequence {
     dynamicsMagnitude,
     offsetMagnitude,
     velocityMagnitude,
+    dynamicsOn,
+    microtimingOn,
     activeChannels
   ) {
     this.resetQuantizedEventSequence();
@@ -195,6 +211,8 @@ class EventSequence {
             dynamicsMagnitude,
             offsetMagnitude,
             velocityMagnitude,
+            dynamicsOn,
+            microtimingOn,
             activeChannels
           );
           for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
@@ -211,7 +229,7 @@ class EventSequence {
 const emptyEventSequenceDict = (length) => {
   const eventSequenceDict = {};
   for (let i = 0; i < length; i++) {
-    eventSequenceDict[i] = [0, 0];
+    eventSequenceDict[i] = [-1, 0];
   }
   return eventSequenceDict;
 };
