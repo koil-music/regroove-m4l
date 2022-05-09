@@ -1,6 +1,6 @@
 {
   "name": "regroove-m4l",
-  "version": "1.2.3",
+  "version": "2.0.0-b5",
   "description": "Max for Live MIDI device for generating expressive rhythm sequences",
   "main": "code/regroove.js",
   "scripts": {
