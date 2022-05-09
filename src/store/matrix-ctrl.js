@@ -1,5 +1,4 @@
 const { makeAutoObservable } = require("mobx");
-const { SyncMode } = require("./ui-params");
 
 class MatrixCtrlStore {
   rootStore;

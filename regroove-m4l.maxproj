@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3726989019,
-	"viewrect" : [ 7.0, 64.0, 767.0, 765.0 ],
+	"modificationdate" : 3734016293,
+	"viewrect" : [ 7.0, 68.0, 767.0, 765.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -31,6 +31,16 @@
 				"kind" : "json",
 				"local" : 1
 			}
+,
+			"midi-event-sequence.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
+,
+			"midi-pitch-mapping.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
 
 		}
 ,
@@ -46,7 +56,7 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "~/Music/software/regroove/regroove-m4l/node_modules",
+			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/node_modules",
 			"projectrelativepath" : "./node_modules",
 			"label" : "node_modules",
 			"recursive" : 1,
@@ -55,7 +65,7 @@
 		}
 ,
 		"1" : 		{
-			"bootpath" : "~/Music/software/regroove/regroove-m4l/regroove-models",
+			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/regroove-models",
 			"projectrelativepath" : "./regroove-models",
 			"label" : "regroove-models",
 			"recursive" : 1,
@@ -64,8 +74,6 @@
 		}
 ,
 		"2" : 		{
-			"bootpath" : "~/Music/software/regroove/regroove-m4l/code",
-			"projectrelativepath" : "./code",
 			"label" : "code",
 			"recursive" : 1,
 			"enabled" : 1,
@@ -73,7 +81,7 @@
 		}
 ,
 		"3" : 		{
-			"bootpath" : "~/Music/software/regroove/regroove-m4l/.data",
+			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/.data",
 			"projectrelativepath" : "./.data",
 			"label" : "data",
 			"recursive" : 1,
