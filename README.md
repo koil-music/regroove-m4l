@@ -20,7 +20,6 @@ Once you've downloaded the `.amxd` file, open **Ableton** and simply double-clic
 ### ❗ Known Startup Issues
 
 1. It's normal that the device takes upto 60 seconds to load, the actual time depends on your machine and whether you're using Windows or MacOS. This is because the device is loading very large deep learning models from disk into memory. However, once loaded, there should be no issues.
-2. The first time you load the device, there's a chance it will not properly initialize. Once the device is done loading, simply remove it and drag in a new instance.
 
 ## Issues
 
