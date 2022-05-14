@@ -7,15 +7,13 @@
     Download | https://gum.co/regroove
   </li>
   <li>
-    Docs | https://rekoil.io/projects
+    Docs | https://rekoil.io/regroove
   </li>
 </ul>
 
 ## Getting Started
 
-You will need `Max 8.0.3` or higher to run the device; if you have an up-to date version of `Live 10` this should be the default. If you're using `Live 9`, follow the instructions at this <a href="https://help.ableton.com/hc/en-us/articles/209070309">page</a> to meet the requirements.
-
-Once you've downloaded the `.amxd` file, open **Ableton** and simply double-click within or drag-and-drop from the browser.
+You will need `Max 8.0.3` or higher to run the device; if you have an up-to date version of `Live 10/11` this should be the default or higher. If you're using `Live 9`, follow the instructions at this <a href="https://help.ableton.com/hc/en-us/articles/209070309">page</a> to meet the requirements.
 
 ### ❗ Known Startup Issues
 
@@ -27,4 +25,4 @@ Any issues with the device should be reported here. Please check the existing is
 
 ## Development
 
-The code uses an exported ONNX model running using the `onnxruntime` package inside the Node for Max runtime. The models are stored in a private submodule `regroove-models`, please contact us directly if you're interested in this. The library for this is maintained as an external `npm` package, see https://github.com/rekoilio/regroove-lib for more info. 
+The code uses an exported ONNX model running using the `onnxruntime` package inside the Node for Max runtime. The models are stored in a private submodule `regroove-models`, please contact us directly if you're interested in this. The library for this is maintained as an external `npm` package, see https://github.com/rekoilio/regroovejs for more info. 
