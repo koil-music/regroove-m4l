@@ -17,15 +17,15 @@ You will need `Max 8.0.3` or higher to run the device; if you have an up-to date
 
 ## Issues
 
-Any issues with the device should be reported here. Please check the existing issues that your problem has not already been reported by another user.
+Any issues with the device should be reported in the Issues tab above.
 
 ### ❗ Known Startup Issues
 
-1. It's normal that the device takes upto 60 seconds to load, the actual time depends on your machine and whether you're using Windows or MacOS. This is because the device is loading very large deep learning models from disk into memory. However, once loaded, there should be no issues.
+It's normal that the device takes upto 60 seconds to load, the actual time depends on your machine and whether you're using Windows or MacOS. This is because the device is loading very large deep learning models from disk into memory. However, once loaded, there should be no issues.
 
 ## Development
 
 The code uses an exported ONNX model running using the `onnxruntime` package inside the Node for Max runtime. The library containing code for running the models is maintained as an external `npm` package, see https://github.com/rekoillabs/regroovejs for more info.
 
 ### Build :hammer:
-At this point this code does not run in Max/MSP or compile to a working Max for Live device because the models in the `regroove-models` directory are not open to the public. If you have your own directory of models from a downloaded version you can try to compile it yourself, this still might not work because more recent versions of the application code are not backwards compatible with older models. If you're interested in collaborating on `regroove` development and need to actively run the code in `Max/MSP` please contact us directly.
+At this point this code does not run in Max/MSP or compile to a working Max for Live device because the models in the `regroove-models` directory are not open to the public. If you have your own directory of models from a downloaded version you can try to compile it yourself, this still might not work because more recent versions of the application code are not backwards compatible with older models. If you're interested in collaborating on `regroove` or create your own patched version, please contact us directly to figure something out.
