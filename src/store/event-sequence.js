@@ -126,7 +126,7 @@ class EventSequence {
   }
 
   toggleIgnoreNoteUpdate() {
-    // workaround to temporarily note updates, this is to avoid spamming the
+    // workaround to throttle note updates, this is to avoid spamming the
     // server with note update requests when the data is already up-to-date
     this.ignoreNoteUpdate = true;
     setTimeout(() => (this.ignoreNoteUpdate = false), 250);

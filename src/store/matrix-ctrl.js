@@ -11,15 +11,13 @@ class MatrixCtrlStore {
     this.root = rootStore;
   }
 
-  autoSync(step) {
-    if (step % this.root.uiParamsStore.loopDuration === 0) {
-      this.barsCount += 1;
-      if (barsCount % this.root.uiParamsStore.syncRate === 0) {
-        this.root.patternStore.updateCurrent();
-        this.barsCount = 0;
-      }
+  autoSync() {
+    this.barsCount += 1;
+    if (this.barsCount % this.root.uiParamsStore.syncRate === 0) {
+      this.root.patternStore.updateCurrent();
+      this.barsCount = 0;
+      return this.root.patternStore.matrixCtrlData;
     }
-    return this.root.patternStore.matrixCtrlData;
   }
 
   toggleOddSnap() {

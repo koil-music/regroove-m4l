@@ -121,11 +121,14 @@ Max.addHandler("/params/sync", () => {
 Max.addHandler("auto_sync", (step) => {
   if (
     store.uiParamsStore.syncOn &&
-    store.uiParamsStore.syncModeName == "Auto"
+    store.uiParamsStore.syncModeName == "Auto" &&
+    step % store.uiParamsStore.loopDuration === 0
   ) {
     log(`autoSync: ${step}`);
     const onsetsData = store.matrixCtrlStore.autoSync(step);
-    Max.outlet("updateMatrixCtrl", ...onsetsData);
+    if (onsetsData !== undefined) {
+      Max.outlet("updateMatrixCtrl", ...onsetsData);
+    }
   }
 });
 
