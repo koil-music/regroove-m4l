@@ -22,7 +22,7 @@ class InferenceStore {
   isGenerating = false;
   syncLatentSize = 2;
   syncModelName = "syncopate.onnx";
-  grooveLatentSize = 256;
+  grooveLatentSize = 64;
   grooveModelName = "groove.onnx";
 
   constructor(rootStore, modelDir) {
