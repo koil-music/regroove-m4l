@@ -110,7 +110,8 @@ Max.addHandler("/params/syncRate", (value) => {
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = store.matrixCtrlStore.sync();
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.sync();
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
@@ -127,7 +128,8 @@ Max.addHandler("auto_sync", (step) => {
     step % store.uiParamsStore.loopDuration === 0
   ) {
     log(`autoSync: ${step}`);
-    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = store.matrixCtrlStore.autoSync(step);
+    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+      store.matrixCtrlStore.autoSync(step);
     if (onsetsData !== undefined) {
       writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
       writeDetailViewDict(offsetsDataSequence, "offsetsData");
@@ -267,9 +269,11 @@ Max.addHandler("clear_pattern", () => {
  * Set the channels for which to update the matrixCtrl view
  * @param {string} channels: i.e. "111110101"
  */
-Max.addHandler("set_active_channels", (channels) => {
-  store.uiParamsStore._channels = channels;
-  log(`Set active channels to ${store.uiParamsStore.activeChannels}`);
+Max.addHandler("set_active_channels", () => {
+  Max.getDict("activeChannels").then((d) => {
+    store.uiParamsStore.activeChannels = Object.values(d);
+    log(`Updated activeChannels to: ${store.uiParamsStore.activeChannels}`);
+  });
 });
 
 /**
@@ -277,7 +281,8 @@ Max.addHandler("set_active_channels", (channels) => {
  */
 Max.addHandler("set_previous_pattern", () => {
   store.patternStore.setPrevious();
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = store.patternStore.matrixCtrlData;
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.patternStore.matrixCtrlData;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
@@ -288,7 +293,8 @@ Max.addHandler("set_previous_pattern", () => {
  */
 Max.addHandler("set_input_pattern", () => {
   store.patternStore.setInput();
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = store.patternStore.matrixCtrlData;
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.patternStore.matrixCtrlData;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);

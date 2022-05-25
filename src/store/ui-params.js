@@ -27,7 +27,7 @@ class UIParamsStore {
   density = 0.5;
   loopDuration = LOOP_DURATION;
   channels = CHANNELS;
-  _channels = "b111111111";
+  _activeChannels = ["1", "1", "1", "1", "1", "1", "1", "1", "1"];
   syncOn = true;
   syncModeIndex = SyncMode.Snap;
   syncRateOptions = [1, 2, 4];
@@ -80,8 +80,12 @@ class UIParamsStore {
     return Math.floor((1 - this.density) * Math.sqrt(this.numSamples));
   }
 
+  set activeChannels(channels) {
+    this._activeChannels = channels;
+  }
+
   get activeChannels() {
-    return this._channels.slice(1);
+    return this._activeChannels;
   }
 }
 

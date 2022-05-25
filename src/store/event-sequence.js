@@ -163,7 +163,9 @@ class EventSequence {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
-    } else if (Object.keys(existingNotes).includes(event.instrument.toString())) {
+    } else if (
+      Object.keys(existingNotes).includes(event.instrument.toString())
+    ) {
       // event.instrument exists in this time step already -> remove
       if (event.onset == 0 && activeChannels[event.instrument] === "1") {
         delete existingNotes[event.instrument];
