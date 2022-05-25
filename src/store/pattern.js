@@ -121,46 +121,10 @@ class PatternStore {
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
   }
 
-  get matrixCtrlData() {
-    const [onsetsData, velocitiesData, offsetsData] = [[], [], []];
-    const onsets = this.currentOnsets.tensor()[0];
-    const velocities = this.currentVelocities.tensor()[0];
-    const offsets = this.currentOffsets.tensor()[0];
-
-    for (let channel = 8; channel >= 0; channel--) {
-      if (this.root.uiParamsStore.activeChannels[channel] == "1") {
-        for (let step = 0; step < LOOP_DURATION; step++) {
-          onsetsData.push(step);
-          onsetsData.push(channel);
-          const onsetValue = onsets[step][CHANNELS - channel - 1];
-          onsetsData.push(onsetValue);
-
-          // velocities
-          let velocityValue;
-          if (onsetValue == 1) {
-            velocityValue = velocities[step][CHANNELS - channel - 1];
-          } else {
-            velocityValue = 0.0;
-          }
-          velocitiesData.push(step);
-          velocitiesData.push(channel);
-          velocitiesData.push(velocityValue);
-
-          // offsets
-          let offsetValue;
-          if (onsetValue == 1) {
-            // scale offset values to [0, 1] for bpatcher compatability
-            offsetValue = offsets[step][CHANNELS - channel - 1];
-            offsetValue += 1;
-            offsetValue /= 2;
-          } else {
-            offsetValue = 0.5;
-          }
-          offsetsData.push(step);
-          offsetsData.push(channel);
-          offsetsData.push(offsetValue);
-        }
-      }
+  updateInstrumentVelocities(instrumentIndex, data) {
+    const velocitiesTensor = this.currentVelocities.tensor();
+    for (let i = 0; i < LOOP_DURATION; i++) {
+      velocitiesTensor[0][i][CHANNELS - 1 - instrumentIndex] = data[i];
     }
     return [onsetsData, velocitiesData, offsetsData];
   }
