@@ -3,12 +3,13 @@ const { makeAutoObservable } = require("mobx");
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
 const { LOOP_DURATION, CHANNELS, NUM_SAMPLES } = require("./ui-params");
+const { log } = require("../utils");
 
 class PatternStore {
   root;
-  currentOnsets;
-  currentVelocities;
-  currentOffsets;
+  _currentOnsets;
+  _currentVelocities;
+  _currentOffsets;
   inputOnsets;
   inputVelocities;
   inputOffsets;
@@ -25,9 +26,9 @@ class PatternStore {
     makeAutoObservable(this);
     this.root = rootStore;
 
-    this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
-    this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
-    this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
+    this._currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    this._currentVelocities = new Pattern(this.emptyPatternData, this.dims);
+    this._currentOffsets = new Pattern(this.emptyPatternData, this.dims);
     this.inputOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.inputVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.inputOffsets = new Pattern(this.emptyPatternData, this.dims);
@@ -69,7 +70,7 @@ class PatternStore {
   updateHistory() {
     this.onsetsHistory.append(this.onsetsPattern);
     this.velocitiesHistory.append(this.velocitiesPattern);
-    this.offsetsHistory.append(this.ffsetsPattern);
+    this.offsetsHistory.append(this.offsetsPattern);
     this.resetHistoryIndex();
   }
 
@@ -85,6 +86,7 @@ class PatternStore {
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
+    log(`Cleared current pattern.`)
   }
 
   updateCurrent() {
@@ -105,6 +107,7 @@ class PatternStore {
       this.root.inferenceStore.generator.offsets.sample(x, y),
       this.dims
     );
+    log(`Updated current patterns using updateCurrent.`)
   }
 
   updateNote(step, instrumentIndex, value) {
@@ -119,27 +122,53 @@ class PatternStore {
     this.currentOnsets = new Pattern(onsetsTensor, this.dims);
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
+    log(`Changed note value for [${step}, ${CHANNELS - 1 - instrumentIndex}] to ${value}`)
   }
 
-  get matrixCtrlData() {
-    const onsetsData = [];
-    const onsets = this.currentOnsets.tensor()[0];
-
-    for (let channel = 8; channel >= 0; channel--) {
-      if (this.root.uiParamsStore.activeChannels[channel] == "1") {
-        for (let step = 0; step < LOOP_DURATION; step++) {
-          onsetsData.push(step);
-          onsetsData.push(channel);
-          const value = onsets[step][CHANNELS - channel - 1];
-          onsetsData.push(value);
-        }
-      }
+  updateInstrumentVelocities(instrumentIndex, data) {
+    const velocitiesTensor = this.currentVelocities.tensor();
+    for (let i = 0; i < LOOP_DURATION; i++) {
+      velocitiesTensor[0][i][CHANNELS - 1 - instrumentIndex] = data[i];
     }
-    return onsetsData;
+    this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
+    log(`Updated currentVelocities for instrument: ${CHANNELS - 1 - instrumentIndex}`)
+  }
+
+  updateInstrumentOffsets(instrumentIndex, data) {
+    const offsetsTensor = this.currentOffsets.tensor();
+    for (let i = 0; i < LOOP_DURATION; i++) {
+      offsetsTensor[0][i][instrumentIndex] = data[i];
+    }
+    this.currentOffsets = new Pattern(offsetsTensor, this.dims);
+    log(`Updated currentOffsets for instrument: ${CHANNELS - 1 - instrumentIndex}`)
   }
 
   get current() {
     return [this.currentOnsets, this.currentVelocities, this.currentOffsets];
+  }
+
+  get currentOnsets() {
+    return this._currentOnsets;
+  }
+
+  set currentOnsets(v) {
+    this._currentOnsets = v;
+  }
+
+  get currentVelocities() {
+    return this._currentVelocities;
+  }
+
+  set currentVelocities(v) {
+    this._currentVelocities = v;
+  }
+
+  get currentOffsets() {
+    return this._currentOffsets;
+  }
+
+  set currentOffsets(v) {
+    this._currentOffsets = v;
   }
 
   setInput() {
@@ -148,6 +177,7 @@ class PatternStore {
     this.currentOnsets = this.inputOnsets;
     this.currentVelocities = this.inputVelocities;
     this.currentOffsets = this.inputOffsets;
+    log(`Set current pattern to input pattern.`)
   }
 
   setPrevious() {
@@ -157,6 +187,7 @@ class PatternStore {
       this.currentOnsets = this.onsetsHistory[this.currentHistoryIndex];
       this.currentVelocities = this.velocitiesHistory[this.currentHistoryIndex];
       this.currentOffsets = this.offsetsHistory[this.currentHistoryIndex];
+      log(`Set current pattern to previous pattern.`)
     }
   }
 

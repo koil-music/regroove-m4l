@@ -7,7 +7,7 @@ const process = require("process");
 
 const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
-const { log, validModelDir } = require("./utils");
+const { log, validModelDir, writeDetailViewDict } = require("./utils");
 
 const root = path.dirname(process.cwd());
 let modelDir = path.join(root, `current/`);
@@ -110,8 +110,11 @@ Max.addHandler("/params/syncRate", (value) => {
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  const onsetsData = store.matrixCtrlStore.sync();
-  Max.outlet("updateMatrixCtrl", ...onsetsData);
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.sync();
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**
@@ -121,11 +124,17 @@ Max.addHandler("/params/sync", () => {
 Max.addHandler("auto_sync", (step) => {
   if (
     store.uiParamsStore.syncOn &&
-    store.uiParamsStore.syncModeName == "Auto"
+    store.uiParamsStore.syncModeName == "Auto" &&
+    step % store.uiParamsStore.loopDuration === 0
   ) {
     log(`autoSync: ${step}`);
-    const onsetsData = store.matrixCtrlStore.autoSync(step);
-    Max.outlet("updateMatrixCtrl", ...onsetsData);
+    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+      store.matrixCtrlStore.autoSync(step);
+    if (onsetsData !== undefined) {
+      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+      writeDetailViewDict(offsetsDataSequence, "offsetsData");
+      Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+    }
   }
 });
 
@@ -249,20 +258,42 @@ Max.addHandler("update_note", (step, instrument, value) => {
   }
 });
 
+Max.addHandler("updateDetailData", async (instrumentIndex) => {
+  if (store.uiParamsStore.detailViewMode == "Velocity") {
+    const detailViewData = await Max.getDict("velocitiesData");
+    store.patternStore.updateInstrumentVelocities(instrumentIndex, detailViewData[instrumentIndex]);
+  } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
+    const detailViewData = await Max.getDict("offsetsData");
+    store.patternStore.updateInstrumentOffsets(instrumentIndex, detailViewData[instrumentIndex]);
+  }
+})
+
+Max.addHandler("setDetailViewMode", (v) => {
+  store.uiParamsStore.detailViewModeIndex = v;
+  log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
+})
+
 /**
  * Clear current pattern
  */
 Max.addHandler("clear_pattern", () => {
   store.patternStore.clearCurrent();
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.data;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**
  * Set the channels for which to update the matrixCtrl view
  * @param {string} channels: i.e. "111110101"
  */
-Max.addHandler("set_active_channels", (channels) => {
-  store.uiParamsStore._channels = channels;
-  log(`Set active channels to ${store.uiParamsStore.activeChannels}`);
+Max.addHandler("set_active_channels", () => {
+  Max.getDict("activeChannels").then((d) => {
+    store.uiParamsStore.activeChannels = Object.values(d);
+    log(`Updated activeChannels to: ${store.uiParamsStore.activeChannels}`);
+  });
 });
 
 /**
@@ -270,8 +301,11 @@ Max.addHandler("set_active_channels", (channels) => {
  */
 Max.addHandler("set_previous_pattern", () => {
   store.patternStore.setPrevious();
-  const onsetsData = store.patternStore.matrixCtrlData;
-  Max.outlet("updateMatrixCtrl", ...onsetsData);
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.data;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**
@@ -279,8 +313,11 @@ Max.addHandler("set_previous_pattern", () => {
  */
 Max.addHandler("set_input_pattern", () => {
   store.patternStore.setInput();
-  const onsetsData = store.patternStore.matrixCtrlData;
-  Max.outlet("updateMatrixCtrl", ...onsetsData);
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.data;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**

@@ -2,7 +2,7 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3734846004,
+	"modificationdate" : 3735981634,
 	"viewrect" : [ 7.0, 64.0, 1536.0, 773.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
@@ -33,6 +33,21 @@
 			}
 ,
 			"midi-mapping.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
+,
+			"midi-pitch-mapping.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
+,
+			"active-channels.json" : 			{
+				"kind" : "json",
+				"local" : 1
+			}
+,
+			"default-detail-data.json" : 			{
 				"kind" : "json",
 				"local" : 1
 			}

@@ -126,7 +126,7 @@ class EventSequence {
   }
 
   toggleIgnoreNoteUpdate() {
-    // workaround to temporarily note updates, this is to avoid spamming the
+    // workaround to throttle note updates, this is to avoid spamming the
     // server with note update requests when the data is already up-to-date
     this.ignoreNoteUpdate = true;
     setTimeout(() => (this.ignoreNoteUpdate = false), 250);
@@ -159,19 +159,21 @@ class EventSequence {
     const existingNotes = this.quantizedEventSequence[event.step];
     if (Object.keys(existingNotes) === undefined) {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
+      if (event.onset == 1 && activeChannels[event.instrument] === "1") {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
-    } else if (Object.keys(existingNotes).includes(event.instrument)) {
+    } else if (
+      Object.keys(existingNotes).includes(event.instrument.toString())
+    ) {
       // event.instrument exists in this time step already -> remove
-      if (event.onset == 0 && activeChannels[event.instrumentIndex] === "1") {
+      if (event.onset == 0 && activeChannels[event.instrument] === "1") {
         delete existingNotes[event.instrument];
         this.quantizedEventSequence[step] = existingNotes;
       }
     } else {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrumentIndex] === "1") {
+      if (event.onset == 1 && activeChannels[event.instrument] === "1") {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }

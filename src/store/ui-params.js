@@ -13,6 +13,11 @@ const SyncMode = Object.freeze({
   Auto: 2,
 });
 
+const DetailViewMode = Object.freeze({
+  Microtiming: 0,
+  Velocity: 1,
+});
+
 class UIParamsStore {
   rootStore;
   maxDensity = 1 - MIN_ONSET_THRESHOLD;
@@ -27,11 +32,12 @@ class UIParamsStore {
   density = 0.5;
   loopDuration = LOOP_DURATION;
   channels = CHANNELS;
-  _channels = "b111111111";
+  _activeChannels = ["1", "1", "1", "1", "1", "1", "1", "1", "1"];
   syncOn = true;
   syncModeIndex = SyncMode.Snap;
   syncRateOptions = [1, 2, 4];
   syncRate = Math.min(...this.syncRateOptions);
+  detailViewModeIndex = DetailViewMode.Velocity;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -50,6 +56,10 @@ class UIParamsStore {
 
   get syncModeName() {
     return Object.keys(SyncMode)[this.syncModeIndex];
+  }
+
+  get detailViewMode() {
+    return Object.keys(DetailViewMode)[this.detailViewModeIndex];
   }
 
   get patternDims() {
@@ -80,8 +90,12 @@ class UIParamsStore {
     return Math.floor((1 - this.density) * Math.sqrt(this.numSamples));
   }
 
+  set activeChannels(channels) {
+    this._activeChannels = channels;
+  }
+
   get activeChannels() {
-    return this._channels.slice(1);
+    return this._activeChannels;
   }
 }
 
