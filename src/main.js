@@ -258,6 +258,21 @@ Max.addHandler("update_note", (step, instrument, value) => {
   }
 });
 
+Max.addHandler("updateDetailData", async (instrumentIndex) => {
+  if (store.uiParamsStore.detailViewMode == "Velocity") {
+    const detailViewData = await Max.getDict("velocitiesData");
+    store.patternStore.updateInstrumentVelocities(instrumentIndex, detailViewData[instrumentIndex]);
+  } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
+    const detailViewData = await Max.getDict("offsetsData");
+    store.patternStore.updateInstrumentOffsets(instrumentIndex, detailViewData[instrumentIndex]);
+  }
+})
+
+Max.addHandler("setDetailViewMode", (v) => {
+  store.uiParamsStore.detailViewModeIndex = v;
+  log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
+})
+
 /**
  * Clear current pattern
  */
