@@ -13,6 +13,11 @@ const SyncMode = Object.freeze({
   Auto: 2,
 });
 
+const DetailViewMode = Object.freeze({
+  Microtiming: 0,
+  Velocity: 1,
+});
+
 class UIParamsStore {
   rootStore;
   maxDensity = 1 - MIN_ONSET_THRESHOLD;
@@ -32,6 +37,7 @@ class UIParamsStore {
   syncModeIndex = SyncMode.Snap;
   syncRateOptions = [1, 2, 4];
   syncRate = Math.min(...this.syncRateOptions);
+  detailViewModeIndex = DetailViewMode.Velocity;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -50,6 +56,10 @@ class UIParamsStore {
 
   get syncModeName() {
     return Object.keys(SyncMode)[this.syncModeIndex];
+  }
+
+  get detailViewMode() {
+    return Object.keys(DetailViewMode)[this.detailViewModeIndex];
   }
 
   get patternDims() {
