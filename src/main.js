@@ -278,6 +278,11 @@ Max.addHandler("setDetailViewMode", (v) => {
  */
 Max.addHandler("clear_pattern", () => {
   store.patternStore.clearCurrent();
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.data;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**
@@ -297,7 +302,7 @@ Max.addHandler("set_active_channels", () => {
 Max.addHandler("set_previous_pattern", () => {
   store.patternStore.setPrevious();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.patternStore.matrixCtrlData;
+    store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
@@ -309,7 +314,7 @@ Max.addHandler("set_previous_pattern", () => {
 Max.addHandler("set_input_pattern", () => {
   store.patternStore.setInput();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.patternStore.matrixCtrlData;
+    store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
