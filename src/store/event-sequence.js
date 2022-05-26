@@ -159,7 +159,7 @@ class EventSequence {
     const existingNotes = this.quantizedEventSequence[event.step];
     if (Object.keys(existingNotes) === undefined) {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrument] === "1") {
+      if (event.onset == 1 && activeChannels[event.instrument] === 1) {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
@@ -167,13 +167,13 @@ class EventSequence {
       Object.keys(existingNotes).includes(event.instrument.toString())
     ) {
       // event.instrument exists in this time step already -> remove
-      if (event.onset == 0 && activeChannels[event.instrument] === "1") {
+      if (event.onset == 0 && activeChannels[event.instrument] === 1) {
         delete existingNotes[event.instrument];
         this.quantizedEventSequence[step] = existingNotes;
       }
     } else {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrument] === "1") {
+      if (event.onset == 1 && activeChannels[event.instrument] === 1) {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }

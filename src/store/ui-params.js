@@ -32,7 +32,7 @@ class UIParamsStore {
   density = 0.5;
   loopDuration = LOOP_DURATION;
   channels = CHANNELS;
-  _activeChannels = ["1", "1", "1", "1", "1", "1", "1", "1", "1"];
+  _activeChannels = [1, 1, 1, 1, 1, 1, 1, 1, 1];
   syncOn = true;
   syncModeIndex = SyncMode.Snap;
   syncRateOptions = [1, 2, 4];
