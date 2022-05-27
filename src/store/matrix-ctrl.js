@@ -52,7 +52,7 @@ class MatrixCtrlStore {
         offsetsData.push(offsetValue);
       }
     }
-    log(`Returning MatrixCtrlStore.data to update Max views.`)
+    log(`Returning MatrixCtrlStore.data to update Max views.`);
     return [onsetsData, velocitiesData, offsetsData];
   }
 

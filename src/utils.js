@@ -3,7 +3,7 @@ const Max = require("max-api");
 
 const { CHANNELS } = require("regroovejs");
 
-let DEBUG = false;
+let DEBUG = true;
 const log = (value) => {
   if (DEBUG) {
     Max.post(`${value}`);
