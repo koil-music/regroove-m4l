@@ -2,7 +2,7 @@ const { makeAutoObservable } = require("mobx");
 
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
-const { LOOP_DURATION, CHANNELS, NUM_SAMPLES } = require("./ui-params");
+const { LOOP_DURATION, NUM_INSTRUMENTS, NUM_SAMPLES } = require("./ui-params");
 const { log } = require("../utils");
 
 class PatternStore {
@@ -16,7 +16,7 @@ class PatternStore {
   tempOnsets;
   tempVelocities;
   tempOffsets;
-  dims = [1, LOOP_DURATION, CHANNELS];
+  dims = [1, LOOP_DURATION, NUM_INSTRUMENTS];
   currentHistoryIndex = 0;
   onsetsHistory = new PatternHistory(100);
   velocitiesHistory = new PatternHistory(100);
@@ -90,7 +90,7 @@ class PatternStore {
   }
 
   updateCurrent() {
-    const randomIndex = Math.floor(Math.random() * Math.sqrt(NUM_SAMPLES));
+    const randomIndex = Math.floor(Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples));
     this.updateHistory();
     this.root.eventSequence.togglePatternUpdate();
     const x = parseInt(this.root.uiParamsStore.densityIndex);
@@ -114,14 +114,14 @@ class PatternStore {
     ).tensor();
 
     // if a channel is inactive, use previousOnsetsTensor data
-    const activeChannels = this.root.uiParamsStore.activeChannels;
-    const inactiveChannels = [];
-    for (let i = 0; i < activeChannels.length; i++) {
-      if (activeChannels[i] === 0) {
-        inactiveChannels.push(i);
+    const activeInstruments = this.root.uiParamsStore.activeInstruments;
+    const inactiveInstruments = [];
+    for (let i = 0; i < activeInstruments.length; i++) {
+      if (activeInstruments[i] === 0) {
+        inactiveInstruments.push(i);
       }
     }
-    for (const channel of inactiveChannels) {
+    for (const channel of inactiveInstruments) {
       for (let step = 0; step < previousOnsetsTensor[0].length; step++) {
         newOnsetsTensor[0][step][channel] =
           previousOnsetsTensor[0][step][channel];
@@ -152,7 +152,7 @@ class PatternStore {
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
     log(
       `Changed note value for [${step}, ${
-        CHANNELS - 1 - instrumentIndex
+        NUM_INSTRUMENTS - 1 - instrumentIndex
       }] to ${value}`
     );
   }
@@ -160,12 +160,12 @@ class PatternStore {
   updateInstrumentVelocities(instrumentIndex, data) {
     const velocitiesTensor = this.currentVelocities.tensor();
     for (let i = 0; i < LOOP_DURATION; i++) {
-      velocitiesTensor[0][i][CHANNELS - 1 - instrumentIndex] = data[i];
+      velocitiesTensor[0][i][NUM_INSTRUMENTS - 1 - instrumentIndex] = data[i];
     }
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
     log(
       `Updated currentVelocities for instrument: ${
-        CHANNELS - 1 - instrumentIndex
+        NUM_INSTRUMENTS - 1 - instrumentIndex
       }`
     );
   }
@@ -177,7 +177,7 @@ class PatternStore {
     }
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
     log(
-      `Updated currentOffsets for instrument: ${CHANNELS - 1 - instrumentIndex}`
+      `Updated currentOffsets for instrument: ${NUM_INSTRUMENTS - 1 - instrumentIndex}`
     );
   }
 
