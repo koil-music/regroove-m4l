@@ -62,7 +62,6 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
-			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/node_modules",
 			"projectrelativepath" : "./node_modules",
 			"label" : "node_modules",
 			"recursive" : 1,
@@ -71,7 +70,6 @@
 		}
 ,
 		"1" : 		{
-			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/src",
 			"projectrelativepath" : "./src",
 			"label" : "src",
 			"recursive" : 1,
@@ -80,7 +78,6 @@
 		}
 ,
 		"2" : 		{
-			"bootpath" : "~/OneDrive/Documents/Repos/regroove/regroove-m4l/regroove-models/current",
 			"projectrelativepath" : "./regroove-models/current",
 			"label" : "regroove-models",
 			"recursive" : 1,

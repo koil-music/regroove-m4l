@@ -1,4 +1,5 @@
 const { makeAutoObservable } = require("mobx");
+
 const { CHANNELS, LOOP_DURATION } = require("./ui-params");
 const { log } = require("../utils");
 
@@ -20,41 +21,42 @@ class MatrixCtrlStore {
     const offsets = this.root.patternStore.currentOffsets.tensor()[0];
 
     for (let channel = 8; channel >= 0; channel--) {
-      if (this.root.uiParamsStore.activeChannels[channel] == "1") {
-        for (let step = 0; step < LOOP_DURATION; step++) {
-          onsetsData.push(step);
-          onsetsData.push(channel);
-          const onsetValue = onsets[step][CHANNELS - channel - 1];
-          onsetsData.push(onsetValue);
+      for (let step = 0; step < LOOP_DURATION; step++) {
+        // onset
+        const onsetValue = onsets[step][CHANNELS - channel - 1];
 
-          // velocities
-          let velocityValue;
-          if (onsetValue == 1) {
-            velocityValue = velocities[step][CHANNELS - channel - 1];
-          } else {
-            velocityValue = 0.0;
-          }
-          velocitiesData.push(step);
-          velocitiesData.push(channel);
-          velocitiesData.push(velocityValue);
-
-          // offsets
-          let offsetValue;
-          if (onsetValue == 1) {
-            // scale offset values to [0, 1] for bpatcher compatability
-            offsetValue = offsets[step][CHANNELS - channel - 1];
-            offsetValue += 1;
-            offsetValue /= 2;
-          } else {
-            offsetValue = 0.5;
-          }
-          offsetsData.push(step);
-          offsetsData.push(channel);
-          offsetsData.push(offsetValue);
+        // velocity
+        let velocityValue;
+        if (onsetValue == 1) {
+          velocityValue = velocities[step][CHANNELS - channel - 1];
+        } else {
+          velocityValue = 0.0;
         }
+
+        // offset
+        let offsetValue;
+        if (onsetValue == 1) {
+          // scale offset values to [0, 1] for bpatcher compatability
+          offsetValue = offsets[step][CHANNELS - channel - 1];
+          offsetValue += 1;
+          offsetValue /= 2;
+        } else {
+          offsetValue = 0.5;
+        }
+
+        // push data to output arrays
+        onsetsData.push(step);
+        onsetsData.push(channel);
+        onsetsData.push(onsetValue);
+        velocitiesData.push(step);
+        velocitiesData.push(channel);
+        velocitiesData.push(velocityValue);
+        offsetsData.push(step);
+        offsetsData.push(channel);
+        offsetsData.push(offsetValue);
       }
     }
-    log(`Returning MatrixCtrlStore.data to update Max views.`)
+    log(`Returning MatrixCtrlStore.data to update Max views.`);
     return [onsetsData, velocitiesData, offsetsData];
   }
 

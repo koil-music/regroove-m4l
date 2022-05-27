@@ -1,5 +1,7 @@
 const { makeAutoObservable } = require("mobx");
 const { normalize } = require("../utils");
+const defaultDetailParam = require("../data/default-detail-param.json");
+const defaultVelocityAmplitude = require("../data/default-velocity-amplitude.json");
 
 const LOOP_DURATION = 16;
 const CHANNELS = 9;
@@ -38,6 +40,10 @@ class UIParamsStore {
   syncRateOptions = [1, 2, 4];
   syncRate = Math.min(...this.syncRateOptions);
   detailViewModeIndex = DetailViewMode.Velocity;
+  _velocityAmplitude = defaultVelocityAmplitude;
+  _velocityRand = defaultDetailParam;
+  _timeShift = defaultDetailParam;
+  _timeRand = defaultDetailParam;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -48,7 +54,7 @@ class UIParamsStore {
     return {
       dynamics: this.dynamics,
       microtiming: this.microtiming,
-      velocity: this.velocity,
+      velocityAmplitude: this.velocityAmplitude,
       dynamicsOn: this.dynamicsOn,
       microtimingOn: this.microtimingOn,
     };
@@ -92,10 +98,38 @@ class UIParamsStore {
 
   set activeChannels(channels) {
     this._activeChannels = channels;
+    this._activeChannels.reverse();
   }
-
   get activeChannels() {
     return this._activeChannels;
+  }
+
+  set velocityAmplitude(d) {
+    this._velocityAmplitude = d;
+  }
+  get velocityAmplitude() {
+    return this._velocityAmplitude;
+  }
+
+  set velocityRand(d) {
+    this._velocityRand = d;
+  }
+  get velocityRand() {
+    return this._velocityRand;
+  }
+
+  set timeRand(d) {
+    this._timeRand = d;
+  }
+  get timeRand() {
+    return this._timeRand;
+  }
+
+  set timeShift(d) {
+    this._timeShift = d;
+  }
+  get timeShift() {
+    return this._timeShift;
   }
 }
 

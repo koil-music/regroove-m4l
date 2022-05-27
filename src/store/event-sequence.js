@@ -7,18 +7,7 @@ const BUFFER_LENGTH = 512;
 const TICKS_PER_16TH = 512 / 16;
 const MAX_VELOCITY = 127;
 
-class MidiEvent {
-  onset;
-  instrumentIndex;
-  step;
-  offsetValue;
-  offsetMagnitude;
-  offsetOn;
-  velocityValue;
-  velocityMagnitude;
-  dynamicsMagnitude;
-  dynamicsOn;
-
+class NoteEvent {
   constructor(
     onset,
     instrumentIndex,
@@ -29,7 +18,10 @@ class MidiEvent {
     velocityValue,
     velocityMagnitude,
     dynamicsMagnitude,
-    dynamicsOn
+    dynamicsOn,
+    velocityRand,
+    offsetRand,
+    offsetShift
   ) {
     this.onset = onset;
     this.instrumentIndex = instrumentIndex;
@@ -41,6 +33,9 @@ class MidiEvent {
     this.velocityMagnitude = velocityMagnitude;
     this.dynamicsMagnitude = dynamicsMagnitude;
     this.dynamicsOn = dynamicsOn;
+    this.velocityRand = velocityRand;
+    this.offsetRand = offsetRand;
+    this.offsetShift = offsetShift;
   }
 
   get instrument() {
@@ -51,7 +46,12 @@ class MidiEvent {
     let bufferIndex = this.step * TICKS_PER_16TH;
     if (this.offsetOn) {
       const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
+      const randomOffsetTicks =
+        Math.random() * this.offsetRand * (TICKS_PER_16TH / 2);
+      const shiftOffsetTicks = this.offsetShift * (TICKS_PER_16TH / 2);
       bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude);
+      bufferIndex += Math.floor(shiftOffsetTicks);
+      bufferIndex += Math.floor(randomOffsetTicks);
     }
     if (bufferIndex < 0) {
       return BUFFER_LENGTH + bufferIndex;
@@ -65,7 +65,9 @@ class MidiEvent {
     if (this.dynamicsOn) {
       velocity *= this.dynamicsMagnitude;
     }
-    return Math.floor(velocity * this.velocityMagnitude);
+    const randomVelocityScale = Math.random() * this.velocityRand * velocity;
+    const scaledVelocity = Math.floor(velocity * this.velocityMagnitude);
+    return scaledVelocity + randomVelocityScale;
   }
 }
 
@@ -88,10 +90,9 @@ class EventSequence {
           this.root.patternStore.currentOnsets.tensor()[0],
           params.dynamics,
           params.microtiming,
-          params.velocity,
+          params.velocityAmplitude,
           params.dynamicsOn,
-          params.microtimingOn,
-          this.root.uiParamsStore.activeChannels
+          params.microtimingOn
         );
       }
     );
@@ -105,10 +106,9 @@ class EventSequence {
             currentOnsets.tensor()[0],
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.velocity,
+            this.root.uiParamsStore.velocityAmplitude,
             this.root.uiParamsStore.dynamicsOn,
-            this.root.uiParamsStore.microtimingOn,
-            this.root.uiParamsStore.activeChannels
+            this.root.uiParamsStore.microtimingOn
           );
           this.togglePatternUpdate();
           this.toggleIgnoreNoteUpdate();
@@ -140,10 +140,9 @@ class EventSequence {
     offsetMagnitude,
     velocityMagnitude,
     dynamicsOn,
-    microtimingOn,
-    activeChannels
+    microtimingOn
   ) {
-    const event = new MidiEvent(
+    const event = new NoteEvent(
       onset,
       instrument,
       step,
@@ -157,23 +156,20 @@ class EventSequence {
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];
-    if (Object.keys(existingNotes) === undefined) {
+    if (Object.keys(existingNotes) === undefined && event.onset === 1) {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrument] === 1) {
-        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
-        this.quantizedEventSequence[event.step] = existingNotes;
-      }
+      existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
+      this.quantizedEventSequence[event.step] = existingNotes;
     } else if (
-      Object.keys(existingNotes).includes(event.instrument.toString())
+      Object.keys(existingNotes).includes(event.instrument.toString()) &&
+      event.onset === 0
     ) {
       // event.instrument exists in this time step already -> remove
-      if (event.onset == 0 && activeChannels[event.instrument] === 1) {
-        delete existingNotes[event.instrument];
-        this.quantizedEventSequence[step] = existingNotes;
-      }
+      delete existingNotes[event.instrument];
+      this.quantizedEventSequence[step] = existingNotes;
     } else {
       // instrument does not yet exist -> add
-      if (event.onset == 1 && activeChannels[event.instrument] === 1) {
+      if (event.onset == 1) {
         existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
         this.quantizedEventSequence[event.step] = existingNotes;
       }
@@ -195,31 +191,27 @@ class EventSequence {
     onsetsTensor,
     dynamicsMagnitude,
     offsetMagnitude,
-    velocityMagnitude,
+    velocityAmplitude,
     dynamicsOn,
-    microtimingOn,
-    activeChannels
+    microtimingOn
   ) {
     this.resetQuantizedEventSequence();
     const eventSequence = emptyEventSequenceDict(BUFFER_LENGTH);
     for (let instrument = 0; instrument < CHANNELS; instrument++) {
-      if (activeChannels[CHANNELS - instrument - 1] == "1") {
-        for (let step = 0; step < LOOP_DURATION; step++) {
-          const onset = onsetsTensor[step][instrument];
-          const midiNoteEvents = this.getMidiNoteEventsForCell(
-            step,
-            instrument,
-            onset,
-            dynamicsMagnitude,
-            offsetMagnitude,
-            velocityMagnitude,
-            dynamicsOn,
-            microtimingOn,
-            activeChannels
-          );
-          for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
-            eventSequence[idx] = noteEvents;
-          }
+      for (let step = 0; step < LOOP_DURATION; step++) {
+        const onset = onsetsTensor[step][instrument];
+        const midiNoteEvents = this.getMidiNoteEventsForCell(
+          step,
+          instrument,
+          onset,
+          dynamicsMagnitude,
+          offsetMagnitude,
+          velocityAmplitude[instrument.toString()],
+          dynamicsOn,
+          microtimingOn
+        );
+        for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
+          eventSequence[idx] = noteEvents;
         }
       }
     }
@@ -244,4 +236,4 @@ const emptyEventSequence = (length) => {
   return eventSequence;
 };
 
-module.exports = { EventSequence };
+module.exports = { EventSequence, NoteEvent };

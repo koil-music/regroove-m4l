@@ -155,6 +155,33 @@ Max.addHandler("/params/velocity", (value) => {
 });
 
 /**
+ * ===========================
+ * Expression
+ * ===========================
+ * Update velocityAmplitude dict in uiParamsStore
+ */
+Max.addHandler("updateVelAmp", async () => {
+  store.uiParamsStore.velocityAmplitude = await Max.getDict("velAmp");
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.matrixCtrlStore.data;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  log(`Updated velAmp dict.`);
+});
+Max.addHandler("updateVelRand", async () => {
+  store.uiParamsStore.velocityRand = await Max.getDict("velRand");
+  log(`Updated velRand dict.`);
+});
+Max.addHandler("updateTimeShift", async () => {
+  store.uiParamsStore.timeShift = await Max.getDict("timeShift");
+  log(`Updated timeShift dict.`);
+});
+Max.addHandler("updateTimeRand", async () => {
+  store.uiParamsStore.timeRand = await Max.getDict("timeRand");
+  log(`Updated timeRand dict.`);
+});
+
+/**
  * Trigger a sync with the matrixCtrl view if step is at downbeat
  * @param {float} step: range = [0, loopDuration]
  */
@@ -243,10 +270,9 @@ Max.addHandler("update_note", (step, instrument, value) => {
         value,
         store.uiParamsStore.dynamics,
         store.uiParamsStore.microtiming,
-        store.uiParamsStore.velocity,
+        store.uiParamsStore.velocityAmplitude[instrumentIndex.toString()],
         store.uiParamsStore.dynamicsOn,
-        store.uiParamsStore.microtimingOn,
-        store.uiParamsStore.activeChannels
+        store.uiParamsStore.microtimingOn
       );
       for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
         log("Updating dictionary");
@@ -261,17 +287,23 @@ Max.addHandler("update_note", (step, instrument, value) => {
 Max.addHandler("updateDetailData", async (instrumentIndex) => {
   if (store.uiParamsStore.detailViewMode == "Velocity") {
     const detailViewData = await Max.getDict("velocitiesData");
-    store.patternStore.updateInstrumentVelocities(instrumentIndex, detailViewData[instrumentIndex]);
+    store.patternStore.updateInstrumentVelocities(
+      instrumentIndex,
+      detailViewData[instrumentIndex]
+    );
   } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
     const detailViewData = await Max.getDict("offsetsData");
-    store.patternStore.updateInstrumentOffsets(instrumentIndex, detailViewData[instrumentIndex]);
+    store.patternStore.updateInstrumentOffsets(
+      instrumentIndex,
+      detailViewData[instrumentIndex]
+    );
   }
-})
+});
 
 Max.addHandler("setDetailViewMode", (v) => {
   store.uiParamsStore.detailViewModeIndex = v;
   log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
-})
+});
 
 /**
  * Clear current pattern
