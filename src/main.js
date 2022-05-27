@@ -121,19 +121,18 @@ Max.addHandler("/params/sync", () => {
  * Trigger a sync with the matrixCtrl view if step is at downbeat
  * @param {float} step: range = [0, loopDuration]
  */
-Max.addHandler("auto_sync", (step) => {
+Max.addHandler("auto_sync", async (step) => {
   if (
     store.uiParamsStore.syncOn &&
     store.uiParamsStore.syncModeName == "Auto" &&
     step % store.uiParamsStore.loopDuration === 0
   ) {
     log(`autoSync: ${step}`);
-    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-      store.matrixCtrlStore.autoSync(step);
-    if (onsetsData !== undefined) {
-      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-      writeDetailViewDict(offsetsDataSequence, "offsetsData");
-      Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+    const dataSequences = store.matrixCtrlStore.autoSync(step);
+    if (dataSequences !== undefined) {
+      writeDetailViewDict(dataSequences[1], "velocitiesData");
+      await writeDetailViewDict(dataSequences[2], "offsetsData");
+      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
     }
   }
 });
