@@ -4,6 +4,7 @@ node_modules
 *.log
 .github
 .data
+.env
 
 # Max 8 built-ins
 code/fit_jweb_to_bounds.js
