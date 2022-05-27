@@ -1,0 +1,18 @@
+{
+  "maxDensity": 0.65,
+  "minDensity": 0.35,
+  "random": 0.3,
+  "numSamples": 400,
+  "globalMicrotiming": 0.5,
+  "globalDynamics": 0.5,
+  "microtimingOn": true,
+  "dynamicsOn": true,
+  "density": 0.5,
+  "loopDuration": 16,
+  "numInstruments": 9,
+  "activeInstruments": [1, 1, 1, 1, 1, 1, 1, 1, 1],
+  "syncModeIndex": 0,
+  "syncRateOptions": [1, 2, 4],
+  "syncRate": 1,
+  "detailViewModeIndex": 0
+}
