@@ -95,18 +95,43 @@ class PatternStore {
     this.root.eventSequence.togglePatternUpdate();
     const x = parseInt(this.root.uiParamsStore.densityIndex);
     const y = parseInt(randomIndex);
-    this.currentOnsets = new Pattern(
+
+    const previousOnsetsTensor = this.currentOnsets.tensor();
+    const previousVelocitiesTensor = this.currentVelocities.tensor();
+    const previousOffsetsTensor = this.currentOffsets.tensor();
+
+    const newOnsetsTensor = new Pattern(
       this.root.inferenceStore.generator.onsets.sample(x, y),
       this.dims
-    );
-    this.currentVelocities = new Pattern(
+    ).tensor();
+    const newVelocitiesTensor = new Pattern(
       this.root.inferenceStore.generator.velocities.sample(x, y),
       this.dims
-    );
-    this.currentOffsets = new Pattern(
+    ).tensor();
+    const newOffsetsTensor = new Pattern(
       this.root.inferenceStore.generator.offsets.sample(x, y),
       this.dims
-    );
+    ).tensor();
+
+    // if a channel is inactive, use previousOnsetsTensor data
+    const activeChannels = this.root.uiParamsStore.activeChannels;
+    const inactiveChannels = []
+    for (let i = 0; i < activeChannels.length; i++) {
+      if (activeChannels[i] === 0) {
+        inactiveChannels.push(i);
+      }
+    }
+    for (const channel of inactiveChannels) {
+      for (let step = 0; step < previousOnsetsTensor[0].length; step++) {
+        newOnsetsTensor[0][step][channel] = previousOnsetsTensor[0][step][channel];
+        newVelocitiesTensor[0][step][channel] = previousVelocitiesTensor[0][step][channel];
+        newOffsetsTensor[0][step][channel] = previousOffsetsTensor[0][step][channel];
+      }
+    }
+
+    this.currentOnsets = new Pattern(newOnsetsTensor, this.dims);
+    this.currentVelocities = new Pattern(newVelocitiesTensor, this.dims);
+    this.currentOffsets = new Pattern(newOffsetsTensor, this.dims);
     log(`Updated current patterns using updateCurrent.`)
   }
 

@@ -92,7 +92,9 @@ class UIParamsStore {
 
   set activeChannels(channels) {
     this._activeChannels = channels;
+    this._activeChannels.reverse();
   }
+  get activeChannels() { return this._activeChannels; }
 
   get activeChannels() {
     return this._activeChannels;
