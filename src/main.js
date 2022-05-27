@@ -83,15 +83,6 @@ Max.addHandler("/params/syncMode", (value) => {
 });
 
 /**
- * Set sync on or off.
- * @param {int} value: On or Off
- */
-Max.addHandler("/params/syncOn", (value) => {
-  store.uiParamsStore.syncOn = Boolean(parseInt(value));
-  log(`Sync: ${store.uiParamsStore.syncOn}`);
-});
-
-/**
  * Set syncRate for auto mode.
  * @param {int} value: options = [1, 2, 4]
  */
@@ -141,11 +132,15 @@ Max.addHandler("/params/syncRate", (value) => {
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.sync();
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  if (
+    ["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)
+  ) {
+    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+      store.matrixCtrlStore.sync();
+    writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+    writeDetailViewDict(offsetsDataSequence, "offsetsData");
+    Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  }
 });
 
 /**
@@ -154,7 +149,6 @@ Max.addHandler("/params/sync", () => {
  */
 Max.addHandler("auto_sync", async (step) => {
   if (
-    store.uiParamsStore.syncOn &&
     store.uiParamsStore.syncModeName == "Auto" &&
     step % store.uiParamsStore.loopDuration === 0
   ) {

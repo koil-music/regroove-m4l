@@ -13,6 +13,7 @@ const SyncMode = Object.freeze({
   Snap: 0,
   Toggle: 1,
   Auto: 2,
+  Off: 3,
 });
 
 const DetailViewMode = Object.freeze({

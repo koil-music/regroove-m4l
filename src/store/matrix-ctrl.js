@@ -80,25 +80,23 @@ class MatrixCtrlStore {
   }
 
   sync() {
-    if (this.root.uiParamsStore.syncOn) {
-      if (this.root.uiParamsStore.syncModeName === "Snap") {
-        if (this.oddSnap) {
-          this.toggleOddSnap();
-          this.root.patternStore.updateCurrent();
-        } else {
-          this.toggleOddSnap();
-        }
-      } else if (this.root.uiParamsStore.syncModeName == "Toggle") {
-        if (this.isSyncing) {
-          // switch back to previous pattern
-          this.root.patternStore.setCurrentFromTemp();
-        } else {
-          // save pattern to temp and update
-          this.root.patternStore.setTempFromCurrent();
-          this.root.patternStore.updateCurrent();
-        }
-        this.toggleSync();
+    if (this.root.uiParamsStore.syncModeName === "Snap") {
+      if (this.oddSnap) {
+        this.toggleOddSnap();
+        this.root.patternStore.updateCurrent();
+      } else {
+        this.toggleOddSnap();
       }
+    } else if (this.root.uiParamsStore.syncModeName == "Toggle") {
+      if (this.isSyncing) {
+        // switch back to previous pattern
+        this.root.patternStore.setCurrentFromTemp();
+      } else {
+        // save pattern to temp and update
+        this.root.patternStore.setTempFromCurrent();
+        this.root.patternStore.updateCurrent();
+      }
+      this.toggleSync();
     }
     return this.data;
   }
