@@ -2,23 +2,22 @@ const { Generator, ONNXModel } = require("regroovejs");
 const { InferenceSession } = require("onnxruntime");
 const { makeAutoObservable } = require("mobx");
 const path = require("path");
-
+const defaultUiParams = require("../data/default-ui-params.json");
 const {
-  CHANNELS,
-  LOOP_DURATION,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
-  NUM_SAMPLES,
 } = require("./ui-params");
 
 class InferenceStore {
-  rootStore;
+  root;
   modelDir;
   generator;
+  numSamples = defaultUiParams.numSamples;
+  numInstruments = defaultUiParams.numInstruments;
+  loopDuration = defaultUiParams.loopDuration;
   minOnsetThreshold = MIN_ONSET_THRESHOLD;
   maxOnsetThreshold = MAX_ONSET_THRESHOLD;
   noteDropout = 0.5;
-  numSamples = NUM_SAMPLES;
   isGenerating = false;
   syncLatentSize = 2;
   syncModelName = "syncopate.onnx";
@@ -27,8 +26,9 @@ class InferenceStore {
 
   constructor(rootStore, modelDir) {
     makeAutoObservable(this);
-    this.rootStore = rootStore;
+    this.root = rootStore;
     this.modelDir = modelDir;
+
     this.run();
   }
 
@@ -52,18 +52,18 @@ class InferenceStore {
       this.generator = new Generator(
         syncModel,
         grooveModel,
-        this.rootStore.patternStore.currentOnsets.data,
-        this.rootStore.patternStore.currentVelocities.data,
-        this.rootStore.patternStore.currentOffsets.data,
+        this.root.patternStore.currentOnsets.data,
+        this.root.patternStore.currentVelocities.data,
+        this.root.patternStore.currentOffsets.data,
         this.numSamples,
         this.noteDropout,
-        CHANNELS,
-        LOOP_DURATION,
+        this.numInstruments,
+        this.loopDuration,
         this.minOnsetThreshold,
         this.maxOnsetThreshold
       );
       await this.generator.run();
-      this.rootStore.patternStore.resetInput();
+      this.root.patternStore.resetInput();
       this.toggleGenerating();
     }
   }

@@ -1,7 +1,8 @@
 const Max = require("max-api");
 const { makeAutoObservable, reaction } = require("mobx");
-const { CHANNELS, LOOP_DURATION } = require("./ui-params");
+
 const { log } = require("../utils");
+const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
 
 const BUFFER_LENGTH = 512;
 const TICKS_PER_16TH = 512 / 16;
@@ -39,7 +40,7 @@ class NoteEvent {
   }
 
   get instrument() {
-    return CHANNELS - 1 - this.instrumentIndex;
+    return NUM_INSTRUMENTS - 1 - this.instrumentIndex;
   }
 
   get bufferIndex() {
@@ -90,7 +91,7 @@ class EventSequence {
           this.root.patternStore.currentOnsets.tensor()[0],
           params.dynamics,
           params.microtiming,
-          params.velocityAmplitude,
+          params.velocityScaleDict,
           params.dynamicsOn,
           params.microtimingOn
         );
@@ -106,7 +107,7 @@ class EventSequence {
             currentOnsets.tensor()[0],
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.velocityAmplitude,
+            this.root.uiParamsStore.velocityScaleDict,
             this.root.uiParamsStore.dynamicsOn,
             this.root.uiParamsStore.microtimingOn
           );
@@ -153,9 +154,9 @@ class EventSequence {
       velocityMagnitude,
       dynamicsMagnitude,
       dynamicsOn,
-      this.root.uiParamsStore.velocityRand[instrument],
-      this.root.uiParamsStore.timeRand[instrument],
-      this.root.uiParamsStore.timeShift[instrument]
+      this.root.uiParamsStore.velocityRandDict[instrument],
+      this.root.uiParamsStore.timeRandDict[instrument],
+      this.root.uiParamsStore.timeShiftDict[instrument]
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];
@@ -194,13 +195,13 @@ class EventSequence {
     onsetsTensor,
     dynamicsMagnitude,
     offsetMagnitude,
-    velocityAmplitude,
+    velocityScaleDict,
     dynamicsOn,
     microtimingOn
   ) {
     this.resetQuantizedEventSequence();
     const eventSequence = emptyEventSequenceDict(BUFFER_LENGTH);
-    for (let instrument = 0; instrument < CHANNELS; instrument++) {
+    for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         const onset = onsetsTensor[step][instrument];
         const midiNoteEvents = this.getMidiNoteEventsForCell(
@@ -209,7 +210,7 @@ class EventSequence {
           onset,
           dynamicsMagnitude,
           offsetMagnitude,
-          velocityAmplitude[instrument.toString()],
+          velocityScaleDict[instrument.toString()],
           dynamicsOn,
           microtimingOn
         );

@@ -185,7 +185,7 @@ Max.addHandler("/params/velocity", (value) => {
  * Update velocityAmplitude dict in uiParamsStore
  */
 Max.addHandler("updateVelAmp", async () => {
-  store.uiParamsStore.velocityAmplitude = await Max.getDict("velAmp");
+  store.uiParamsStore.velocityScaleDict = await Max.getDict("velAmp");
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
@@ -193,15 +193,15 @@ Max.addHandler("updateVelAmp", async () => {
   log(`Updated velAmp dict.`);
 });
 Max.addHandler("updateVelRand", async () => {
-  store.uiParamsStore.velocityRand = await Max.getDict("velRand");
+  store.uiParamsStore.velocityRandDict = await Max.getDict("velRand");
   log(`Updated velRand dict.`);
 });
 Max.addHandler("updateTimeShift", async () => {
-  store.uiParamsStore.timeShift = await Max.getDict("timeShift");
+  store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
   log(`Updated timeShift dict.`);
 });
 Max.addHandler("updateTimeRand", async () => {
-  store.uiParamsStore.timeRand = await Max.getDict("timeRand");
+  store.uiParamsStore.timeRandDict = await Max.getDict("timeRand");
   log(`Updated timeRand dict.`);
 });
 
@@ -277,14 +277,14 @@ Max.addHandler("/params/density", (value) => {
  * ================================
  * Update the onset value of a specific note
  * @param {int} step: range = [0, loopDuration - 1]
- * @param {int} instrument: range = [0, channels - 1]
+ * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
 Max.addHandler("update_note", (step, instrument, value) => {
-  const instrumentIndex = store.uiParamsStore.channels - instrument - 1;
+  const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
   if (
     step < store.uiParamsStore.loopDuration &&
-    instrument < store.uiParamsStore.channels
+    instrument < store.uiParamsStore.numInstruments
   ) {
     if (!store.eventSequence.ignoreNoteUpdate) {
       store.patternStore.updateNote(step, instrumentIndex, value);
@@ -294,7 +294,7 @@ Max.addHandler("update_note", (step, instrument, value) => {
         value,
         store.uiParamsStore.dynamics,
         store.uiParamsStore.microtiming,
-        store.uiParamsStore.velocityAmplitude[instrumentIndex.toString()],
+        store.uiParamsStore.velocityScaleDict[instrumentIndex.toString()],
         store.uiParamsStore.dynamicsOn,
         store.uiParamsStore.microtimingOn
       );
@@ -342,13 +342,12 @@ Max.addHandler("clear_pattern", async () => {
 });
 
 /**
- * Set the channels for which to update the matrixCtrl view
- * @param {string} channels: i.e. "111110101"
+ * Update activeInstruments in uiParamsStore from Max.Dict
  */
-Max.addHandler("set_active_channels", () => {
-  Max.getDict("activeChannels").then((d) => {
-    store.uiParamsStore.activeChannels = Object.values(d);
-    log(`Updated activeChannels to: ${store.uiParamsStore.activeChannels}`);
+Max.addHandler("updateActiveInstruments", () => {
+  Max.getDict("activeInstruments").then((d) => {
+    store.uiParamsStore.activeInstruments = Object.values(d);
+    log(`Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`);
   });
 });
 

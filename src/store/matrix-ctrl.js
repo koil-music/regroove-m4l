@@ -1,6 +1,6 @@
 const { makeAutoObservable } = require("mobx");
 
-const { CHANNELS, LOOP_DURATION } = require("./ui-params");
+const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
 const { log } = require("../utils");
 
 class MatrixCtrlStore {
@@ -23,12 +23,12 @@ class MatrixCtrlStore {
     for (let channel = 8; channel >= 0; channel--) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         // onset
-        const onsetValue = onsets[step][CHANNELS - channel - 1];
+        const onsetValue = onsets[step][NUM_INSTRUMENTS - channel - 1];
 
         // velocity
         let velocityValue;
         if (onsetValue == 1) {
-          velocityValue = velocities[step][CHANNELS - channel - 1];
+          velocityValue = velocities[step][NUM_INSTRUMENTS - channel - 1];
         } else {
           velocityValue = 0.0;
         }
@@ -37,7 +37,7 @@ class MatrixCtrlStore {
         let offsetValue;
         if (onsetValue == 1) {
           // scale offset values to [0, 1] for bpatcher compatability
-          offsetValue = offsets[step][CHANNELS - channel - 1];
+          offsetValue = offsets[step][NUM_INSTRUMENTS - channel - 1];
           offsetValue += 1;
           offsetValue /= 2;
         } else {
