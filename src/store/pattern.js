@@ -68,9 +68,9 @@ class PatternStore {
   }
 
   updateHistory() {
-    this.onsetsHistory.append(this.onsetsPattern);
-    this.velocitiesHistory.append(this.velocitiesPattern);
-    this.offsetsHistory.append(this.offsetsPattern);
+    this.onsetsHistory.append(this.currentOnsets);
+    this.velocitiesHistory.append(this.currentVelocities);
+    this.offsetsHistory.append(this.currentOffsets);
     this.resetHistoryIndex();
   }
 
@@ -222,9 +222,9 @@ class PatternStore {
     this.currentHistoryIndex += 1;
     if (this.currentHistoryIndex < this.onsetsHistory._queue.length) {
       this.root.eventSequence.togglePatternUpdate();
-      this.currentOnsets = this.onsetsHistory[this.currentHistoryIndex];
-      this.currentVelocities = this.velocitiesHistory[this.currentHistoryIndex];
-      this.currentOffsets = this.offsetsHistory[this.currentHistoryIndex];
+      this.currentOnsets = this.onsetsHistory.sample(this.currentHistoryIndex);
+      this.currentVelocities = this.velocitiesHistory.sample(this.currentHistoryIndex);
+      this.currentOffsets = this.offsetsHistory.sample(this.currentHistoryIndex);
       log(`Set current pattern to previous pattern.`);
     }
   }
