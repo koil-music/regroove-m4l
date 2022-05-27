@@ -308,12 +308,12 @@ Max.addHandler("setDetailViewMode", (v) => {
 /**
  * Clear current pattern
  */
-Max.addHandler("clear_pattern", () => {
+Max.addHandler("clear_pattern", async () => {
   store.patternStore.clearCurrent();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
@@ -331,24 +331,24 @@ Max.addHandler("set_active_channels", () => {
 /**
  * Populate matrixCtrl view with previous pattern from history
  */
-Max.addHandler("set_previous_pattern", () => {
+Max.addHandler("set_previous_pattern", async () => {
   store.patternStore.setPrevious();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 
 /**
  * Populate matrixCtrl view with the pattern used as input to the neural net
  */
-Max.addHandler("set_input_pattern", () => {
+Max.addHandler("set_input_pattern", async () => {
   store.patternStore.setInput();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
 });
 

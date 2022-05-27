@@ -50,7 +50,7 @@ const normalize = (value, min, max) => {
  * @param {List[int]} dataSequence: Sequence of note triplets (step, cannel, value)
  * @param {string} dictName: Name of Max dictionary to write to
  */
-const writeDetailViewDict = (dataSequence, dictName) => {
+const writeDetailViewDict = async (dataSequence, dictName) => {
   const newData = {};
   for (let channel = 0; channel < CHANNELS; channel++) {
     newData[channel] = [];
@@ -65,14 +65,13 @@ const writeDetailViewDict = (dataSequence, dictName) => {
     // this assumes steps are incrementing chronologically
     newData[channel].push(value);
   }
-  Max.getDict(dictName).then((currentData) => {
-    for (const [key, sequence] of Object.entries(newData)) {
-      if (sequence === undefined) {
-        newData[key] = currentData[key];
-      }
+  const currentData = await Max.getDict(dictName)
+  for (const [key, sequence] of Object.entries(newData)) {
+    if (sequence === undefined) {
+      newData[key] = currentData[key];
     }
-    Max.setDict(dictName, newData);
-  });
+    await Max.setDict(dictName, newData);
+  };
 };
 
 module.exports = { log, validModelDir, normalize, writeDetailViewDict };
