@@ -152,7 +152,10 @@ class EventSequence {
       this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
       velocityMagnitude,
       dynamicsMagnitude,
-      dynamicsOn
+      dynamicsOn,
+      this.root.uiParamsStore.velocityRand[instrument],
+      this.root.uiParamsStore.timeRand[instrument],
+      this.root.uiParamsStore.timeShift[instrument]
     );
 
     const existingNotes = this.quantizedEventSequence[event.step];
