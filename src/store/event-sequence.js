@@ -50,8 +50,8 @@ class NoteEvent {
   get bufferIndexRange() {
     return {
       min: this.quantizedBufferIndex - TICKS_PER_16TH / 2,
-      max: this.quantizedBufferIndex + TICKS_PER_16TH / 2
-    }
+      max: this.quantizedBufferIndex + TICKS_PER_16TH / 2,
+    };
   }
 
   get bufferIndex() {
@@ -95,23 +95,21 @@ class BufferEvent {
 }
 
 class EventSequence {
-  constructor(
-    numInstruments,
-    loopDuration,
-    bufferLength,
-  ) {
+  constructor(numInstruments, loopDuration, bufferLength) {
     this.numInstruments = numInstruments;
     this.loopDuration = loopDuration;
     this.bufferLength = bufferLength;
     this.reset();
   }
 
-  reset() {  // public
+  reset() {
+    // public
     this.quantizedData = this._resetQuantizedData(this.loopDuration);
     this.bufferData = this._initBufferData(0, this.bufferLength);
   }
 
-  _resetQuantizedData(length) {  // private
+  _resetQuantizedData(length) {
+    // private
     const data = [];
     for (let i = 0; i < length; i++) {
       data.push({});
@@ -119,7 +117,8 @@ class EventSequence {
     return data;
   }
 
-  _initBufferData(start, end) {  // private
+  _initBufferData(start, end) {
+    // private
     const data = {};
     for (let i = start; i < end; i++) {
       data[i] = new BufferEvent(-1, 0).array;
@@ -127,16 +126,21 @@ class EventSequence {
     return data;
   }
 
-  update(event) {  // public
+  update(event) {
+    // public
     const events = this.quantizedData[event.step];
     const previousEvent = events[event.instrument];
     const bufferDataUpdates = {};
     if (event.onset === 1) {
       events[event.instrument] = event;
-    } else {  // event.onset === 0
+    } else {
+      // event.onset === 0
       delete events[event.instrument];
       if (previousEvent !== undefined) {
-        bufferDataUpdates[previousEvent.bufferIndex] = new BufferEvent(previousEvent.instrument, 0).array;
+        bufferDataUpdates[previousEvent.bufferIndex] = new BufferEvent(
+          previousEvent.instrument,
+          0
+        ).array;
       }
     }
     this.quantizedData[event.step] = events;
@@ -148,7 +152,6 @@ class EventSequence {
       } else {
         bufferDataUpdates[e.bufferIndex] = bufferEvent.array;
       }
-
     }
     return bufferDataUpdates;
   }
@@ -164,7 +167,11 @@ class EventSequenceHandler {
     // i.e. quantizedEventSequence = [{"36": [2, 100], "42": [0, 127]}, ...]
     makeAutoObservable(this);
     this.root = rootStore;
-    this.eventSequence = new EventSequence(NUM_INSTRUMENTS, LOOP_DURATION, BUFFER_LENGTH);
+    this.eventSequence = new EventSequence(
+      NUM_INSTRUMENTS,
+      LOOP_DURATION,
+      BUFFER_LENGTH
+    );
 
     this.reactToParamsChange = reaction(
       () => this.root.uiParamsStore.expressionParams,

@@ -90,7 +90,9 @@ class PatternStore {
   }
 
   updateCurrent() {
-    const randomIndex = Math.floor(Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples));
+    const randomIndex = Math.floor(
+      Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
+    );
     this.updateHistory();
     this.root.eventSequenceHandler.togglePatternUpdate();
     const x = parseInt(this.root.uiParamsStore.densityIndex);
@@ -177,7 +179,9 @@ class PatternStore {
     }
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
     log(
-      `Updated currentOffsets for instrument: ${NUM_INSTRUMENTS - 1 - instrumentIndex}`
+      `Updated currentOffsets for instrument: ${
+        NUM_INSTRUMENTS - 1 - instrumentIndex
+      }`
     );
   }
 
@@ -223,8 +227,12 @@ class PatternStore {
     if (this.currentHistoryIndex < this.onsetsHistory._queue.length) {
       this.root.eventSequenceHandler.togglePatternUpdate();
       this.currentOnsets = this.onsetsHistory.sample(this.currentHistoryIndex);
-      this.currentVelocities = this.velocitiesHistory.sample(this.currentHistoryIndex);
-      this.currentOffsets = this.offsetsHistory.sample(this.currentHistoryIndex);
+      this.currentVelocities = this.velocitiesHistory.sample(
+        this.currentHistoryIndex
+      );
+      this.currentOffsets = this.offsetsHistory.sample(
+        this.currentHistoryIndex
+      );
       log(`Set current pattern to previous pattern.`);
     }
   }

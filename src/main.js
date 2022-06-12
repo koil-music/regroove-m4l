@@ -104,7 +104,7 @@ Max.addHandler("/params/syncRate", (value) => {
  * @param {List[int]} dataSequence: Sequence of note triplets (step, cannel, value)
  * @param {string} dictName: Name of Max dictionary to write to
  */
- const writeDetailViewDict = async (dataSequence, dictName) => {
+const writeDetailViewDict = async (dataSequence, dictName) => {
   const newData = {};
   for (let instr = 0; instr < store.uiParamsStore.numInstruments; instr++) {
     newData[instr] = [];
@@ -119,22 +119,20 @@ Max.addHandler("/params/syncRate", (value) => {
     // this assumes steps are incrementing chronologically
     newData[channel].push(value);
   }
-  const currentData = await Max.getDict(dictName)
+  const currentData = await Max.getDict(dictName);
   for (const [key, sequence] of Object.entries(newData)) {
     if (sequence === undefined) {
       newData[key] = currentData[key];
     }
     await Max.setDict(dictName, newData);
-  };
+  }
 };
 
 /**
  * Triggers an update to the pattern seen in the matrixCtrl
  */
 Max.addHandler("/params/sync", () => {
-  if (
-    ["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)
-  ) {
+  if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
     const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
       store.matrixCtrlStore.sync();
     writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
@@ -347,7 +345,9 @@ Max.addHandler("clear_pattern", async () => {
 Max.addHandler("updateActiveInstruments", () => {
   Max.getDict("activeInstruments").then((d) => {
     store.uiParamsStore.activeInstruments = Object.values(d);
-    log(`Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`);
+    log(
+      `Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`
+    );
   });
 });
 
