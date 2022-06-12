@@ -280,15 +280,15 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
-Max.addHandler("update_note", (step, instrument, value) => {
+Max.addHandler("update_note", async (step, instrument, value) => {
   const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
   if (
     step < store.uiParamsStore.loopDuration &&
     instrument < store.uiParamsStore.numInstruments
   ) {
-    if (!store.eventSequence.ignoreNoteUpdate) {
+    if (!store.eventSequenceHandler.ignoreNoteUpdate) {
       store.patternStore.updateNote(step, instrumentIndex, value);
-      const midiNoteEvents = store.eventSequence.getMidiNoteEventsForCell(
+      const midiEventUpdates = store.eventSequenceHandler.updateNoteEvents(
         step,
         instrumentIndex,
         value,
@@ -298,9 +298,9 @@ Max.addHandler("update_note", (step, instrument, value) => {
         store.uiParamsStore.dynamicsOn,
         store.uiParamsStore.microtimingOn
       );
-      for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
-        log("Updating dictionary");
-        Max.updateDict("midiEventSequence", idx, noteEvents);
+      for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
+        await Max.updateDict("midiEventSequence", idx, noteEvents);
+        log("Updated midiEventSequence dictionary");
       }
     }
   } else {
