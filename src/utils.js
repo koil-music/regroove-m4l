@@ -1,8 +1,6 @@
 const glob = require("glob");
 const Max = require("max-api");
 
-const { CHANNELS } = require("regroovejs");
-
 let DEBUG = false;
 const log = (value) => {
   if (DEBUG) {
