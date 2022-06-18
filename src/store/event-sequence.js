@@ -1,7 +1,8 @@
 const Max = require("max-api");
 const { makeAutoObservable, reaction } = require("mobx");
-const { CHANNELS, LOOP_DURATION } = require("./ui-params");
+
 const { log } = require("../utils");
+const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
 
 const BUFFER_LENGTH = 512;
 const TICKS_PER_16TH = 512 / 16;
@@ -39,11 +40,22 @@ class NoteEvent {
   }
 
   get instrument() {
-    return CHANNELS - 1 - this.instrumentIndex;
+    return NUM_INSTRUMENTS - 1 - this.instrumentIndex;
+  }
+
+  get quantizedBufferIndex() {
+    return this.step * TICKS_PER_16TH;
+  }
+
+  get bufferIndexRange() {
+    return {
+      min: this.quantizedBufferIndex - TICKS_PER_16TH / 2,
+      max: this.quantizedBufferIndex + TICKS_PER_16TH / 2,
+    };
   }
 
   get bufferIndex() {
-    let bufferIndex = this.step * TICKS_PER_16TH;
+    let bufferIndex = this.quantizedBufferIndex;
     if (this.offsetOn) {
       const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
       const randomOffsetTicks =
@@ -71,17 +83,95 @@ class NoteEvent {
   }
 }
 
+class BufferEvent {
+  constructor(pitch, velocity) {
+    this.pitch = pitch;
+    this.velocity = velocity;
+  }
+
+  get array() {
+    return [this.pitch, this.velocity];
+  }
+}
+
 class EventSequence {
+  constructor(numInstruments, loopDuration, bufferLength) {
+    this.numInstruments = numInstruments;
+    this.loopDuration = loopDuration;
+    this.bufferLength = bufferLength;
+    this.reset();
+  }
+
+  reset() {
+    // public
+    this.quantizedData = this._resetQuantizedData(this.loopDuration);
+    this.bufferData = this._initBufferData(0, this.bufferLength);
+  }
+
+  _resetQuantizedData(length) {
+    // private
+    const data = [];
+    for (let i = 0; i < length; i++) {
+      data.push({});
+    }
+    return data;
+  }
+
+  _initBufferData(start, end) {
+    // private
+    const data = {};
+    for (let i = start; i < end; i++) {
+      data[i] = new BufferEvent(-1, 0).array;
+    }
+    return data;
+  }
+
+  update(event) {
+    // public
+    const events = this.quantizedData[event.step];
+    const previousEvent = events[event.instrument];
+    const bufferDataUpdates = {};
+    if (event.onset === 1) {
+      events[event.instrument] = event;
+    } else {
+      // event.onset === 0
+      delete events[event.instrument];
+      if (previousEvent !== undefined) {
+        bufferDataUpdates[previousEvent.bufferIndex] = new BufferEvent(
+          previousEvent.instrument,
+          0
+        ).array;
+      }
+    }
+    this.quantizedData[event.step] = events;
+
+    for (const e of Object.values(events)) {
+      const bufferEvent = new BufferEvent(e.instrument, e.velocity);
+      if (Object.keys(bufferDataUpdates).includes(e.bufferIndex.toString())) {
+        bufferDataUpdates[e.bufferIndex].push(...bufferEvent.array);
+      } else {
+        bufferDataUpdates[e.bufferIndex] = bufferEvent.array;
+      }
+    }
+    return bufferDataUpdates;
+  }
+}
+
+class EventSequenceHandler {
   rootStore;
   isPatternUpdate = true;
   ignoreNoteUpdate = false;
-  quantizedEventSequence;
+  eventSequence;
 
   constructor(rootStore) {
     // i.e. quantizedEventSequence = [{"36": [2, 100], "42": [0, 127]}, ...]
     makeAutoObservable(this);
     this.root = rootStore;
-    this.resetQuantizedEventSequence();
+    this.eventSequence = new EventSequence(
+      NUM_INSTRUMENTS,
+      LOOP_DURATION,
+      BUFFER_LENGTH
+    );
 
     this.reactToParamsChange = reaction(
       () => this.root.uiParamsStore.expressionParams,
@@ -90,7 +180,7 @@ class EventSequence {
           this.root.patternStore.currentOnsets.tensor()[0],
           params.dynamics,
           params.microtiming,
-          params.velocityAmplitude,
+          params.velocityScaleDict,
           params.dynamicsOn,
           params.microtimingOn
         );
@@ -106,7 +196,7 @@ class EventSequence {
             currentOnsets.tensor()[0],
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.velocityAmplitude,
+            this.root.uiParamsStore.velocityScaleDict,
             this.root.uiParamsStore.dynamicsOn,
             this.root.uiParamsStore.microtimingOn
           );
@@ -117,8 +207,8 @@ class EventSequence {
     );
   }
 
-  resetQuantizedEventSequence() {
-    this.quantizedEventSequence = emptyEventSequence(LOOP_DURATION);
+  reset() {
+    this.quantizedEventSequence.reset();
   }
 
   togglePatternUpdate() {
@@ -132,7 +222,7 @@ class EventSequence {
     setTimeout(() => (this.ignoreNoteUpdate = false), 250);
   }
 
-  getMidiNoteEventsForCell(
+  updateNoteEvents(
     step,
     instrument,
     onset,
@@ -153,90 +243,45 @@ class EventSequence {
       velocityMagnitude,
       dynamicsMagnitude,
       dynamicsOn,
-      this.root.uiParamsStore.velocityRand[instrument],
-      this.root.uiParamsStore.timeRand[instrument],
-      this.root.uiParamsStore.timeShift[instrument]
+      this.root.uiParamsStore.velocityRandDict[instrument],
+      this.root.uiParamsStore.timeRandDict[instrument],
+      this.root.uiParamsStore.timeShiftDict[instrument]
     );
-
-    const existingNotes = this.quantizedEventSequence[event.step];
-    if (Object.keys(existingNotes) === undefined && event.onset === 1) {
-      // instrument does not yet exist -> add
-      existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
-      this.quantizedEventSequence[event.step] = existingNotes;
-    } else if (
-      Object.keys(existingNotes).includes(event.instrument.toString()) &&
-      event.onset === 0
-    ) {
-      // event.instrument exists in this time step already -> remove
-      delete existingNotes[event.instrument];
-      this.quantizedEventSequence[step] = existingNotes;
-    } else {
-      // instrument does not yet exist -> add
-      if (event.onset == 1) {
-        existingNotes[event.instrument] = [event.bufferIndex, event.velocity];
-        this.quantizedEventSequence[event.step] = existingNotes;
-      }
-    }
-
-    // Transform to event sequence (index by bufferIndex)
-    const updateBufferData = {};
-    for (const [instr, [bufferIdx, v]] of Object.entries(existingNotes)) {
-      if (Object.keys(updateBufferData).includes(bufferIdx.toString())) {
-        updateBufferData[bufferIdx].push(...[instr, v]);
-      } else {
-        updateBufferData[bufferIdx] = [instr, v];
-      }
-    }
-    return updateBufferData;
+    const bufferDataUpdates = this.eventSequence.update(event);
+    return bufferDataUpdates;
   }
 
   async updateSequence(
     onsetsTensor,
     dynamicsMagnitude,
     offsetMagnitude,
-    velocityAmplitude,
+    velocityScaleDict,
     dynamicsOn,
     microtimingOn
   ) {
-    this.resetQuantizedEventSequence();
-    const eventSequence = emptyEventSequenceDict(BUFFER_LENGTH);
-    for (let instrument = 0; instrument < CHANNELS; instrument++) {
+    this.eventSequence.reset();
+    for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         const onset = onsetsTensor[step][instrument];
-        const midiNoteEvents = this.getMidiNoteEventsForCell(
+        const bufferDataUpdates = this.updateNoteEvents(
           step,
           instrument,
           onset,
           dynamicsMagnitude,
           offsetMagnitude,
-          velocityAmplitude[instrument.toString()],
+          velocityScaleDict[instrument.toString()],
           dynamicsOn,
           microtimingOn
         );
-        for (const [idx, noteEvents] of Object.entries(midiNoteEvents)) {
-          eventSequence[idx] = noteEvents;
+        // sync this.bufferData
+        for (const [idx, noteEvents] of Object.entries(bufferDataUpdates)) {
+          this.eventSequence.bufferData[idx] = noteEvents;
         }
       }
     }
-    log("Setting dictionary");
-    Max.setDict("midiEventSequence", eventSequence);
+    log("Setting eventSequence dictionary.");
+    Max.setDict("midiEventSequence", this.eventSequence.bufferData);
   }
 }
 
-const emptyEventSequenceDict = (length) => {
-  const eventSequenceDict = {};
-  for (let i = 0; i < length; i++) {
-    eventSequenceDict[i] = [-1, 0];
-  }
-  return eventSequenceDict;
-};
-
-const emptyEventSequence = (length) => {
-  const eventSequence = [];
-  for (let i = 0; i < length; i++) {
-    eventSequence.push({});
-  }
-  return eventSequence;
-};
-
-module.exports = { EventSequence, NoteEvent };
+module.exports = { EventSequenceHandler, NoteEvent };

@@ -2,17 +2,18 @@ const { makeAutoObservable } = require("mobx");
 const { normalize } = require("../utils");
 const defaultDetailParam = require("../data/default-detail-param.json");
 const defaultVelocityAmplitude = require("../data/default-velocity-amplitude.json");
+const defaultUiParams = require("../data/default-ui-params.json");
 
-const LOOP_DURATION = 16;
-const CHANNELS = 9;
 const MIN_ONSET_THRESHOLD = 0.3;
 const MAX_ONSET_THRESHOLD = 0.7;
-const NUM_SAMPLES = 400;
+const LOOP_DURATION = 16;
+const NUM_INSTRUMENTS = 9;
 
 const SyncMode = Object.freeze({
   Snap: 0,
   Toggle: 1,
   Auto: 2,
+  Off: 3,
 });
 
 const DetailViewMode = Object.freeze({
@@ -22,28 +23,26 @@ const DetailViewMode = Object.freeze({
 
 class UIParamsStore {
   rootStore;
-  maxDensity = 1 - MIN_ONSET_THRESHOLD;
-  minDensity = 1 - MAX_ONSET_THRESHOLD;
-  random = 0.5;
-  numSamples = 400;
-  microtiming = 0.5;
-  dynamics = 0.5;
-  microtimingOn = true;
-  dynamicsOn = true;
-  velocity = 0.5;
-  density = 0.5;
   loopDuration = LOOP_DURATION;
-  channels = CHANNELS;
-  _activeChannels = [1, 1, 1, 1, 1, 1, 1, 1, 1];
-  syncOn = true;
-  syncModeIndex = SyncMode.Snap;
-  syncRateOptions = [1, 2, 4];
-  syncRate = Math.min(...this.syncRateOptions);
-  detailViewModeIndex = DetailViewMode.Velocity;
-  _velocityAmplitude = defaultVelocityAmplitude;
-  _velocityRand = defaultDetailParam;
-  _timeShift = defaultDetailParam;
-  _timeRand = defaultDetailParam;
+  numInstruments = NUM_INSTRUMENTS;
+  maxDensity = defaultUiParams.maxDensity;
+  minDensity = defaultUiParams.minDensity;
+  random = defaultUiParams.random;
+  numSamples = defaultUiParams.numSamples;
+  microtiming = defaultUiParams.globalMicrotiming;
+  dynamics = defaultUiParams.globalDynamics;
+  microtimingOn = defaultUiParams.microtimingOn;
+  dynamicsOn = defaultUiParams.dynamicsOn;
+  density = defaultUiParams.density;
+  _activeInstruments = defaultUiParams.activeInstruments;
+  syncModeIndex = defaultUiParams.syncModeIndex;
+  syncRateOptions = defaultUiParams.syncRateOptions;
+  syncRate = defaultUiParams.syncRate;
+  detailViewModeIndex = defaultUiParams.detailViewModeIndex;
+  _velocityScaleDict = defaultVelocityAmplitude;
+  _velocityRandDict = defaultDetailParam;
+  _timeShiftDict = defaultDetailParam;
+  _timeRandDict = defaultDetailParam;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -54,7 +53,7 @@ class UIParamsStore {
     return {
       dynamics: this.dynamics,
       microtiming: this.microtiming,
-      velocityAmplitude: this.velocityAmplitude,
+      velocityScaleDict: this.velocityScaleDict,
       dynamicsOn: this.dynamicsOn,
       microtimingOn: this.microtimingOn,
     };
@@ -69,7 +68,7 @@ class UIParamsStore {
   }
 
   get patternDims() {
-    return [1, this.loopDuration, this.channels];
+    return [1, this.loopDuration, this.numInstruments];
   }
 
   get noteDropout() {
@@ -96,49 +95,48 @@ class UIParamsStore {
     return Math.floor((1 - this.density) * Math.sqrt(this.numSamples));
   }
 
-  set activeChannels(channels) {
-    this._activeChannels = channels;
-    this._activeChannels.reverse();
+  set activeInstruments(v) {
+    this._activeInstruments = v;
+    this._activeInstruments.reverse();
   }
-  get activeChannels() {
-    return this._activeChannels;
-  }
-
-  set velocityAmplitude(d) {
-    this._velocityAmplitude = d;
-  }
-  get velocityAmplitude() {
-    return this._velocityAmplitude;
+  get activeInstruments() {
+    return this._activeInstruments;
   }
 
-  set velocityRand(d) {
-    this._velocityRand = d;
+  set velocityScaleDict(d) {
+    this._velocityScaleDict = d;
   }
-  get velocityRand() {
-    return this._velocityRand;
-  }
-
-  set timeRand(d) {
-    this._timeRand = d;
-  }
-  get timeRand() {
-    return this._timeRand;
+  get velocityScaleDict() {
+    return this._velocityScaleDict;
   }
 
-  set timeShift(d) {
-    this._timeShift = d;
+  set velocityRandDict(d) {
+    this._velocityRandDict = d;
   }
-  get timeShift() {
-    return this._timeShift;
+  get velocityRandDict() {
+    return this._velocityRandDict;
+  }
+
+  set timeRandDict(d) {
+    this._timeRandDict = d;
+  }
+  get timeRandDict() {
+    return this._timeRandDict;
+  }
+
+  set timeShiftDict(d) {
+    this._timeShiftDict = d;
+  }
+  get timeShiftDict() {
+    return this._timeShiftDict;
   }
 }
 
 module.exports = {
   UIParamsStore,
   SyncMode,
-  LOOP_DURATION,
-  CHANNELS,
-  NUM_SAMPLES,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
+  LOOP_DURATION,
+  NUM_INSTRUMENTS,
 };

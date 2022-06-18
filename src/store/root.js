@@ -1,4 +1,4 @@
-const { EventSequence } = require("./event-sequence");
+const { EventSequenceHandler } = require("./event-sequence");
 const { InferenceStore } = require("./inference");
 const { MatrixCtrlStore } = require("./matrix-ctrl");
 const { PatternStore } = require("./pattern");
@@ -10,7 +10,7 @@ class RootStore {
     this.matrixCtrlStore = new MatrixCtrlStore(this);
     this.patternStore = new PatternStore(this);
     this.uiParamsStore = new UIParamsStore(this);
-    this.eventSequence = new EventSequence(this);
+    this.eventSequenceHandler = new EventSequenceHandler(this);
   }
 }
 
