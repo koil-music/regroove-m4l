@@ -1,6 +1,7 @@
 "use_strict";
 
 const assert = require("assert");
+const fs = require("fs");
 const Max = require("max-api");
 const path = require("path");
 const process = require("process");
@@ -63,6 +64,27 @@ Max.addHandler("/params/generate", () => {
   store.inferenceStore.run();
   log("Generator successfully ran.");
 });
+
+Max.addHandler("saveGenerator", async (path) => {
+  if (store.inferenceStore.generator !== undefined) {
+    const data = await store.inferenceStore.generator.toJson();
+    fs.writeFile(path, data, {
+      encoding: "utf8"
+    }, () => {
+      log(`Wrote generator state to ${path}`)
+    });
+  }
+});
+
+Max.addHandler("loadGenerator", (path) => {
+  if (store.inferenceStore.generator !== undefined) {
+    fs.readFile(path, { encoding: "utf-8"}, (err, data) => {
+      if (err) { throw new Error(err)};
+      store.inferenceStore.generator.fromJson(data);
+      log(`Loaded generator state from ${path}`)
+    })
+  }
+})
 
 /**
  * ========================
