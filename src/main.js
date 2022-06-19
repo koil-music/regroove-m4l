@@ -6,6 +6,9 @@ const Max = require("max-api");
 const path = require("path");
 const process = require("process");
 
+const { readMidiFile } = require("regroovejs/dist/midi");
+const pitchIndexMapping = require("./data/pitch-index-mapping.json");
+
 const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
@@ -65,26 +68,50 @@ Max.addHandler("/params/generate", () => {
   log("Generator successfully ran.");
 });
 
-Max.addHandler("saveGenerator", async (path) => {
+Max.addHandler("saveGenerator", async (filePath) => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await store.inferenceStore.generator.toJson();
-    fs.writeFile(path, data, {
+    fs.writeFile(filePath, data, {
       encoding: "utf8"
     }, () => {
-      log(`Wrote generator state to ${path}`)
+      log(`Wrote generator state to ${filePath}`)
     });
   }
 });
 
-Max.addHandler("loadGenerator", (path) => {
+Max.addHandler("loadGenerator", (filePath) => {
   if (store.inferenceStore.generator !== undefined) {
-    fs.readFile(path, { encoding: "utf-8"}, (err, data) => {
+    fs.readFile(filePath, { encoding: "utf-8"}, (err, data) => {
       if (err) { throw new Error(err)};
       store.inferenceStore.generator.fromJson(data);
-      log(`Loaded generator state from ${path}`)
+      log(`Loaded generator state from ${filePath}`)
     })
   }
-})
+});
+
+Max.addHandler("readMidiFile", async (filePath) => {
+  if (path.extname(filePath) === ".mid") {
+    fs.readFile(filePath, { encoding: "binary" }, (err, midiBuffer) => {
+      if (err) {
+        log(`Error loading MIDI file: ${err}`)
+      } else {
+        readMidiFile(midiBuffer, pitchIndexMapping)
+          .then(async (midiPattern) => {
+            store.patternStore.current = midiPattern;
+            const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+              store.matrixCtrlStore.data;
+            writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+            await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+            Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+            log(`Set new pattern from MIDI file: ${filePath}`);
+          }
+        );
+      }
+    });
+  } else {
+    log(`Invalid filePath: ${filePath}, not a MIDI file.`);
+  }
+});
 
 /**
  * ========================

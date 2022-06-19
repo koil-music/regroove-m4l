@@ -189,6 +189,15 @@ class PatternStore {
     return [this.currentOnsets, this.currentVelocities, this.currentOffsets];
   }
 
+  set current(pattern) {
+    const [onsets, velocities, offsets] = pattern;
+    this.updateHistory();
+    this.root.eventSequenceHandler.togglePatternUpdate();
+    this.currentOnsets = onsets;
+    this.currentVelocities = velocities;
+    this.currentOffsets = offsets;
+  }
+
   get currentOnsets() {
     return this._currentOnsets;
   }
