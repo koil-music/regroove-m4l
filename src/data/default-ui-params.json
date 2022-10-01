@@ -5,6 +5,7 @@
   "numSamples": 400,
   "globalMicrotiming": 0.5,
   "globalDynamics": 0.5,
+  "globalVelocity": 1.0,
   "microtimingOn": true,
   "dynamicsOn": true,
   "density": 0.5,
