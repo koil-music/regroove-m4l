@@ -1,5 +1,5 @@
 const { Generator, ONNXModel } = require("regroovejs");
-const { InferenceSession } = require("onnxruntime");
+const { InferenceSession } = require("onnxruntime-node");
 const { makeAutoObservable } = require("mobx");
 const path = require("path");
 const defaultUiParams = require("../data/default-ui-params.json");
