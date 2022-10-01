@@ -14,9 +14,9 @@ const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
 const root = path.dirname(process.cwd());
-let modelDir = path.join(root, `current/`);
-assert.ok(validModelDir(modelDir));
-const store = new RootStore(modelDir);
+const MODEL_DIR = path.join(root, "current");
+assert.ok(validModelDir(MODEL_DIR));
+const store = new RootStore(MODEL_DIR);
 
 /**
  * ========================
