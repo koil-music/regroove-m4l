@@ -1,5 +1,7 @@
 # regroove-m4l
 
+![Screenshot 2022-10-02 at 11 54 39](https://user-images.githubusercontent.com/82545229/193448342-4d7d743b-1795-4405-8f36-cbc92c69e179.png)
+
 **Regroove** is a `Max for Live` device that generates expressive drum rhythms using a learning understanding of groove. The representation of groove learned by the algorithm includes dynamics, microtiming, and syncopation and is ultimately based on large scores of drum sequences played by session drummers on a 9-piece drum kit. Regroove aims to empower users with absolute command over their drum groove, just like a professional drummer.
 
 <ul style="list-style:outside none none;">
