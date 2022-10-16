@@ -4,13 +4,13 @@
 		"appversion" : 		{
 			"major" : 8,
 			"minor" : 3,
-			"revision" : 0,
+			"revision" : 2,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 106.0, 640.0, 480.0 ],
+		"rect" : [ 59.0, 106.0, 1043.0, 480.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,102 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"autofit" : 1,
+					"forceaspect" : 1,
+					"id" : "obj-13",
+					"ignoreclick" : 1,
+					"maxclass" : "fpic",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "jit_matrix" ],
+					"patching_rect" : [ 81.125029027462006, 1.269136980175972, 11.0, 11.0 ],
+					"pic" : "/Users/max/repos/koil/regroove/regroove-m4l/assets/images/mute-icon-black.png"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"annotation" : "Mute On/Off",
+					"comment" : "Mute On/Off",
+					"hint" : "Mute On/Off",
+					"id" : "obj-9",
+					"index" : 0,
+					"maxclass" : "outlet",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 86.387529492378235, 247.0, 30.0, 30.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"annotation" : "Sync On/Off",
+					"comment" : "",
+					"hint" : "Sync On/Off",
+					"id" : "obj-7",
+					"index" : 0,
+					"maxclass" : "inlet",
+					"numinlets" : 0,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 125.387529611587524, -160.0, 30.0, 30.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"activebgcolor" : [ 0.349019607843137, 0.349019607843137, 0.349019607843137, 1.0 ],
+					"activebgoncolor" : [ 0.847058823529412, 0.164705882352941, 0.164705882352941, 1.0 ],
+					"bordercolor" : [ 0.313725490196078, 0.313725490196078, 0.313725490196078, 0.0 ],
+					"focusbordercolor" : [ 0.313725490196078, 0.313725490196078, 0.313725490196078, 0.0 ],
+					"fontname" : "Ableton Sans",
+					"fontsize" : 10.0,
+					"id" : "obj-6",
+					"maxclass" : "live.text",
+					"numinlets" : 1,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "" ],
+					"parameter_enable" : 1,
+					"patching_rect" : [ 77.459390163421631, -1.558217257261276, 18.08127772808075, 16.404708474874496 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 57.595857896880716, 16.304113418524725, 42.700799360871315, 19.0 ],
+					"saved_attribute_attributes" : 					{
+						"activebgcolor" : 						{
+							"expression" : ""
+						}
+,
+						"activebgoncolor" : 						{
+							"expression" : ""
+						}
+,
+						"bordercolor" : 						{
+							"expression" : ""
+						}
+,
+						"focusbordercolor" : 						{
+							"expression" : ""
+						}
+,
+						"valueof" : 						{
+							"parameter_enum" : [ "val1", "val2" ],
+							"parameter_initial" : [ 1 ],
+							"parameter_initial_enable" : 1,
+							"parameter_longname" : "detail_sync_on[1]",
+							"parameter_mmax" : 1,
+							"parameter_shortname" : "detail_sync_on",
+							"parameter_type" : 2
+						}
+
+					}
+,
+					"text" : ".",
+					"texton" : ".",
+					"varname" : "sync_on[1]"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-8",
 					"maxclass" : "newobj",
@@ -106,7 +202,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
 					"parameter_enable" : 1,
-					"patching_rect" : [ 41.0, -0.558217257261276, 35.206277966499329, 16.404708474874496 ],
+					"patching_rect" : [ 41.0, -1.558217257261276, 35.206277966499329, 16.404708474874496 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 42.595857896880716, 1.304113418524725, 42.700799360871315, 19.0 ],
 					"saved_attribute_attributes" : 					{
@@ -174,10 +270,10 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "int", "", "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ -1.0, -1.15350878238678, 40.0, 18.0 ],
+					"patching_rect" : [ 0.0, -1.15350878238678, 40.0, 16.0 ],
 					"pattrmode" : 1,
 					"presentation" : 1,
-					"presentation_rect" : [ 1.443595845889149, 1.304113418524725, 41.25, 18.0 ],
+					"presentation_rect" : [ 1.443595845889149, 1.304113418524725, 41.25, 16.0 ],
 					"textcolor" : [ 0.72156862745098, 0.72156862745098, 0.72156862745098, 1.0 ],
 					"varname" : "pitch[8]"
 				}
@@ -221,6 +317,20 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-9", 0 ],
+					"source" : [ "obj-6", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-6", 0 ],
+					"source" : [ "obj-7", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-287", 0 ],
 					"source" : [ "obj-8", 0 ]
 				}
@@ -235,6 +345,7 @@
 			}
  ],
 		"parameters" : 		{
+			"obj-6" : [ "detail_sync_on[1]", "detail_sync_on", 0 ],
 			"obj-88" : [ "detail_sync_on", "detail_sync_on", 0 ],
 			"parameterbanks" : 			{
 				"0" : 				{
@@ -248,7 +359,14 @@
 			"inherited_shortname" : 1
 		}
 ,
-		"dependency_cache" : [  ],
+		"dependency_cache" : [ 			{
+				"name" : "mute-icon-black.png",
+				"bootpath" : "~/repos/koil/regroove/regroove-m4l/assets/images",
+				"patcherrelativepath" : "../assets/images",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+ ],
 		"autosave" : 0
 	}
 
