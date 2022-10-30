@@ -194,7 +194,7 @@ Max.addHandler("/params/sync", () => {
  * Trigger a sync with the matrixCtrl view if step is at downbeat
  * @param {float} step: range = [0, loopDuration]
  */
-Max.addHandler("auto_sync", async (step) => {
+Max.addHandler("autoSync", async (step) => {
   if (
     store.uiParamsStore.syncModeName == "Auto" &&
     step % store.uiParamsStore.loopDuration === 0
@@ -327,7 +327,7 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
-Max.addHandler("update_note", async (step, instrument, value) => {
+Max.addHandler("updateNote", async (step, instrument, value) => {
   const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
   if (
     step < store.uiParamsStore.loopDuration &&
@@ -379,7 +379,7 @@ Max.addHandler("setDetailViewMode", (v) => {
 /**
  * Clear current pattern
  */
-Max.addHandler("clear_pattern", async () => {
+Max.addHandler("clearPattern", async () => {
   store.patternStore.clearCurrent();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -403,7 +403,7 @@ Max.addHandler("updateActiveInstruments", () => {
 /**
  * Populate matrixCtrl view with previous pattern from history
  */
-Max.addHandler("set_previous_pattern", async () => {
+Max.addHandler("setPreviousPattern", async () => {
   store.patternStore.setPrevious();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -415,7 +415,7 @@ Max.addHandler("set_previous_pattern", async () => {
 /**
  * Populate matrixCtrl view with the pattern used as input to the neural net
  */
-Max.addHandler("set_input_pattern", async () => {
+Max.addHandler("setInputPattern", async () => {
   store.patternStore.setInput();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -427,6 +427,6 @@ Max.addHandler("set_input_pattern", async () => {
 /**
  * Reset the pattern history
  */
-Max.addHandler("reset_pattern_history", () => {
+Max.addHandler("resetPatternHistory", () => {
   store.patternStore.resetHistory();
 });
