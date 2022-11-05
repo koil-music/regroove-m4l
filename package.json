@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "mobx": "^6.5.0",
-    "regroovejs": "0.2.5"
+    "regroovejs": "0.2.6"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
