@@ -1,7 +1,12 @@
 const glob = require("glob");
 const Max = require("max-api");
+const process = require("process");
 
-let DEBUG = false;
+let DEBUG = true;
+if (process.env.MAX_ENV == "maxforlive") {
+  DEBUG = false;
+}
+
 const log = (value) => {
   if (DEBUG) {
     Max.post(`${value}`);

@@ -13,8 +13,17 @@ const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
-const root = path.dirname(process.cwd());
-const MODEL_DIR = path.join(root, "current");
+const ROOT = path.dirname(process.cwd());
+
+let MODEL_DIR;
+if (process.env.MAX_ENV == "max") {
+  MODEL_DIR = path.join(ROOT, "regroove-models/current");
+} else {
+  MODEL_DIR = path.join(ROOT, "current");
+}
+const GENERATOR_STATE_DICT_NAME = "generatorState";
+
+
 assert.ok(validModelDir(MODEL_DIR));
 const store = new RootStore(MODEL_DIR);
 
@@ -68,24 +77,19 @@ Max.addHandler("/params/generate", () => {
   log("Generator successfully ran.");
 });
 
-Max.addHandler("saveGenerator", async (filePath) => {
+Max.addHandler("saveGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
-    const data = await store.inferenceStore.generator.toJson();
-    fs.writeFile(filePath, data, {
-      encoding: "utf8"
-    }, () => {
-      log(`Wrote generator state to ${filePath}`)
-    });
+    const data = await store.inferenceStore.generator.toDict();
+    Max.setDict(GENERATOR_STATE_DICT_NAME, data);
+    log(`Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`);
   }
 });
 
-Max.addHandler("loadGenerator", (filePath) => {
+Max.addHandler("loadGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
-    fs.readFile(filePath, { encoding: "utf-8"}, (err, data) => {
-      if (err) { throw new Error(err)};
-      store.inferenceStore.generator.fromJson(data);
-      log(`Loaded generator state from ${filePath}`)
-    })
+    const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
+    log(`Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`);
+    store.inferenceStore.generator.fromDict(data);
   }
 });
 
