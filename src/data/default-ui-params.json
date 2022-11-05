@@ -2,7 +2,7 @@
   "maxDensity": 0.9,
   "minDensity": 0.1,
   "random": 0.3,
-  "numSamples": 400,
+  "numSamples": 100,
   "globalMicrotiming": 0.5,
   "globalDynamics": 0.5,
   "globalVelocity": 1.0,
