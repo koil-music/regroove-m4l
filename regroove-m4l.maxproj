@@ -2,8 +2,8 @@
 	"name" : "regroove-m4l",
 	"version" : 1,
 	"creationdate" : 3701612799,
-	"modificationdate" : 3735981634,
-	"viewrect" : [ 7.0, 64.0, 1536.0, 773.0 ],
+	"modificationdate" : 3750417288,
+	"viewrect" : [ 0.0, 100.0, 1536.0, 773.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
 	"showdependencies" : 1,
@@ -62,6 +62,7 @@
 ,
 	"searchpath" : 	{
 		"0" : 		{
+			"bootpath" : "~/repos/koil/regroove/regroove-m4l/node_modules",
 			"projectrelativepath" : "./node_modules",
 			"label" : "node_modules",
 			"recursive" : 1,
@@ -70,6 +71,7 @@
 		}
 ,
 		"1" : 		{
+			"bootpath" : "~/repos/koil/regroove/regroove-m4l/src",
 			"projectrelativepath" : "./src",
 			"label" : "src",
 			"recursive" : 1,
@@ -78,6 +80,7 @@
 		}
 ,
 		"2" : 		{
+			"bootpath" : "~/repos/koil/regroove/regroove-m4l/regroove-models/current",
 			"projectrelativepath" : "./regroove-models/current",
 			"label" : "regroove-models",
 			"recursive" : 1,
@@ -93,5 +96,6 @@
 	"devpathtype" : 0,
 	"devpath" : ".",
 	"sortmode" : 0,
-	"viewmode" : 1
+	"viewmode" : 1,
+	"includepackages" : 0
 }
