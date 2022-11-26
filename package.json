@@ -1,17 +1,18 @@
 {
   "name": "regroove-m4l",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "description": "Max for Live MIDI device for generating expressive rhythm sequences",
   "main": "code/regroove.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier": "npx prettier --write src"
+    "prettier": "npx prettier --write src",
+    "postinstall": "./post-install.sh"
   },
   "author": "Max Kraan",
   "license": "MIT",
   "dependencies": {
     "mobx": "^6.5.0",
-    "regroovejs": "0.2.5"
+    "regroovejs": "0.2.7"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

@@ -13,8 +13,17 @@ const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 
-const root = path.dirname(process.cwd());
-const MODEL_DIR = path.join(root, "current");
+const ROOT = path.dirname(process.cwd());
+
+let MODEL_DIR;
+if (process.env.MAX_ENV == "max") {
+  MODEL_DIR = path.join(ROOT, "regroove-models/current");
+} else {
+  MODEL_DIR = path.join(ROOT, "current");
+}
+const GENERATOR_STATE_DICT_NAME = "generatorState";
+
+
 assert.ok(validModelDir(MODEL_DIR));
 const store = new RootStore(MODEL_DIR);
 
@@ -68,24 +77,19 @@ Max.addHandler("/params/generate", () => {
   log("Generator successfully ran.");
 });
 
-Max.addHandler("saveGenerator", async (filePath) => {
+Max.addHandler("saveGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
-    const data = await store.inferenceStore.generator.toJson();
-    fs.writeFile(filePath, data, {
-      encoding: "utf8"
-    }, () => {
-      log(`Wrote generator state to ${filePath}`)
-    });
+    const data = await store.inferenceStore.generator.toDict();
+    Max.setDict(GENERATOR_STATE_DICT_NAME, data);
+    log(`Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`);
   }
 });
 
-Max.addHandler("loadGenerator", (filePath) => {
+Max.addHandler("loadGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
-    fs.readFile(filePath, { encoding: "utf-8"}, (err, data) => {
-      if (err) { throw new Error(err)};
-      store.inferenceStore.generator.fromJson(data);
-      log(`Loaded generator state from ${filePath}`)
-    })
+    const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
+    log(`Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`);
+    store.inferenceStore.generator.fromDict(data);
   }
 });
 
@@ -194,7 +198,7 @@ Max.addHandler("/params/sync", () => {
  * Trigger a sync with the matrixCtrl view if step is at downbeat
  * @param {float} step: range = [0, loopDuration]
  */
-Max.addHandler("auto_sync", async (step) => {
+Max.addHandler("autoSync", async (step) => {
   if (
     store.uiParamsStore.syncModeName == "Auto" &&
     step % store.uiParamsStore.loopDuration === 0
@@ -327,7 +331,7 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
-Max.addHandler("update_note", async (step, instrument, value) => {
+Max.addHandler("updateNote", async (step, instrument, value) => {
   const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
   if (
     step < store.uiParamsStore.loopDuration &&
@@ -379,7 +383,7 @@ Max.addHandler("setDetailViewMode", (v) => {
 /**
  * Clear current pattern
  */
-Max.addHandler("clear_pattern", async () => {
+Max.addHandler("clearPattern", async () => {
   store.patternStore.clearCurrent();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -403,7 +407,7 @@ Max.addHandler("updateActiveInstruments", () => {
 /**
  * Populate matrixCtrl view with previous pattern from history
  */
-Max.addHandler("set_previous_pattern", async () => {
+Max.addHandler("setPreviousPattern", async () => {
   store.patternStore.setPrevious();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -415,7 +419,7 @@ Max.addHandler("set_previous_pattern", async () => {
 /**
  * Populate matrixCtrl view with the pattern used as input to the neural net
  */
-Max.addHandler("set_input_pattern", async () => {
+Max.addHandler("setInputPattern", async () => {
   store.patternStore.setInput();
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -427,6 +431,6 @@ Max.addHandler("set_input_pattern", async () => {
 /**
  * Reset the pattern history
  */
-Max.addHandler("reset_pattern_history", () => {
+Max.addHandler("resetPatternHistory", () => {
   store.patternStore.resetHistory();
 });
