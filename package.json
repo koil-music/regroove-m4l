@@ -5,7 +5,8 @@
   "main": "code/regroove.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier": "npx prettier --write src"
+    "prettier": "npx prettier --write src",
+    "postinstall": "./post-install.sh"
   },
   "author": "Max Kraan",
   "license": "MIT",
