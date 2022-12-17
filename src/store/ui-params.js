@@ -1,7 +1,7 @@
 const { makeAutoObservable } = require("mobx");
 const { normalize } = require("../utils");
 const defaultDetailParam = require("../data/default-detail-param.json");
-const defaultVelocityAmplitude = require("../data/default-velocity-amplitude.json");
+const defaultVelAmpDict = require("../data/default-velocity-amplitude.json");
 const defaultUiParams = require("../data/default-ui-params.json");
 
 const MIN_ONSET_THRESHOLD = 0.3;
@@ -34,13 +34,14 @@ class UIParamsStore {
   microtimingOn = defaultUiParams.microtimingOn;
   dynamicsOn = defaultUiParams.dynamicsOn;
   density = defaultUiParams.density;
-  _activeInstruments = defaultUiParams.activeInstruments;
   syncModeIndex = defaultUiParams.syncModeIndex;
   syncRateOptions = defaultUiParams.syncRateOptions;
   syncRate = defaultUiParams.syncRate;
   detailViewModeIndex = defaultUiParams.detailViewModeIndex;
-  _velocityScaleDict = defaultVelocityAmplitude;
-  _velocityRandDict = defaultDetailParam;
+
+  _activeInstruments = defaultUiParams.activeInstruments;
+  _velAmpDict = defaultVelAmpDict;
+  _velRandDict = defaultDetailParam;
   _timeShiftDict = defaultDetailParam;
   _timeRandDict = defaultDetailParam;
 
@@ -53,7 +54,7 @@ class UIParamsStore {
     return {
       dynamics: this.dynamics,
       microtiming: this.microtiming,
-      velocityScaleDict: this.velocityScaleDict,
+      velocityScaleDict: this.velAmpDict,
       dynamicsOn: this.dynamicsOn,
       microtimingOn: this.microtimingOn,
     };
@@ -103,18 +104,18 @@ class UIParamsStore {
     return this._activeInstruments;
   }
 
-  set velocityScaleDict(d) {
-    this._velocityScaleDict = d;
+  set velAmpDict(d) {
+    this._velAmpDict = d;
   }
-  get velocityScaleDict() {
-    return this._velocityScaleDict;
+  get velAmpDict() {
+    return this._velAmpDict;
   }
 
-  set velocityRandDict(d) {
-    this._velocityRandDict = d;
+  set velRandDict(d) {
+    this._velRandDict = d;
   }
-  get velocityRandDict() {
-    return this._velocityRandDict;
+  get velRandDict() {
+    return this._velRandDict;
   }
 
   set timeRandDict(d) {
@@ -135,6 +136,7 @@ class UIParamsStore {
 module.exports = {
   UIParamsStore,
   SyncMode,
+  DetailViewMode,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
   LOOP_DURATION,
