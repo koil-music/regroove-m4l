@@ -4,9 +4,10 @@
   "description": "Max for Live MIDI device for generating expressive rhythm sequences",
   "main": "code/regroove.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "prettier": "npx prettier --write src",
-    "postinstall": "./post-install.sh"
+    "postinstall": "./post-install.sh",
+    "test": "jest --coverage --verbose -t 'test'",
+    "posttest": "prettier --write src"
   },
   "author": "Max Kraan",
   "license": "MIT",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "eslint": "^7.32.0",
+    "jest": "^29.3.1",
     "prettier": "^2.3.2"
   }
 }
