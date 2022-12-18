@@ -3,11 +3,12 @@ const { normalize } = require("../utils");
 const defaultDetailParam = require("../data/default-detail-param.json");
 const defaultVelAmpDict = require("../data/default-velocity-amplitude.json");
 const defaultUiParams = require("../data/default-ui-params.json");
-
-const MIN_ONSET_THRESHOLD = 0.3;
-const MAX_ONSET_THRESHOLD = 0.7;
-const LOOP_DURATION = 16;
-const NUM_INSTRUMENTS = 9;
+const {
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+  MIN_ONSET_THRESHOLD,
+  MAX_ONSET_THRESHOLD,
+} = require("../config");
 
 const SyncMode = Object.freeze({
   Snap: 0,
@@ -54,7 +55,7 @@ class UIParamsStore {
     return {
       dynamics: this.dynamics,
       microtiming: this.microtiming,
-      velocityScaleDict: this.velAmpDict,
+      velAmpDict: this.velAmpDict,
       dynamicsOn: this.dynamicsOn,
       microtimingOn: this.microtimingOn,
     };

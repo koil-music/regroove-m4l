@@ -1,7 +1,6 @@
 const { makeAutoObservable } = require("mobx");
 
 const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
-const { log } = require("../utils");
 
 class MatrixCtrlStore {
   rootStore;
@@ -56,7 +55,6 @@ class MatrixCtrlStore {
         offsetsData.push(offsetValue);
       }
     }
-    log(`Returning MatrixCtrlStore.data to update Max views.`);
     return [onsetsData, velocitiesData, offsetsData];
   }
 

@@ -1,85 +1,117 @@
 const Max = require("max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 
-const { log } = require("../utils");
-const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
-
-const BUFFER_LENGTH = 512;
-const TICKS_PER_16TH = 512 / 16;
-const MAX_VELOCITY = 127;
+const {
+  BUFFER_LENGTH,
+  TICKS_PER_16TH,
+  MAX_VELOCITY,
+  NOTE_UPDATE_THROTTLE,
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+} = require("../config");
 
 class NoteEvent {
   constructor(
-    onset,
     instrumentIndex,
     step,
-    offsetValue,
-    offsetMagnitude,
-    offsetOn,
+    onsetValue,
     velocityValue,
-    velocityMagnitude,
-    dynamicsMagnitude,
-    dynamicsOn,
-    velocityRand,
-    offsetRand,
-    offsetShift
+    offsetValue,
+    globalVelocity,
+    globalDynamics,
+    globalDynamicsOn,
+    globalMicrotiming,
+    globalMicrotimingOn,
+    velAmp,
+    velRand,
+    timeRand,
+    timeShift
   ) {
-    this.onset = onset;
+    // assign input values as class variables
     this.instrumentIndex = instrumentIndex;
     this.step = step;
-    this.offsetValue = offsetValue;
-    this.offsetMagnitude = offsetMagnitude;
-    this.offsetOn = offsetOn;
+    this.onsetValue = onsetValue;
     this.velocityValue = velocityValue;
-    this.velocityMagnitude = velocityMagnitude;
-    this.dynamicsMagnitude = dynamicsMagnitude;
-    this.dynamicsOn = dynamicsOn;
-    this.velocityRand = velocityRand;
-    this.offsetRand = offsetRand;
-    this.offsetShift = offsetShift;
+    this.offsetValue = offsetValue;
+    this.globalMicrotiming = globalMicrotiming;
+    this.globalMicrotimingOn = globalMicrotimingOn;
+    this.globalDynamics = globalDynamics;
+    this.globalDynamicsOn = globalDynamicsOn;
+    this.globalVelocity = globalVelocity;
+    this.velAmp = velAmp;
+    this.velRand = velRand;
+    this.timeRand = timeRand;
+    this.timeShift = timeShift;
   }
 
   get instrument() {
     return NUM_INSTRUMENTS - 1 - this.instrumentIndex;
   }
 
-  get quantizedBufferIndex() {
+  get quantizedTick() {
     return this.step * TICKS_PER_16TH;
   }
 
-  get bufferIndexRange() {
+  get tickRange() {
     return {
-      min: this.quantizedBufferIndex - TICKS_PER_16TH / 2,
-      max: this.quantizedBufferIndex + TICKS_PER_16TH / 2,
+      min: this.quantizedTick - TICKS_PER_16TH / 2,
+      max: this.quantizedTick + TICKS_PER_16TH / 2,
     };
   }
 
-  get bufferIndex() {
-    let bufferIndex = this.quantizedBufferIndex;
-    if (this.offsetOn) {
-      const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
-      const randomOffsetTicks =
-        Math.random() * this.offsetRand * (TICKS_PER_16TH / 2);
-      const shiftOffsetTicks = this.offsetShift * (TICKS_PER_16TH / 2);
-      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude);
-      bufferIndex += Math.floor(shiftOffsetTicks);
-      bufferIndex += Math.floor(randomOffsetTicks);
+  get tick() {
+    let offsetValue = 0;
+    if (this.globalMicrotimingOn) {
+      // scale the predicted offsetValue by globalMicrotiming
+      offsetValue = this.offsetValue * this.globalMicrotiming;
+
+      // shift offsetValue by timeShift
+      offsetValue += this.timeShift;
+
+      // shift offsetValue by random timeShift
+      const randTimeShift = this.timeRand * (Math.random() - 0.5);
+      offsetValue += randTimeShift;
     }
-    if (bufferIndex < 0) {
-      return BUFFER_LENGTH + bufferIndex;
+
+    // calculate tick
+    let tick = this.quantizedTick + (offsetValue * TICKS_PER_16TH) / 2;
+
+    // check if offsetValue is within allowed range
+    if (tick < this.tickRange.min) {
+      tick = this.tickRange.min;
+    } else if (tick > this.tickRange.max) {
+      tick = this.tickRange.max;
+    }
+
+    // wrap around
+    if (tick < 0) {
+      return BUFFER_LENGTH + tick;
     } else {
-      return bufferIndex;
+      return tick;
     }
   }
 
   get velocity() {
-    let velocity = this.velocityValue * MAX_VELOCITY;
-    if (this.dynamicsOn) {
-      velocity *= this.dynamicsMagnitude;
+    let velocity = this.velocityValue;
+    if (this.globalDynamicsOn) {
+      // scale the predicted velocityValue by globalDynamics
+      velocity *= this.globalDynamics;
     }
-    const randomVelocityScale = Math.random() * this.velocityRand * velocity;
-    const scaledVelocity = Math.floor(velocity * this.velocityMagnitude);
-    return scaledVelocity + randomVelocityScale;
+    // add global velocity
+    velocity *= this.globalVelocity;
+
+    // add detail to velocity
+    const randVelAmp = this.velRand * (Math.random() - 0.5);
+    velocity += randVelAmp;
+    velocity += this.velAmp * velocity;
+
+    // check if velocity is within allowed range
+    if (velocity < 0) {
+      velocity = 0.0;
+    } else if (velocity > 1) {
+      velocity = 1.0;
+    }
+    return velocity * MAX_VELOCITY;
   }
 }
 
@@ -180,7 +212,7 @@ class EventSequenceHandler {
           this.root.patternStore.currentOnsets.tensor()[0],
           params.dynamics,
           params.microtiming,
-          params.velocityScaleDict,
+          params.velAmpDict,
           params.dynamicsOn,
           params.microtimingOn
         );
@@ -196,7 +228,7 @@ class EventSequenceHandler {
             currentOnsets.tensor()[0],
             this.root.uiParamsStore.dynamics,
             this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.velocityScaleDict,
+            this.root.uiParamsStore.velAmpDict,
             this.root.uiParamsStore.dynamicsOn,
             this.root.uiParamsStore.microtimingOn
           );
@@ -219,31 +251,32 @@ class EventSequenceHandler {
     // workaround to throttle note updates, this is to avoid spamming the
     // server with note update requests when the data is already up-to-date
     this.ignoreNoteUpdate = true;
-    setTimeout(() => (this.ignoreNoteUpdate = false), 250);
+    setTimeout(() => (this.ignoreNoteUpdate = false), NOTE_UPDATE_THROTTLE);
   }
 
   updateNoteEvents(
     step,
     instrument,
     onset,
-    dynamicsMagnitude,
-    offsetMagnitude,
-    velocityMagnitude,
-    dynamicsOn,
-    microtimingOn
+    globalDynamics,
+    globalMicrotiming,
+    globalVelocity,
+    globalDynamicsOn,
+    globalMicrotimingOn
   ) {
     const event = new NoteEvent(
-      onset,
       instrument,
       step,
-      this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
-      offsetMagnitude,
-      microtimingOn,
+      onset,
       this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
-      velocityMagnitude,
-      dynamicsMagnitude,
-      dynamicsOn,
-      this.root.uiParamsStore.velocityRandDict[instrument],
+      this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
+      globalVelocity,
+      globalDynamics,
+      globalDynamicsOn,
+      globalMicrotiming,
+      globalMicrotimingOn,
+      this.root.uiParamsStore.velAmpDict[instrument],
+      this.root.uiParamsStore.velRandDict[instrument],
       this.root.uiParamsStore.timeRandDict[instrument],
       this.root.uiParamsStore.timeShiftDict[instrument]
     );
@@ -255,7 +288,7 @@ class EventSequenceHandler {
     onsetsTensor,
     dynamicsMagnitude,
     offsetMagnitude,
-    velocityScaleDict,
+    velAmpDict,
     dynamicsOn,
     microtimingOn
   ) {
@@ -269,7 +302,7 @@ class EventSequenceHandler {
           onset,
           dynamicsMagnitude,
           offsetMagnitude,
-          velocityScaleDict[instrument.toString()],
+          velAmpDict[instrument.toString()],
           dynamicsOn,
           microtimingOn
         );
@@ -279,7 +312,6 @@ class EventSequenceHandler {
         }
       }
     }
-    log("Setting eventSequence dictionary.");
     Max.setDict("midiEventSequence", this.eventSequence.bufferData);
   }
 }

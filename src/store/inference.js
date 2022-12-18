@@ -3,7 +3,7 @@ const { InferenceSession } = require("onnxruntime-node");
 const { makeAutoObservable } = require("mobx");
 const path = require("path");
 const defaultUiParams = require("../data/default-ui-params.json");
-const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("./ui-params");
+const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("./config");
 
 class InferenceStore {
   root;

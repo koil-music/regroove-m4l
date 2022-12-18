@@ -236,7 +236,7 @@ test("uiParamsStore.expressionParams", () => {
   expect(uiParams.expressionParams).toEqual({
     dynamics: defaultUiParams.globalDynamics,
     microtiming: defaultUiParams.globalMicrotiming,
-    velocityScaleDict: defaultVelAmpDict,
+    velAmpDict: defaultVelAmpDict,
     dynamicsOn: defaultUiParams.dynamicsOn,
     microtimingOn: defaultUiParams.microtimingOn,
   });
@@ -248,7 +248,7 @@ test("uiParamsStore.expressionParams", () => {
   expect(uiParams.expressionParams).toEqual({
     dynamics: 0.69,
     microtiming: 0.69,
-    velocityScaleDict: defaultVelAmpDict,
+    velAmpDict: defaultVelAmpDict,
     dynamicsOn: true,
     microtimingOn: false,
   });
@@ -266,7 +266,7 @@ test("uiParamsStore.expressionParams", () => {
   expect(uiParams.expressionParams).toEqual({
     dynamics: 0.69,
     microtiming: 0.69,
-    velocityScaleDict: {
+    velAmpDict: {
       0: 0.0,
       1: 0.89,
       2: 0.71,

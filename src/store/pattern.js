@@ -2,8 +2,7 @@ const { makeAutoObservable } = require("mobx");
 
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
-const { LOOP_DURATION, NUM_INSTRUMENTS, NUM_SAMPLES } = require("./ui-params");
-const { log } = require("../utils");
+const { LOOP_DURATION, NUM_INSTRUMENTS } = require("./config");
 
 class PatternStore {
   root;
@@ -86,7 +85,6 @@ class PatternStore {
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
-    log(`Cleared current pattern.`);
   }
 
   updateCurrent() {
@@ -137,7 +135,6 @@ class PatternStore {
     this.currentOnsets = new Pattern(newOnsetsTensor, this.dims);
     this.currentVelocities = new Pattern(newVelocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(newOffsetsTensor, this.dims);
-    log(`Updated current patterns using updateCurrent.`);
   }
 
   updateNote(step, instrumentIndex, value) {
@@ -152,11 +149,6 @@ class PatternStore {
     this.currentOnsets = new Pattern(onsetsTensor, this.dims);
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
-    log(
-      `Changed note value for [${step}, ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }] to ${value}`
-    );
   }
 
   updateInstrumentVelocities(instrumentIndex, data) {
@@ -165,11 +157,6 @@ class PatternStore {
       velocitiesTensor[0][i][NUM_INSTRUMENTS - 1 - instrumentIndex] = data[i];
     }
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
-    log(
-      `Updated currentVelocities for instrument: ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }`
-    );
   }
 
   updateInstrumentOffsets(instrumentIndex, data) {
@@ -178,11 +165,6 @@ class PatternStore {
       offsetsTensor[0][i][instrumentIndex] = data[i];
     }
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
-    log(
-      `Updated currentOffsets for instrument: ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }`
-    );
   }
 
   get current() {
@@ -228,7 +210,6 @@ class PatternStore {
     this.currentOnsets = this.inputOnsets;
     this.currentVelocities = this.inputVelocities;
     this.currentOffsets = this.inputOffsets;
-    log(`Set current pattern to input pattern.`);
   }
 
   setPrevious() {
@@ -242,7 +223,6 @@ class PatternStore {
       this.currentOffsets = this.offsetsHistory.sample(
         this.currentHistoryIndex
       );
-      log(`Set current pattern to previous pattern.`);
     }
   }
 
