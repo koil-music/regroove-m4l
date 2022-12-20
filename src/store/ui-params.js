@@ -30,10 +30,11 @@ class UIParamsStore {
   minDensity = defaultUiParams.minDensity;
   random = defaultUiParams.random;
   numSamples = defaultUiParams.numSamples;
-  microtiming = defaultUiParams.globalMicrotiming;
-  dynamics = defaultUiParams.globalDynamics;
-  microtimingOn = defaultUiParams.microtimingOn;
-  dynamicsOn = defaultUiParams.dynamicsOn;
+  globalVelocity = defaultUiParams.globalVelocity;
+  globalDynamics = defaultUiParams.globalDynamics;
+  globalDynamicsOn = defaultUiParams.globalDynamicsOn;
+  globalMicrotiming = defaultUiParams.globalMicrotiming;
+  globalMicrotimingOn = defaultUiParams.globalMicrotimingOn;
   density = defaultUiParams.density;
   syncModeIndex = defaultUiParams.syncModeIndex;
   syncRateOptions = defaultUiParams.syncRateOptions;
@@ -41,10 +42,11 @@ class UIParamsStore {
   detailViewModeIndex = defaultUiParams.detailViewModeIndex;
 
   _activeInstruments = defaultUiParams.activeInstruments;
-  _velAmpDict = defaultVelAmpDict;
-  _velRandDict = defaultDetailParam;
-  _timeShiftDict = defaultDetailParam;
-  _timeRandDict = defaultDetailParam;
+
+  velAmpDict = defaultVelAmpDict;
+  velRandDict = defaultDetailParam;
+  timeShiftDict = defaultDetailParam;
+  timeRandDict = defaultDetailParam;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -53,11 +55,12 @@ class UIParamsStore {
 
   get expressionParams() {
     return {
-      dynamics: this.dynamics,
-      microtiming: this.microtiming,
+      globalVelocity: this.globalVelocity,
+      globalDynamics: this.globalDynamics,
+      globalMicrotiming: this.globalMicrotiming,
       velAmpDict: this.velAmpDict,
-      dynamicsOn: this.dynamicsOn,
-      microtimingOn: this.microtimingOn,
+      globalDynamicsOn: this.globalDynamicsOn,
+      globalMicrotimingOn: this.globalMicrotimingOn,
     };
   }
 
@@ -103,34 +106,6 @@ class UIParamsStore {
   }
   get activeInstruments() {
     return this._activeInstruments;
-  }
-
-  set velAmpDict(d) {
-    this._velAmpDict = d;
-  }
-  get velAmpDict() {
-    return this._velAmpDict;
-  }
-
-  set velRandDict(d) {
-    this._velRandDict = d;
-  }
-  get velRandDict() {
-    return this._velRandDict;
-  }
-
-  set timeRandDict(d) {
-    this._timeRandDict = d;
-  }
-  get timeRandDict() {
-    return this._timeRandDict;
-  }
-
-  set timeShiftDict(d) {
-    this._timeShiftDict = d;
-  }
-  get timeShiftDict() {
-    return this._timeShiftDict;
   }
 }
 
