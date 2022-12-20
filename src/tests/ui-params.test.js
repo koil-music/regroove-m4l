@@ -24,10 +24,13 @@ test("DefaultUIParamsStore", () => {
   expect(uiParams.minDensity).toBe(defaultUiParams.minDensity);
   expect(uiParams.random).toBe(defaultUiParams.random);
   expect(uiParams.numSamples).toBe(defaultUiParams.numSamples);
-  expect(uiParams.microtiming).toBe(defaultUiParams.globalMicrotiming);
-  expect(uiParams.dynamics).toBe(defaultUiParams.globalDynamics);
-  expect(uiParams.microtimingOn).toBe(defaultUiParams.microtimingOn);
-  expect(uiParams.dynamicsOn).toBe(defaultUiParams.dynamicsOn);
+  expect(uiParams.globalVelocity).toBe(defaultUiParams.globalVelocity);
+  expect(uiParams.globalMicrotiming).toBe(defaultUiParams.globalMicrotiming);
+  expect(uiParams.globalDynamics).toBe(defaultUiParams.globalDynamics);
+  expect(uiParams.globalMicrotimingOn).toBe(
+    defaultUiParams.globalMicrotimingOn
+  );
+  expect(uiParams.globalDynamicsOn).toBe(defaultUiParams.globalDynamicsOn);
   expect(uiParams.density).toBe(defaultUiParams.density);
   expect(uiParams.activeInstruments).toEqual(defaultUiParams.activeInstruments);
   expect(uiParams.syncModeIndex).toBe(defaultUiParams.syncModeIndex);
@@ -234,23 +237,26 @@ test("setTimeAmpDict", () => {
 test("uiParamsStore.expressionParams", () => {
   const uiParams = new UIParamsStore();
   expect(uiParams.expressionParams).toEqual({
-    dynamics: defaultUiParams.globalDynamics,
-    microtiming: defaultUiParams.globalMicrotiming,
+    globalVelocity: defaultUiParams.globalVelocity,
+    globalDynamics: defaultUiParams.globalDynamics,
+    globalMicrotiming: defaultUiParams.globalMicrotiming,
     velAmpDict: defaultVelAmpDict,
-    dynamicsOn: defaultUiParams.dynamicsOn,
-    microtimingOn: defaultUiParams.microtimingOn,
+    globalDynamicsOn: defaultUiParams.globalDynamicsOn,
+    globalMicrotimingOn: defaultUiParams.globalMicrotimingOn,
   });
 
-  uiParams.dynamics = 0.69;
-  uiParams.microtiming = 0.69;
-  uiParams.dynamicsOn = true;
-  uiParams.microtimingOn = false;
+  uiParams.globalVelocity = 0.99;
+  uiParams.globalDynamics = 0.69;
+  uiParams.globalMicrotiming = 0.69;
+  uiParams.globalDynamicsOn = true;
+  uiParams.globalMicrotimingOn = false;
   expect(uiParams.expressionParams).toEqual({
-    dynamics: 0.69,
-    microtiming: 0.69,
+    globalVelocity: 0.99,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
     velAmpDict: defaultVelAmpDict,
-    dynamicsOn: true,
-    microtimingOn: false,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
   });
   uiParams.velAmpDict = {
     0: 0.0,
@@ -264,8 +270,9 @@ test("uiParamsStore.expressionParams", () => {
     8: 0.69,
   };
   expect(uiParams.expressionParams).toEqual({
-    dynamics: 0.69,
-    microtiming: 0.69,
+    globalVelocity: 0.99,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
     velAmpDict: {
       0: 0.0,
       1: 0.89,
@@ -277,7 +284,7 @@ test("uiParamsStore.expressionParams", () => {
       7: 0.8,
       8: 0.69,
     },
-    dynamicsOn: true,
-    microtimingOn: false,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
   });
 });
