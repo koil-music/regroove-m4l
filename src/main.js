@@ -11,9 +11,36 @@ const pitchIndexMapping = require("./data/pitch-index-mapping.json");
 
 const { RootStore } = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
-const { log, validModelDir } = require("./utils");
+const { validModelDir } = require("./utils");
 
 const ROOT = path.dirname(process.cwd());
+
+const Max = require("max-api");
+const process = require("process");
+
+let DEBUG = true;
+if (process.env.MAX_ENV == "maxforlive") {
+  DEBUG = false;
+}
+
+const log = (value) => {
+  if (DEBUG) {
+    Max.post(`${value}`);
+  }
+};
+
+/**
+ * Turns debug on or off.
+ * @param {bool} value
+ */
+Max.addHandler("debug", (value) => {
+  if (value === 1) {
+    DEBUG = true;
+  } else if (value == 0) {
+    DEBUG = false;
+  }
+  log(`DEBUG: ${DEBUG}`);
+});
 
 let MODEL_DIR;
 if (process.env.MAX_ENV == "max") {
@@ -22,7 +49,6 @@ if (process.env.MAX_ENV == "max") {
   MODEL_DIR = path.join(ROOT, "current");
 }
 const GENERATOR_STATE_DICT_NAME = "generatorState";
-
 
 assert.ok(validModelDir(MODEL_DIR));
 const store = new RootStore(MODEL_DIR);
@@ -81,14 +107,18 @@ Max.addHandler("saveGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await store.inferenceStore.generator.toDict();
     Max.setDict(GENERATOR_STATE_DICT_NAME, data);
-    log(`Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`);
+    log(
+      `Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`
+    );
   }
 });
 
 Max.addHandler("loadGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
-    log(`Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`);
+    log(
+      `Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`
+    );
     store.inferenceStore.generator.fromDict(data);
   }
 });
@@ -97,13 +127,16 @@ Max.addHandler("readMidiFile", async (filePath) => {
   if (path.extname(filePath) === ".mid") {
     fs.readFile(filePath, { encoding: "binary" }, (err, midiBuffer) => {
       if (err) {
-        log(`Error loading MIDI file: ${err}`)
+        log(`Error loading MIDI file: ${err}`);
       } else {
-        readMidiFile(midiBuffer, pitchIndexMapping)
-          .then(async (midiPattern) => {
+        readMidiFile(midiBuffer, pitchIndexMapping).then(
+          async (midiPattern) => {
             store.patternStore.current = midiPattern;
-            const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-              store.matrixCtrlStore.data;
+            const [
+              onsetsDataSequence,
+              velocitiesDataSequence,
+              offsetsDataSequence,
+            ] = store.matrixCtrlStore.data;
             writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
             await writeDetailViewDict(offsetsDataSequence, "offsetsData");
             Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
@@ -237,23 +270,23 @@ Max.addHandler("/params/velocity", (value) => {
  */
 Max.addHandler("updateVelAmp", async () => {
   store.uiParamsStore.velocityScaleDict = await Max.getDict("velAmp");
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+  const [_, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  log(`Updated velAmp dict.`);
+  log(`Updated velAmp dict to ${store.uiParamsStore.velocityScaleDict}`);
 });
 Max.addHandler("updateVelRand", async () => {
   store.uiParamsStore.velocityRandDict = await Max.getDict("velRand");
-  log(`Updated velRand dict.`);
+  log(`Updated velRand dict to ${store.uiParamsStore.velocityRandDict}`);
 });
 Max.addHandler("updateTimeShift", async () => {
   store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
-  log(`Updated timeShift dict.`);
+  log(`Updated timeShift dict to ${store.uiParamsStore.timeShiftDict}`);
 });
 Max.addHandler("updateTimeRand", async () => {
   store.uiParamsStore.timeRandDict = await Max.getDict("timeRand");
-  log(`Updated timeRand dict.`);
+  log(`Updated timeRand dict to ${store.uiParamsStore.timeRandDict}`);
 });
 
 /**
