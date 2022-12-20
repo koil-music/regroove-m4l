@@ -1,7 +1,12 @@
 const Max = require("../max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 const NoteEvent = require("./note-event");
-const { NUM_INSTRUMENTS, LOOP_DURATION, BUFFER_LENGTH } = require("../config");
+const {
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+  BUFFER_LENGTH,
+  NOTE_UPDATE_THROTTLE,
+} = require("../config");
 
 class EventSequence {
   constructor(
@@ -40,25 +45,30 @@ class EventSequence {
   }
 
   update(event) {
+    const bufferUpdates = {};
     const currentNoteEvents = this.quantizedData[event.step];
 
     // check previousEvent and delete it from bufferData if it exists
     const previousEvent = currentNoteEvents[event.instrument];
     if (previousEvent !== undefined) {
       this.bufferData[previousEvent.tick][event.instrument] = 0;
+      bufferUpdates[previousEvent.tick] = [event.instrument, 0];
     }
 
     // update quantizedData
     if (event.onsetValue === 1) {
       currentNoteEvents[event.instrument] = event;
+      bufferUpdates[event.tick] = [event.instrument, event.velocity];
     } else if (event.onsetValue === 0) {
       delete currentNoteEvents[event.instrument];
+      bufferUpdates[previousEvent.tick] = [event.instrument, 0];
     }
 
     // update bufferData with new events
     for (const e of Object.values(currentNoteEvents)) {
       this.bufferData[e.tick][e.instrument] = e.velocity;
     }
+    return bufferUpdates;
   }
 }
 
@@ -79,12 +89,15 @@ class EventSequenceHandler {
       (params) => {
         this.updateAll(
           this.root.patternStore.currentOnsets.tensor()[0],
-          params.velocity,
-          params.dynamics,
-          params.dynamicsOn,
-          params.microtiming,
-          params.microtimingOn,
-          params.velAmpDict
+          params.globalVelocity,
+          params.globalDynamics,
+          params.globalDynamicsOn,
+          params.globalMicrotiming,
+          params.globalMicrotimingOn,
+          params.velAmpDict,
+          params.velRandDict,
+          params.timeRandDict,
+          params.timeShiftDict
         );
       }
     );
@@ -94,16 +107,19 @@ class EventSequenceHandler {
       (currentOnsets) => {
         // only trigger updateSequence if isPatternUpdate flag is set
         if (!this.ignoreNoteUpdate) {
+          this.toggleIgnoreNoteUpdate();
           this.updateAll(
             currentOnsets.tensor()[0],
-            this.root.uiParamsStore.velocity,
-            this.root.uiParamsStore.dynamics,
-            this.root.uiParamsStore.dynamicsOn,
-            this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.microtimingOn,
-            this.root.uiParamsStore.velAmpDict
+            this.root.uiParamsStore.globalVelocity,
+            this.root.uiParamsStore.globalDynamics,
+            this.root.uiParamsStore.globalDynamicsOn,
+            this.root.uiParamsStore.globalMicrotiming,
+            this.root.uiParamsStore.globalMicrotimingOn,
+            this.root.uiParamsStore.velAmpDict,
+            this.root.uiParamsStore.velRandDict,
+            this.root.uiParamsStore.timeRandDict,
+            this.root.uiParamsStore.timeShiftDict
           );
-          this.toggleIgnoreNoteUpdate();
         }
       }
     );
@@ -125,7 +141,11 @@ class EventSequenceHandler {
     globalDynamics,
     globalDynamicsOn,
     globalMicrotiming,
-    globalMicrotimingOn
+    globalMicrotimingOn,
+    velAmpDict,
+    velRandDict,
+    timeRandDict,
+    timeShiftDict
   ) {
     const event = new NoteEvent(
       instrument,
@@ -138,13 +158,13 @@ class EventSequenceHandler {
       globalDynamicsOn,
       globalMicrotiming,
       globalMicrotimingOn,
-      this.root.uiParamsStore.velAmpDict[instrument],
-      this.root.uiParamsStore.velRandDict[instrument],
-      this.root.uiParamsStore.timeRandDict[instrument],
-      this.root.uiParamsStore.timeShiftDict[instrument]
+      velAmpDict[instrument],
+      velRandDict[instrument],
+      timeRandDict[instrument],
+      timeShiftDict[instrument]
     );
-    const bufferDataUpdates = eventSequence.update(event);
-    return bufferDataUpdates;
+    const bufferUpdates = eventSequence.update(event);
+    return bufferUpdates;
   }
 
   async updateAll(
@@ -154,7 +174,10 @@ class EventSequenceHandler {
     globalDynamicsOn,
     globalMicrotiming,
     globalMicrotimingOn,
-    velAmpDict
+    velAmpDict,
+    velRandDict,
+    timeRandDict,
+    timeShiftDict
   ) {
     const eventSequence = EventSequence();
     for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
@@ -170,7 +193,10 @@ class EventSequenceHandler {
           globalDynamicsOn,
           globalMicrotiming,
           globalMicrotimingOn,
-          velAmpDict[instrument.toString()]
+          velAmpDict[instrument.toString()],
+          velRandDict[instrument.toString()],
+          timeRandDict[instrument.toString()],
+          timeShiftDict[instrument.toString()]
         );
       }
     }

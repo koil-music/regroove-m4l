@@ -1,7 +1,6 @@
 const { makeAutoObservable } = require("mobx");
 const { normalize } = require("../utils");
 const defaultDetailParam = require("../data/default-detail-param.json");
-const defaultVelAmpDict = require("../data/default-velocity-amplitude.json");
 const defaultUiParams = require("../data/default-ui-params.json");
 const {
   NUM_INSTRUMENTS,
@@ -43,7 +42,7 @@ class UIParamsStore {
 
   _activeInstruments = defaultUiParams.activeInstruments;
 
-  velAmpDict = defaultVelAmpDict;
+  velAmpDict = defaultDetailParam;
   velRandDict = defaultDetailParam;
   timeShiftDict = defaultDetailParam;
   timeRandDict = defaultDetailParam;
@@ -58,9 +57,12 @@ class UIParamsStore {
       globalVelocity: this.globalVelocity,
       globalDynamics: this.globalDynamics,
       globalMicrotiming: this.globalMicrotiming,
-      velAmpDict: this.velAmpDict,
       globalDynamicsOn: this.globalDynamicsOn,
       globalMicrotimingOn: this.globalMicrotimingOn,
+      velAmpDict: this.velAmpDict,
+      velRandDict: this.velRandDict,
+      timeShiftDict: this.timeShiftDict,
+      timeRandDict: this.timeRandDict,
     };
   }
 
