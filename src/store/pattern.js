@@ -28,9 +28,11 @@ class PatternStore {
     this._currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this._currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this._currentOffsets = new Pattern(this.emptyPatternData, this.dims);
+
     this.inputOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.inputVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.inputOffsets = new Pattern(this.emptyPatternData, this.dims);
+
     this.tempOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.tempVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.tempOffsets = new Pattern(this.emptyPatternData, this.dims);
@@ -56,7 +58,6 @@ class PatternStore {
   }
 
   setCurrentFromTemp() {
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = this.tempOnsets;
     this.currentVelocities = this.tempVelocities;
     this.currentOffsets = this.tempOffsets;
@@ -81,7 +82,6 @@ class PatternStore {
 
   clearCurrent() {
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
@@ -92,7 +92,6 @@ class PatternStore {
       Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
     );
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     const x = parseInt(this.root.uiParamsStore.densityIndex);
     const y = parseInt(randomIndex);
 
@@ -174,7 +173,6 @@ class PatternStore {
   set current(pattern) {
     const [onsets, velocities, offsets] = pattern;
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = onsets;
     this.currentVelocities = velocities;
     this.currentOffsets = offsets;
@@ -206,7 +204,6 @@ class PatternStore {
 
   setInput() {
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = this.inputOnsets;
     this.currentVelocities = this.inputVelocities;
     this.currentOffsets = this.inputOffsets;
@@ -215,7 +212,6 @@ class PatternStore {
   setPrevious() {
     this.currentHistoryIndex += 1;
     if (this.currentHistoryIndex < this.onsetsHistory._queue.length) {
-      this.root.eventSequenceHandler.togglePatternUpdate();
       this.currentOnsets = this.onsetsHistory.sample(this.currentHistoryIndex);
       this.currentVelocities = this.velocitiesHistory.sample(
         this.currentHistoryIndex
