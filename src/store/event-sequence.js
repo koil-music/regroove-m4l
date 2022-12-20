@@ -116,14 +116,15 @@ class EventSequenceHandler {
     setTimeout(() => (this.ignoreNoteUpdate = false), NOTE_UPDATE_THROTTLE);
   }
 
-  updateNoteEvents(
-    step,
+  updateNote(
+    eventSequence,
     instrument,
+    step,
     onset,
-    globalDynamics,
-    globalMicrotiming,
     globalVelocity,
+    globalDynamics,
     globalDynamicsOn,
+    globalMicrotiming,
     globalMicrotimingOn
   ) {
     const event = new NoteEvent(
@@ -142,39 +143,38 @@ class EventSequenceHandler {
       this.root.uiParamsStore.timeRandDict[instrument],
       this.root.uiParamsStore.timeShiftDict[instrument]
     );
-    const bufferDataUpdates = this.eventSequence.update(event);
+    const bufferDataUpdates = eventSequence.update(event);
     return bufferDataUpdates;
   }
 
-  async updateSequence(
+  async updateAll(
     onsetsTensor,
-    dynamicsMagnitude,
-    offsetMagnitude,
-    velAmpDict,
-    dynamicsOn,
-    microtimingOn
+    globalVelocity,
+    globalDynamics,
+    globalDynamicsOn,
+    globalMicrotiming,
+    globalMicrotimingOn,
+    velAmpDict
   ) {
-    this.eventSequence.reset();
+    const eventSequence = EventSequence();
     for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         const onset = onsetsTensor[step][instrument];
-        const bufferDataUpdates = this.updateNoteEvents(
-          step,
+        this.updateNote(
+          eventSequence,
           instrument,
+          step,
           onset,
-          dynamicsMagnitude,
-          offsetMagnitude,
-          velAmpDict[instrument.toString()],
-          dynamicsOn,
-          microtimingOn
+          globalVelocity,
+          globalDynamics,
+          globalDynamicsOn,
+          globalMicrotiming,
+          globalMicrotimingOn,
+          velAmpDict[instrument.toString()]
         );
-        // sync this.bufferData
-        for (const [idx, noteEvents] of Object.entries(bufferDataUpdates)) {
-          this.eventSequence.bufferData[idx] = noteEvents;
-        }
       }
     }
-    Max.setDict("midiEventSequence", this.eventSequence.bufferData);
+    Max.setDict("midiEventSequence", eventSequence.bufferData);
   }
 }
 
