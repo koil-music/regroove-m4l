@@ -8,7 +8,6 @@ const {
   DetailViewMode,
 } = require("../store/ui-params");
 const defaultUiParams = require("../data/default-ui-params.json");
-const defaultVelAmpDict = require("../data/default-velocity-amplitude.json");
 const defaultDetailParam = require("../data/default-detail-param.json");
 const { normalize } = require("../utils");
 const {
@@ -40,7 +39,7 @@ test("DefaultUIParamsStore", () => {
     defaultUiParams.detailViewModeIndex
   );
 
-  expect(uiParams.velAmpDict).toEqual(defaultVelAmpDict);
+  expect(uiParams.velAmpDict).toEqual(defaultDetailParam);
   expect(uiParams.velRandDict).toEqual(defaultDetailParam);
   expect(uiParams.timeShiftDict).toEqual(defaultDetailParam);
   expect(uiParams.timeRandDict).toEqual(defaultDetailParam);
@@ -240,9 +239,12 @@ test("uiParamsStore.expressionParams", () => {
     globalVelocity: defaultUiParams.globalVelocity,
     globalDynamics: defaultUiParams.globalDynamics,
     globalMicrotiming: defaultUiParams.globalMicrotiming,
-    velAmpDict: defaultVelAmpDict,
     globalDynamicsOn: defaultUiParams.globalDynamicsOn,
     globalMicrotimingOn: defaultUiParams.globalMicrotimingOn,
+    velAmpDict: defaultDetailParam,
+    velRandDict: defaultDetailParam,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
   });
 
   uiParams.globalVelocity = 0.99;
@@ -254,11 +256,14 @@ test("uiParamsStore.expressionParams", () => {
     globalVelocity: 0.99,
     globalDynamics: 0.69,
     globalMicrotiming: 0.69,
-    velAmpDict: defaultVelAmpDict,
     globalDynamicsOn: true,
     globalMicrotimingOn: false,
+    velAmpDict: defaultDetailParam,
+    velRandDict: defaultDetailParam,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
   });
-  uiParams.velAmpDict = {
+  const altDetailDict = {
     0: 0.0,
     1: 0.89,
     2: 0.71,
@@ -269,22 +274,55 @@ test("uiParamsStore.expressionParams", () => {
     7: 0.8,
     8: 0.69,
   };
+  uiParams.velAmpDict = altDetailDict;
   expect(uiParams.expressionParams).toEqual({
     globalVelocity: 0.99,
     globalDynamics: 0.69,
     globalMicrotiming: 0.69,
-    velAmpDict: {
-      0: 0.0,
-      1: 0.89,
-      2: 0.71,
-      3: 0.8,
-      4: 0.8,
-      5: 0.8,
-      6: 0.8,
-      7: 0.8,
-      8: 0.69,
-    },
     globalDynamicsOn: true,
     globalMicrotimingOn: false,
+    velAmpDict: altDetailDict,
+    velRandDict: defaultDetailParam,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
+  });
+
+  uiParams.velRandDict = altDetailDict;
+  expect(uiParams.expressionParams).toEqual({
+    globalVelocity: 0.99,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
+    velAmpDict: altDetailDict,
+    velRandDict: altDetailDict,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
+  });
+
+  uiParams.timeRandDict = altDetailDict;
+  expect(uiParams.expressionParams).toEqual({
+    globalVelocity: 0.99,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
+    velAmpDict: altDetailDict,
+    velRandDict: altDetailDict,
+    timeRandDict: altDetailDict,
+    timeShiftDict: defaultDetailParam,
+  });
+
+  uiParams.timeShiftDict = altDetailDict;
+  expect(uiParams.expressionParams).toEqual({
+    globalVelocity: 0.99,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
+    velAmpDict: altDetailDict,
+    velRandDict: altDetailDict,
+    timeRandDict: altDetailDict,
+    timeShiftDict: altDetailDict,
   });
 });
