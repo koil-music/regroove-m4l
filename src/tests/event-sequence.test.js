@@ -13,8 +13,9 @@ const {
 const NoteEvent = require("../store/note-event");
 const defaultDetailParams = require("../data/default-detail-param.json");
 const RootStore = require("../store/root");
-const { Pattern } = require("regroovejs");
+const { Pattern, LOOP_DURATION } = require("regroovejs");
 const path = require("path");
+const Max = require("../max-api");
 
 test("EventSequence._resetQuantizedData", () => {
   const eventSequence = new EventSequence();
@@ -206,8 +207,11 @@ test("EventSequenceHandler.toggleIgnoreNoteUpdates", () => {
   }, NOTE_UPDATE_THROTTLE + 1);
 });
 
-const createOnesPatternData = (dims) => {
-  return Float32Array.from({ length: dims[0] * dims[1] * dims[2] }, () => 1.0);
+const createPatternData = (dims, value) => {
+  return Float32Array.from(
+    { length: dims[0] * dims[1] * dims[2] },
+    () => value
+  );
 };
 
 test("EventSequenceHandler.updateNote", () => {
@@ -215,7 +219,7 @@ test("EventSequenceHandler.updateNote", () => {
   const MODEL_DIR = process.cwd() + "/regroove-models/current";
   const rootStore = new RootStore(MODEL_DIR, false);
   const dims = rootStore.patternStore.dims;
-  const velocities = new Pattern(createOnesPatternData(dims), dims);
+  const velocities = new Pattern(createPatternData(dims, 1.0), dims);
   rootStore.patternStore.currentVelocities = velocities;
 
   let instrument = 7;
@@ -270,4 +274,49 @@ test("EventSequenceHandler.updateNote", () => {
   const exp2 = {};
   exp2[step * TICKS_PER_16TH] = [1, 0];
   expect(got2).toEqual(exp2);
+});
+
+test("EventSequenceHandler.updateAll", () => {
+  const eventSequence = new EventSequence();
+  const MODEL_DIR = process.cwd() + "/regroove-models/current";
+  const rootStore = new RootStore(MODEL_DIR, false);
+  const dims = rootStore.patternStore.dims;
+  const velocities = new Pattern(createPatternData(dims, 0.5), dims);
+  rootStore.patternStore.currentVelocities = velocities;
+
+  const globalDynamics = 0.8;
+  const globalVelocity = 1.0;
+  const globalDynamicsOn = true;
+  const globalMicrotiming = 0;
+  const globalMicrotimingOn = true;
+  const velAmpDict = defaultDetailParams;
+  const velRandDict = defaultDetailParams;
+  const timeRandDict = defaultDetailParams;
+  const timeShiftDict = defaultDetailParams;
+  const onsets = new Pattern(createPatternData(dims, 1), dims);
+
+  const mockSetDict = jest.fn();
+
+  rootStore.eventSequenceHandler.updateAll(
+    onsets.tensor()[0],
+    globalVelocity,
+    globalDynamics,
+    globalDynamicsOn,
+    globalMicrotiming,
+    globalMicrotimingOn,
+    velAmpDict,
+    velRandDict,
+    timeRandDict,
+    timeShiftDict,
+    mockSetDict
+  );
+  const expBufferData = eventSequence._resetBufferData(0, BUFFER_LENGTH);
+  for (let i = 0; i < LOOP_DURATION; i++) {
+    const tick = i * TICKS_PER_16TH;
+    for (let j = 0; j < NUM_INSTRUMENTS; j++) {
+      expBufferData[tick][j] = 0.5 * MAX_VELOCITY * globalDynamics;
+    }
+  }
+
+  expect(mockSetDict).toBeCalledWith("midiEventSequence", expBufferData);
 });
