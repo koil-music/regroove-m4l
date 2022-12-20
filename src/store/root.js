@@ -5,8 +5,8 @@ const { PatternStore } = require("./pattern");
 const { UIParamsStore } = require("./ui-params");
 
 class RootStore {
-  constructor(modelDir) {
-    this.inferenceStore = new InferenceStore(this, modelDir);
+  constructor(modelDir, eager = true) {
+    this.inferenceStore = new InferenceStore(this, modelDir, eager);
     this.matrixCtrlStore = new MatrixCtrlStore(this);
     this.patternStore = new PatternStore(this);
     this.uiParamsStore = new UIParamsStore(this);
@@ -14,4 +14,4 @@ class RootStore {
   }
 }
 
-module.exports = { RootStore };
+module.exports = RootStore;

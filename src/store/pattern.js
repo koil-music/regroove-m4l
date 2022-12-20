@@ -2,7 +2,7 @@ const { makeAutoObservable } = require("mobx");
 
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
-const { LOOP_DURATION, NUM_INSTRUMENTS } = require("./config");
+const { LOOP_DURATION, NUM_INSTRUMENTS } = require("../config");
 
 class PatternStore {
   root;

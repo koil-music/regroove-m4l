@@ -3,7 +3,7 @@ const { InferenceSession } = require("onnxruntime-node");
 const { makeAutoObservable } = require("mobx");
 const path = require("path");
 const defaultUiParams = require("../data/default-ui-params.json");
-const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("./config");
+const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("../config");
 
 class InferenceStore {
   root;
@@ -21,12 +21,14 @@ class InferenceStore {
   grooveLatentSize = 64;
   grooveModelName = "groove.onnx";
 
-  constructor(rootStore, modelDir) {
+  constructor(rootStore, modelDir, eager = true) {
     makeAutoObservable(this);
     this.root = rootStore;
     this.modelDir = modelDir;
 
-    this.run();
+    if (eager) {
+      this.run();
+    }
   }
 
   async run() {
