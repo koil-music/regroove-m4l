@@ -6,8 +6,9 @@
   "scripts": {
     "prettier": "npx prettier --write src",
     "postinstall": "./post-install.sh",
-    "test": "export DEBUG_JEST=true; jest --coverage --verbose",
-    "pretest": "prettier --write src"
+    "test": "export DEBUG_JEST=true; jest --coverage --verbose --runInBand",
+    "pretest": "prettier --write src",
+    "watch": "node --inspect ./node_modules/.bin/jest --watch --no-cache --runInBand"
   },
   "author": "Max Kraan",
   "license": "MIT",
