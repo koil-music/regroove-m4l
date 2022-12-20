@@ -1,27 +1,18 @@
 "use_strict";
 
+const Max = require("./max-api");
+
 const assert = require("assert");
 const fs = require("fs");
-const Max = require("max-api");
 const path = require("path");
-const process = require("process");
 
 const { readMidiFile } = require("regroovejs/dist/midi");
 const pitchIndexMapping = require("./data/pitch-index-mapping.json");
 
-const { RootStore } = require("./store/root");
+const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { validModelDir } = require("./utils");
-
-const ROOT = path.dirname(process.cwd());
-
-const Max = require("max-api");
-const process = require("process");
-
-let DEBUG = true;
-if (process.env.MAX_ENV == "maxforlive") {
-  DEBUG = false;
-}
+const { DEBUG, MODEL_DIR } = require("./config");
 
 const log = (value) => {
   if (DEBUG) {
@@ -42,12 +33,6 @@ Max.addHandler("debug", (value) => {
   log(`DEBUG: ${DEBUG}`);
 });
 
-let MODEL_DIR;
-if (process.env.MAX_ENV == "max") {
-  MODEL_DIR = path.join(ROOT, "regroove-models/current");
-} else {
-  MODEL_DIR = path.join(ROOT, "current");
-}
 const GENERATOR_STATE_DICT_NAME = "generatorState";
 
 assert.ok(validModelDir(MODEL_DIR));
@@ -269,16 +254,16 @@ Max.addHandler("/params/velocity", (value) => {
  * Update velocityAmplitude dict in uiParamsStore
  */
 Max.addHandler("updateVelAmp", async () => {
-  store.uiParamsStore.velocityScaleDict = await Max.getDict("velAmp");
+  store.uiParamsStore.velAmpDict = await Max.getDict("velAmp");
   const [_, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  log(`Updated velAmp dict to ${store.uiParamsStore.velocityScaleDict}`);
+  log(`Updated velAmp dict to ${store.uiParamsStore.velAmpDict}`);
 });
 Max.addHandler("updateVelRand", async () => {
-  store.uiParamsStore.velocityRandDict = await Max.getDict("velRand");
-  log(`Updated velRand dict to ${store.uiParamsStore.velocityRandDict}`);
+  store.uiParamsStore.velRandDict = await Max.getDict("velRand");
+  log(`Updated velRand dict to ${store.uiParamsStore.velRandDict}`);
 });
 Max.addHandler("updateTimeShift", async () => {
   store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
@@ -364,23 +349,35 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
-Max.addHandler("updateNote", async (step, instrument, value) => {
+Max.addHandler("updateNote", async (step, instrument, onsetValue) => {
   const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
   if (
     step < store.uiParamsStore.loopDuration &&
     instrument < store.uiParamsStore.numInstruments
   ) {
     if (!store.eventSequenceHandler.ignoreNoteUpdate) {
-      store.patternStore.updateNote(step, instrumentIndex, value);
-      const midiEventUpdates = store.eventSequenceHandler.updateNoteEvents(
-        step,
+      // we explicitly ignore the note update from the patternStore
+      // to avoid the eventSequenceHandler from automatically updating
+      // the eventSequence via EventSequenceHandler.reactToPatternChange
+      store.eventSequenceHandler.ignoreNoteUpdate = true;
+      store.patternStore.updateNote(step, instrumentIndex, onsetValue);
+      store.eventSequenceHandler.ignoreNoteUpdate = false;
+
+      // ... and then call updateNote directly
+      const midiEventUpdates = store.eventSequenceHandler.updateNote(
+        store.eventSequenceHandler.eventSequence,
         instrumentIndex,
-        value,
-        store.uiParamsStore.dynamics,
-        store.uiParamsStore.microtiming,
-        store.uiParamsStore.velocityScaleDict[instrumentIndex.toString()],
-        store.uiParamsStore.dynamicsOn,
-        store.uiParamsStore.microtimingOn
+        step,
+        onsetValue,
+        store.uiParamsStore.globalVelocity,
+        store.uiParamsStore.globalDynamics,
+        store.uiParamsStore.globalDynamicsOn,
+        store.uiParamsStore.globalMicrotiming,
+        store.uiParamsStore.globalMicrotimingOn,
+        store.uiParamsStore.velAmpDict,
+        store.uiParamsStore.velRandDict,
+        store.uiParamsStore.timeShiftDict,
+        store.uiParamsStore.timeRandDict
       );
       for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
         await Max.updateDict("midiEventSequence", idx, noteEvents);
