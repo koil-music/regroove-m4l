@@ -6,8 +6,8 @@
   "scripts": {
     "prettier": "npx prettier --write src",
     "postinstall": "./post-install.sh",
-    "test": "jest --coverage --verbose -t 'test'",
-    "posttest": "prettier --write src"
+    "test": "export DEBUG_JEST=true; jest --coverage --verbose",
+    "pretest": "prettier --write src"
   },
   "author": "Max Kraan",
   "license": "MIT",
