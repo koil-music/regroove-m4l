@@ -97,7 +97,8 @@ class EventSequenceHandler {
           params.velAmpDict,
           params.velRandDict,
           params.timeRandDict,
-          params.timeShiftDict
+          params.timeShiftDict,
+          Max.setDict
         );
       }
     );
@@ -118,7 +119,8 @@ class EventSequenceHandler {
             this.root.uiParamsStore.velAmpDict,
             this.root.uiParamsStore.velRandDict,
             this.root.uiParamsStore.timeRandDict,
-            this.root.uiParamsStore.timeShiftDict
+            this.root.uiParamsStore.timeShiftDict,
+            Max.setDict
           );
         }
       }
@@ -126,8 +128,8 @@ class EventSequenceHandler {
   }
 
   toggleIgnoreNoteUpdate() {
-    // workaround to throttle note updates, this is to avoid spamming the
-    // server with note update requests when the data is already up-to-date
+    // throttle note updates, this is to avoid spamming the server with note
+    // update requests when the data is already up-to-date
     this.ignoreNoteUpdate = true;
     setTimeout(() => (this.ignoreNoteUpdate = false), NOTE_UPDATE_THROTTLE);
   }
@@ -177,9 +179,10 @@ class EventSequenceHandler {
     velAmpDict,
     velRandDict,
     timeRandDict,
-    timeShiftDict
+    timeShiftDict,
+    callback
   ) {
-    const eventSequence = EventSequence();
+    const eventSequence = new EventSequence();
     for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         const onset = onsetsTensor[step][instrument];
@@ -193,14 +196,14 @@ class EventSequenceHandler {
           globalDynamicsOn,
           globalMicrotiming,
           globalMicrotimingOn,
-          velAmpDict[instrument.toString()],
-          velRandDict[instrument.toString()],
-          timeRandDict[instrument.toString()],
-          timeShiftDict[instrument.toString()]
+          velAmpDict,
+          velRandDict,
+          timeRandDict,
+          timeShiftDict
         );
       }
     }
-    Max.setDict("midiEventSequence", eventSequence.bufferData);
+    callback("midiEventSequence", eventSequence.bufferData);
   }
 }
 
