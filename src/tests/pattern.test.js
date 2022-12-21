@@ -220,57 +220,57 @@ test("updateInstrumentOffsets", () => {
 });
 
 test("setCurrent", () => {
-    const patternStore = new PatternStore();
-    const expPattern = new Pattern(
-        createPatternData(patternStore.dims, 0.69),
-        patternStore.dims
-    );
-    patternStore.current = [expPattern, expPattern, expPattern];
-    
-    expect(patternStore.currentOnsets).toEqual(expPattern);
-    expect(patternStore.currentVelocities).toEqual(expPattern);
-    expect(patternStore.currentOffsets).toEqual(expPattern);
+  const patternStore = new PatternStore();
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, 0.69),
+    patternStore.dims
+  );
+  patternStore.current = [expPattern, expPattern, expPattern];
+
+  expect(patternStore.currentOnsets).toEqual(expPattern);
+  expect(patternStore.currentVelocities).toEqual(expPattern);
+  expect(patternStore.currentOffsets).toEqual(expPattern);
 });
 
 test("setInput", () => {
-    const patternStore = new PatternStore();
-    const somePattern = new Pattern(
-        createPatternData(patternStore.dims, 0.69),
-        patternStore.dims
-    );
-    patternStore.current = [somePattern, somePattern, somePattern];
-    
-    const expPattern = new Pattern(
-        createPatternData(patternStore.dims, 0.42),
-        patternStore.dims
-    );
-    patternStore.inputOnsets = expPattern;
-    patternStore.inputVelocities = expPattern;
-    patternStore.inputOffsets = expPattern;
-    patternStore.setInput();
+  const patternStore = new PatternStore();
+  const somePattern = new Pattern(
+    createPatternData(patternStore.dims, 0.69),
+    patternStore.dims
+  );
+  patternStore.current = [somePattern, somePattern, somePattern];
 
-    expect(patternStore.currentOnsets).toEqual(expPattern);
-    expect(patternStore.currentVelocities).toEqual(expPattern);
-    expect(patternStore.currentOffsets).toEqual(expPattern);
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, 0.42),
+    patternStore.dims
+  );
+  patternStore.inputOnsets = expPattern;
+  patternStore.inputVelocities = expPattern;
+  patternStore.inputOffsets = expPattern;
+  patternStore.setInput();
+
+  expect(patternStore.currentOnsets).toEqual(expPattern);
+  expect(patternStore.currentVelocities).toEqual(expPattern);
+  expect(patternStore.currentOffsets).toEqual(expPattern);
 });
 
 test("setPrevious", () => {
-    const patternStore = new PatternStore();
-    const somePattern = new Pattern(
-        createPatternData(patternStore.dims, 0.69),
-        patternStore.dims
-    );
-    patternStore.current = [somePattern, somePattern, somePattern];
-    patternStore.updateHistory();
-    
-    const expPattern = new Pattern(
-        createPatternData(patternStore.dims, 0.42),
-        patternStore.dims
-    );
-    patternStore.current = [expPattern, expPattern, expPattern];
+  const patternStore = new PatternStore();
+  const somePattern = new Pattern(
+    createPatternData(patternStore.dims, 0.69),
+    patternStore.dims
+  );
+  patternStore.current = [somePattern, somePattern, somePattern];
+  patternStore.updateHistory();
 
-    patternStore.setPrevious();
-    expect(patternStore.currentOnsets).toEqual(somePattern);
-    expect(patternStore.currentVelocities).toEqual(somePattern);
-    expect(patternStore.currentOffsets).toEqual(somePattern);
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, 0.42),
+    patternStore.dims
+  );
+  patternStore.current = [expPattern, expPattern, expPattern];
+
+  patternStore.setPrevious();
+  expect(patternStore.currentOnsets).toEqual(somePattern);
+  expect(patternStore.currentVelocities).toEqual(somePattern);
+  expect(patternStore.currentOffsets).toEqual(somePattern);
 });
