@@ -3,6 +3,7 @@ const { makeAutoObservable } = require("mobx");
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
 const { LOOP_DURATION, NUM_INSTRUMENTS, HISTORY_DEPTH } = require("../config");
+const Instrument = require("./instrument");
 
 class PatternStore {
   root;
@@ -114,7 +115,7 @@ class PatternStore {
     const inactiveInstruments = [];
     for (let i = 0; i < activeInstruments.length; i++) {
       if (activeInstruments[i] === 0) {
-        inactiveInstruments.push(i);
+        inactiveInstruments.push(Instrument.from_index(i));
       }
     }
 
@@ -124,14 +125,14 @@ class PatternStore {
     const newOffsetsTensor = newOffsetsPattern.tensor();
 
     // preserve previous pattern to new pattern for inactive instruments
-    for (const channel of inactiveInstruments) {
+    for (const instrument of inactiveInstruments) {
       for (let step = 0; step < previousOnsetsTensor[0].length; step++) {
-        newOnsetsTensor[0][step][channel] =
-          previousOnsetsTensor[0][step][channel];
-        newVelocitiesTensor[0][step][channel] =
-          previousVelocitiesTensor[0][step][channel];
-        newOffsetsTensor[0][step][channel] =
-          previousOffsetsTensor[0][step][channel];
+        newOnsetsTensor[0][step][instrument.index] =
+          previousOnsetsTensor[0][step][instrument.index];
+        newVelocitiesTensor[0][step][instrument.index] =
+          previousVelocitiesTensor[0][step][instrument.index];
+        newOffsetsTensor[0][step][instrument.index] =
+          previousOffsetsTensor[0][step][instrument.index];
       }
     }
 

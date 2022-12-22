@@ -50,24 +50,24 @@ class EventSequence {
     const currentNoteEvents = this.quantizedData[event.step];
 
     // check previousEvent and delete it from bufferData if it exists
-    const previousEvent = currentNoteEvents[event.instrument.index];
+    const previousEvent = currentNoteEvents[event.instrument.matrixCtrlIndex];
     if (previousEvent !== undefined) {
-      this.bufferData[previousEvent.tick][event.instrument.index] = 0;
-      bufferUpdates[previousEvent.tick] = [event.instrument.index, 0];
+      this.bufferData[previousEvent.tick][event.instrument.matrixCtrlIndex] = 0;
+      bufferUpdates[previousEvent.tick] = [event.instrument.matrixCtrlIndex, 0];
     }
 
     // update quantizedData
     if (event.onsetValue === 1) {
-      currentNoteEvents[event.instrument.index] = event;
-      bufferUpdates[event.tick] = [event.instrument.index, event.velocity];
+      currentNoteEvents[event.instrument.matrixCtrlIndex] = event;
+      bufferUpdates[event.tick] = [event.instrument.matrixCtrlIndex, event.velocity];
     } else if (event.onsetValue === 0) {
-      delete currentNoteEvents[event.instrument.index];
-      bufferUpdates[previousEvent.tick] = [event.instrument.index, 0];
+      delete currentNoteEvents[event.instrument.matrixCtrlIndex];
+      bufferUpdates[previousEvent.tick] = [event.instrument.matrixCtrlIndex, 0];
     }
 
     // update bufferData with new events
     for (const e of Object.values(currentNoteEvents)) {
-      this.bufferData[e.tick][e.instrument.index] = e.velocity;
+      this.bufferData[e.tick][e.instrument.matrixCtrlIndex] = e.velocity;
     }
     return bufferUpdates;
   }
@@ -154,17 +154,19 @@ class EventSequenceHandler {
       instrument,
       step,
       onset,
-      this.root.patternStore.currentVelocities.tensor()[0][step][instrument.index],
+      this.root.patternStore.currentVelocities.tensor()[0][step][
+        instrument.index
+      ],
       this.root.patternStore.currentOffsets.tensor()[0][step][instrument.index],
       globalVelocity,
       globalDynamics,
       globalDynamicsOn,
       globalMicrotiming,
       globalMicrotimingOn,
-      velAmpDict[instrument.index],
-      velRandDict[instrument.index],
-      timeRandDict[instrument.index],
-      timeShiftDict[instrument.index]
+      velAmpDict[instrument.matrixCtrlIndex],
+      velRandDict[instrument.matrixCtrlIndex],
+      timeRandDict[instrument.matrixCtrlIndex],
+      timeShiftDict[instrument.matrixCtrlIndex]
     );
     const bufferUpdates = eventSequence.update(event);
     return bufferUpdates;
@@ -184,10 +186,14 @@ class EventSequenceHandler {
     callback
   ) {
     const eventSequence = new EventSequence();
-    for (let instrumentIndex = 0; instrumentIndex < NUM_INSTRUMENTS; instrumentIndex++) {
+    for (
+      let instrumentIndex = 0;
+      instrumentIndex < NUM_INSTRUMENTS;
+      instrumentIndex++
+    ) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const onset = onsetsTensor[step][instrumentIndex];
-        const instrument = Instrument(instrumentIndex);
+        const instrument = Instrument.from_index(instrumentIndex);
+        const onset = onsetsTensor[step][instrument.index];
         this.updateNote(
           eventSequence,
           instrument,

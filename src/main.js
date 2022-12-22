@@ -405,7 +405,7 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} value: range = [0, 1]
  */
 Max.addHandler("updateNote", async (step, instrumentIndex, onsetValue) => {
-  const instrument = Instrument(instrumentIndex);
+  const instrument = new Instrument(instrumentIndex);
   if (
     step < store.uiParamsStore.loopDuration &&
     instrument.index < store.uiParamsStore.numInstruments

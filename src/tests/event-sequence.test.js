@@ -16,6 +16,7 @@ const RootStore = require("../store/root");
 const { Pattern, LOOP_DURATION } = require("regroovejs");
 const path = require("path");
 const Max = require("../max-api");
+const Instrument = require("../store/instrument");
 
 test("EventSequence._resetQuantizedData", () => {
   const eventSequence = new EventSequence();
@@ -80,8 +81,9 @@ const createNoteEvent = (
   timeShift = 0.0
 ) => {
   // create note event with all defined values
+  const instrument = Instrument.from_index(instrumentIndex);
   const noteEvent = new NoteEvent(
-    instrumentIndex,
+    NUM_INSTRUMENTS,
     step,
     onsetValue,
     velocityValue,
@@ -107,95 +109,95 @@ test("EventSequence.update", () => {
   const event1 = createNoteEvent(3, step, 1);
   const got1 = eventSequence.update(event1);
   const exp1 = {};
-  exp1[event1.tick] = [event1.instrument, event1.velocity];
+  exp1[event1.tick] = [event1.instrument.matrixCtrlIndex, event1.velocity];
   expect(got1).toEqual(exp1);
 
   const expBuffer = eventSequence._resetBufferData(0, BUFFER_LENGTH);
-  expBuffer[64][event1.instrument] = 1 * MAX_VELOCITY;
+  expBuffer[64][event1.instrument.matrixCtrlIndex] = 1 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
   const expQData = eventSequence._resetQuantizedData(16);
-  expQData[step][event1.instrument] = event1;
+  expQData[step][event1.instrument.matrixCtrlIndex] = event1;
   expect(eventSequence.quantizedData).toEqual(expQData);
 
   // add event with same step different instrument
   const event2 = createNoteEvent(6, step, 1);
   const got2 = eventSequence.update(event2);
   const exp2 = {};
-  exp2[event2.tick] = [event2.instrument, event2.velocity];
+  exp2[event2.tick] = [event2.instrument.matrixCtrlIndex, event2.velocity];
   expect(got2).toEqual(exp2);
 
-  expBuffer[64][event2.instrument] = 1 * MAX_VELOCITY;
+  expBuffer[64][event2.instrument.matrixCtrlIndex] = 1 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event2.instrument] = event2;
+  expQData[step][event2.instrument.matrixCtrlIndex] = event2;
   expect(eventSequence.quantizedData).toEqual(expQData);
 
   // remove first event
   const event3 = createNoteEvent(3, step, 0);
   const got3 = eventSequence.update(event3);
   const exp3 = {};
-  exp3[event3.tick] = [event3.instrument, 0];
+  exp3[event3.tick] = [event3.instrument.matrixCtrlIndex, 0];
   expect(got3).toEqual(exp3);
 
-  expBuffer[64][event3.instrument] = 0;
+  expBuffer[64][event3.instrument.matrixCtrlIndex] = 0;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event3.instrument] = undefined;
+  expQData[step][event3.instrument.matrixCtrlIndex] = undefined;
   expect(eventSequence.quantizedData).toEqual(expQData);
 
   // add event with different step and velocity
   const event4 = createNoteEvent(7, step, 1, 0.5);
   const got4 = eventSequence.update(event4);
   const exp4 = {};
-  exp4[event4.tick] = [event4.instrument, event4.velocity];
+  exp4[event4.tick] = [event4.instrument.matrixCtrlIndex, event4.velocity];
   expect(got4).toEqual(exp4);
 
-  expBuffer[64][event4.instrument] = 0.5 * MAX_VELOCITY;
+  expBuffer[64][event4.instrument.matrixCtrlIndex] = 0.5 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event4.instrument] = event4;
+  expQData[step][event4.instrument.matrixCtrlIndex] = event4;
   expect(eventSequence.quantizedData).toEqual(expQData);
 
   // add same event with an offset
   const event5 = createNoteEvent(7, step, 1, 0.8, -1, 1, 1, true, 1, true);
   const got5 = eventSequence.update(event5);
   const exp5 = {};
-  exp5[event5.tick] = [event5.instrument, event5.velocity];
-  exp5[event4.tick] = [event4.instrument, 0];
+  exp5[event5.tick] = [event5.instrument.matrixCtrlIndex, event5.velocity];
+  exp5[event4.tick] = [event4.instrument.matrixCtrlIndex, 0];
   expect(got5).toEqual(exp5);
 
-  expBuffer[64][event5.instrument] = 0;
-  expBuffer[49][event5.instrument] = 0.8 * MAX_VELOCITY;
+  expBuffer[64][event5.instrument.matrixCtrlIndex] = 0;
+  expBuffer[49][event5.instrument.matrixCtrlIndex] = 0.8 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event5.instrument] = event5;
+  expQData[step][event5.instrument.matrixCtrlIndex] = event5;
   expect(eventSequence.quantizedData).toEqual(expQData);
 
   // add prveious event with an offset
   const event6 = createNoteEvent(7, step - 1, 1, 0.8, 1, 1, 1, true, 1, true);
   eventSequence.update(event6);
-  expBuffer[48][event6.instrument] = 0.8 * MAX_VELOCITY;
+  expBuffer[48][event6.instrument.matrixCtrlIndex] = 0.8 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event5.instrument] = event5;
-  expQData[step - 1][event6.instrument] = event6;
+  expQData[step][event5.instrument.matrixCtrlIndex] = event5;
+  expQData[step - 1][event6.instrument.matrixCtrlIndex] = event6;
 
   // remove event with offset
   const event7 = createNoteEvent(7, step - 1, 0);
   eventSequence.update(event7);
-  expBuffer[48][event7.instrument] = 0;
+  expBuffer[48][event7.instrument.matrixCtrlIndex] = 0;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event5.instrument] = event5;
-  expQData[step - 1][event6.instrument] = undefined;
+  expQData[step][event5.instrument.matrixCtrlIndex] = event5;
+  expQData[step - 1][event6.instrument.matrixCtrlIndex] = undefined;
 
   // add event5 again
   eventSequence.update(event5);
-  expBuffer[49][event5.instrument] = 0.8 * MAX_VELOCITY;
+  expBuffer[49][event5.instrument.matrixCtrlIndex] = 0.8 * MAX_VELOCITY;
   expect(eventSequence.bufferData).toEqual(expBuffer);
 
-  expQData[step][event5.instrument] = event5;
+  expQData[step][event5.instrument.matrixCtrlIndex] = event5;
 });
 
 test("EventSequenceHandler.toggleIgnoreNoteUpdates", () => {
@@ -222,7 +224,7 @@ test("EventSequenceHandler.updateNote", () => {
   const velocities = new Pattern(createPatternData(dims, 1.0), dims);
   rootStore.patternStore.currentVelocities = velocities;
 
-  let instrument = 7;
+  let instrument = Instrument.from_index(7);
   let step = 2;
   let onset = 1;
   let globalVelocity = 1;
@@ -252,7 +254,7 @@ test("EventSequenceHandler.updateNote", () => {
     timeShiftDict
   );
   const exp1 = {};
-  exp1[step * TICKS_PER_16TH] = [1, 127 * globalDynamics];
+  exp1[step * TICKS_PER_16TH] = [instrument.matrixCtrlIndex, 127 * globalDynamics];
   expect(got1).toEqual(exp1);
 
   // remove event
@@ -272,7 +274,7 @@ test("EventSequenceHandler.updateNote", () => {
     timeShiftDict
   );
   const exp2 = {};
-  exp2[step * TICKS_PER_16TH] = [1, 0];
+  exp2[step * TICKS_PER_16TH] = [instrument.matrixCtrlIndex, 0];
   expect(got2).toEqual(exp2);
 });
 

@@ -1,5 +1,6 @@
 const { test, expect } = require("@jest/globals");
 const { NUM_INSTRUMENTS, TICKS_PER_16TH, MAX_VELOCITY } = require("../config");
+const Instrument = require("../store/instrument");
 const NoteEvent = require("../store/note-event");
 
 const createNoteEvent = (
@@ -19,8 +20,9 @@ const createNoteEvent = (
   timeShift = 0.0
 ) => {
   // create note event with all defined values
+  const instrument = Instrument.from_index(instrumentIndex);
   const noteEvent = new NoteEvent(
-    instrumentIndex,
+    instrument,
     step,
     onsetValue,
     velocityValue,
@@ -37,13 +39,6 @@ const createNoteEvent = (
   );
   return noteEvent;
 };
-
-test("NoteEvent.instrument", () => {
-  for (let i = 0; i < NUM_INSTRUMENTS; i++) {
-    const noteEvent = createNoteEvent((instrumentIndex = i));
-    expect(noteEvent.instrument).toBe(NUM_INSTRUMENTS - 1 - i);
-  }
-});
 
 test("NoteEvent.quantizedTick", () => {
   let noteEvent = createNoteEvent();

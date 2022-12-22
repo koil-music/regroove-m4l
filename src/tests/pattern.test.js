@@ -2,6 +2,7 @@ const { expect, test } = require("@jest/globals");
 const { Pattern, PatternDataMatrix, LOOP_DURATION } = require("regroovejs");
 const { NUM_INSTRUMENTS } = require("../config");
 const { PatternStore } = require("../store/pattern");
+const Instrument = require("../store/instrument");
 
 const createPatternData = (dims, value) => {
   return Float32Array.from(
@@ -164,14 +165,18 @@ test("updateNote", () => {
   patternStore.currentOffsets = expPattern;
 
   const step = 5;
-  const instrument = 2;
+  const instrument = Instrument.from_index(2);
   patternStore.updateNote(step, instrument, 1);
 
-  expect(patternStore.currentOnsets.tensor()[0][step][instrument]).toEqual(1);
-  expect(patternStore.currentVelocities.tensor()[0][step][instrument]).toEqual(
-    patternStore.currentMeanVelocity
-  );
-  expect(patternStore.currentOffsets.tensor()[0][step][instrument]).toEqual(0);
+  expect(
+    patternStore.currentOnsets.tensor()[0][step][instrument.index]
+  ).toEqual(1);
+  expect(
+    patternStore.currentVelocities.tensor()[0][step][instrument.index]
+  ).toEqual(patternStore.currentMeanVelocity);
+  expect(
+    patternStore.currentOffsets.tensor()[0][step][instrument.index]
+  ).toEqual(0);
 });
 
 test("updateInstrumentVelocities", () => {
@@ -184,7 +189,7 @@ test("updateInstrumentVelocities", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  const instrument = 2;
+  const instrument = Instrument.from_index(2);
   const velocities = [
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
     1.6,
@@ -193,7 +198,7 @@ test("updateInstrumentVelocities", () => {
 
   const gotVelocities = patternStore.currentVelocities.tensor()[0];
   for (let i = 1; i <= velocities.length; i++) {
-    expect(gotVelocities[i - 1][instrument]).toBeCloseTo(i * 0.1);
+    expect(gotVelocities[i - 1][instrument.index]).toBeCloseTo(i * 0.1);
   }
 });
 
@@ -207,7 +212,7 @@ test("updateInstrumentOffsets", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  const instrument = 2;
+  const instrument = Instrument.from_index(2);
   const offsets = [
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
     1.6,
@@ -216,7 +221,7 @@ test("updateInstrumentOffsets", () => {
 
   const gotOffsets = patternStore.currentOffsets.tensor()[0];
   for (let i = 1; i <= offsets.length; i++) {
-    expect(gotOffsets[i - 1][instrument]).toBeCloseTo(i * 0.1);
+    expect(gotOffsets[i - 1][instrument.index]).toBeCloseTo(i * 0.1);
   }
 });
 

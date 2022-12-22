@@ -27,6 +27,10 @@ class Instrument {
     this.name = name;
   }
 
+  static from_index(index) {
+    return new Instrument(Object.keys(INSTRUMENT_INDEX)[index]);
+  }
+
   get index() {
     return INSTRUMENT_INDEX[this.name];
   }

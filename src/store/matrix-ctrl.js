@@ -22,7 +22,7 @@ class MatrixCtrlStore {
 
     for (let instrumentIndex = 8; instrumentIndex >= 0; instrumentIndex--) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const instrument = Instrument(instrumentIndex);
+        const instrument = new Instrument(instrumentIndex);
 
         // onset
         const onsetValue = onsets[step][instrument.matrixCtrlIndex];
