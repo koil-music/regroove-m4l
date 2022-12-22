@@ -30,4 +30,14 @@ test("Instrument", () => {
   expect(Instrument.HighTom.name).toBe("hightom");
   expect(Instrument.Crash.name).toBe("crash");
   expect(Instrument.Ride.name).toBe("ride");
+
+  expect(Instrument(0)).toBe(Instrument.Kick);
+  expect(Instrument(1)).toBe(Instrument.Snare);
+  expect(Instrument(2)).toBe(Instrument.ClosedHat);
+  expect(Instrument(3)).toBe(Instrument.OpenHat);
+  expect(Instrument(4)).toBe(Instrument.LowTom);
+  expect(Instrument(5)).toBe(Instrument.MidTom);
+  expect(Instrument(6)).toBe(Instrument.HighTom);
+  expect(Instrument(7)).toBe(Instrument.Crash);
+  expect(Instrument(8)).toBe(Instrument.Ride);
 });

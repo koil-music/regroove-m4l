@@ -2,6 +2,7 @@ const process = require("process");
 const path = require("path");
 
 const BUFFER_LENGTH = 512;
+const GENERATOR_STATE_DICT_NAME = "generatorState";
 const HISTORY_DEPTH = 100;
 const LOOP_DURATION = 16;
 const MIN_ONSET_THRESHOLD = 0.3;
@@ -27,6 +28,7 @@ if (process.env.MAX_ENV == "maxforlive") {
 module.exports = {
   BUFFER_LENGTH,
   DEBUG,
+  GENERATOR_STATE_DICT_NAME,
   HISTORY_DEPTH,
   LOOP_DURATION,
   MIN_ONSET_THRESHOLD,

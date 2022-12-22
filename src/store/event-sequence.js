@@ -1,6 +1,7 @@
 const Max = require("../max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 const NoteEvent = require("./note-event");
+const Instrument = require("./instrument");
 const {
   NUM_INSTRUMENTS,
   LOOP_DURATION,
@@ -49,24 +50,24 @@ class EventSequence {
     const currentNoteEvents = this.quantizedData[event.step];
 
     // check previousEvent and delete it from bufferData if it exists
-    const previousEvent = currentNoteEvents[event.instrument];
+    const previousEvent = currentNoteEvents[event.instrument.index];
     if (previousEvent !== undefined) {
-      this.bufferData[previousEvent.tick][event.instrument] = 0;
-      bufferUpdates[previousEvent.tick] = [event.instrument, 0];
+      this.bufferData[previousEvent.tick][event.instrument.index] = 0;
+      bufferUpdates[previousEvent.tick] = [event.instrument.index, 0];
     }
 
     // update quantizedData
     if (event.onsetValue === 1) {
-      currentNoteEvents[event.instrument] = event;
-      bufferUpdates[event.tick] = [event.instrument, event.velocity];
+      currentNoteEvents[event.instrument.index] = event;
+      bufferUpdates[event.tick] = [event.instrument.index, event.velocity];
     } else if (event.onsetValue === 0) {
-      delete currentNoteEvents[event.instrument];
-      bufferUpdates[previousEvent.tick] = [event.instrument, 0];
+      delete currentNoteEvents[event.instrument.index];
+      bufferUpdates[previousEvent.tick] = [event.instrument.index, 0];
     }
 
     // update bufferData with new events
     for (const e of Object.values(currentNoteEvents)) {
-      this.bufferData[e.tick][e.instrument] = e.velocity;
+      this.bufferData[e.tick][e.instrument.index] = e.velocity;
     }
     return bufferUpdates;
   }
@@ -153,17 +154,17 @@ class EventSequenceHandler {
       instrument,
       step,
       onset,
-      this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
-      this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
+      this.root.patternStore.currentVelocities.tensor()[0][step][instrument.index],
+      this.root.patternStore.currentOffsets.tensor()[0][step][instrument.index],
       globalVelocity,
       globalDynamics,
       globalDynamicsOn,
       globalMicrotiming,
       globalMicrotimingOn,
-      velAmpDict[instrument],
-      velRandDict[instrument],
-      timeRandDict[instrument],
-      timeShiftDict[instrument]
+      velAmpDict[instrument.index],
+      velRandDict[instrument.index],
+      timeRandDict[instrument.index],
+      timeShiftDict[instrument.index]
     );
     const bufferUpdates = eventSequence.update(event);
     return bufferUpdates;
@@ -183,9 +184,10 @@ class EventSequenceHandler {
     callback
   ) {
     const eventSequence = new EventSequence();
-    for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
+    for (let instrumentIndex = 0; instrumentIndex < NUM_INSTRUMENTS; instrumentIndex++) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const onset = onsetsTensor[step][instrument];
+        const onset = onsetsTensor[step][instrumentIndex];
+        const instrument = Instrument(instrumentIndex);
         this.updateNote(
           eventSequence,
           instrument,

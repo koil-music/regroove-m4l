@@ -141,32 +141,32 @@ class PatternStore {
     this.currentOffsets = new Pattern(newOffsetsTensor, this.dims);
   }
 
-  updateNote(step, instrumentIndex, onsetValue) {
+  updateNote(step, instrument, onsetValue) {
     const onsetsTensor = this.currentOnsets.tensor();
     const velocitiesTensor = this.currentVelocities.tensor();
     const offsetsTensor = this.currentOffsets.tensor();
 
-    onsetsTensor[0][step][instrumentIndex] = onsetValue;
-    velocitiesTensor[0][step][instrumentIndex] = this.currentMeanVelocity;
-    offsetsTensor[0][step][instrumentIndex] = 0;
+    onsetsTensor[0][step][instrument.index] = onsetValue;
+    velocitiesTensor[0][step][instrument.index] = this.currentMeanVelocity;
+    offsetsTensor[0][step][instrument.index] = 0;
 
     this.currentOnsets = new Pattern(onsetsTensor, this.dims);
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
   }
 
-  updateInstrumentVelocities(instrumentIndex, velocities) {
+  updateInstrumentVelocities(instrument, velocities) {
     const velocitiesTensor = this.currentVelocities.tensor();
     for (let i = 0; i < LOOP_DURATION; i++) {
-      velocitiesTensor[0][i][instrumentIndex] = velocities[i];
+      velocitiesTensor[0][i][instrument.index] = velocities[i];
     }
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
   }
 
-  updateInstrumentOffsets(instrumentIndex, data) {
+  updateInstrumentOffsets(instrument, data) {
     const offsetsTensor = this.currentOffsets.tensor();
     for (let i = 0; i < LOOP_DURATION; i++) {
-      offsetsTensor[0][i][instrumentIndex] = data[i];
+      offsetsTensor[0][i][instrument.index] = data[i];
     }
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
   }

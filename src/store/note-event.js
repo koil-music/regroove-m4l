@@ -2,12 +2,11 @@ const {
   BUFFER_LENGTH,
   TICKS_PER_16TH,
   MAX_VELOCITY,
-  NUM_INSTRUMENTS,
 } = require("../config");
 
 class NoteEvent {
   constructor(
-    instrumentIndex,
+    instrument,
     step,
     onsetValue,
     velocityValue,
@@ -23,7 +22,7 @@ class NoteEvent {
     timeShift
   ) {
     // assign input values as class variables
-    this.instrumentIndex = instrumentIndex;
+    this.instrument = instrument;
     this.step = step;
     this.onsetValue = onsetValue;
     this.velocityValue = velocityValue;
@@ -37,10 +36,6 @@ class NoteEvent {
     this.velRand = velRand;
     this.timeRand = timeRand;
     this.timeShift = timeShift;
-  }
-
-  get instrument() {
-    return NUM_INSTRUMENTS - 1 - this.instrumentIndex;
   }
 
   get quantizedTick() {

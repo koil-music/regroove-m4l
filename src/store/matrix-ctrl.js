@@ -1,6 +1,7 @@
 const { makeAutoObservable } = require("mobx");
 
-const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
+const Instrument = require("./instrument");
+const { LOOP_DURATION } = require("./ui-params");
 
 class MatrixCtrlStore {
   rootStore;
@@ -19,15 +20,17 @@ class MatrixCtrlStore {
     const velocities = this.root.patternStore.currentVelocities.tensor()[0];
     const offsets = this.root.patternStore.currentOffsets.tensor()[0];
 
-    for (let channel = 8; channel >= 0; channel--) {
+    for (let instrumentIndex = 8; instrumentIndex >= 0; instrumentIndex--) {
       for (let step = 0; step < LOOP_DURATION; step++) {
+        const instrument = Instrument(instrumentIndex);
+
         // onset
-        const onsetValue = onsets[step][NUM_INSTRUMENTS - channel - 1];
+        const onsetValue = onsets[step][instrument.matrixCtrlIndex];
 
         // velocity
         let velocityValue;
         if (onsetValue == 1) {
-          velocityValue = velocities[step][NUM_INSTRUMENTS - channel - 1];
+          velocityValue = velocities[step][instrument.matrixCtrlIndex];
         } else {
           velocityValue = 0.0;
         }
@@ -36,7 +39,7 @@ class MatrixCtrlStore {
         let offsetValue;
         if (onsetValue == 1) {
           // scale offset values to [0, 1] for bpatcher compatability
-          offsetValue = offsets[step][NUM_INSTRUMENTS - channel - 1];
+          offsetValue = offsets[step][instrument.matrixCtrlIndex];
           offsetValue += 1;
           offsetValue /= 2;
         } else {
@@ -45,13 +48,13 @@ class MatrixCtrlStore {
 
         // push data to output arrays
         onsetsData.push(step);
-        onsetsData.push(channel);
+        onsetsData.push(instrument.index);
         onsetsData.push(onsetValue);
         velocitiesData.push(step);
-        velocitiesData.push(channel);
+        velocitiesData.push(instrument.index);
         velocitiesData.push(velocityValue);
         offsetsData.push(step);
-        offsetsData.push(channel);
+        offsetsData.push(instrument.index);
         offsetsData.push(offsetValue);
       }
     }

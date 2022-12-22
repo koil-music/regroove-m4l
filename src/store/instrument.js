@@ -27,12 +27,12 @@ class Instrument {
     this.name = name;
   }
 
-  index() {
+  get index() {
     return INSTRUMENT_INDEX[this.name];
   }
 
-  matrixCtrlIndex() {
-    return NUM_INSTRUMENTS - this.index() - 1;
+  get matrixCtrlIndex() {
+    return NUM_INSTRUMENTS - this.index - 1;
   }
 }
 
