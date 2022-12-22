@@ -105,7 +105,7 @@ Max.addHandler("saveGenerator", async () => {
 
 /**
  * Restore the state of the generator from a Max dictionary
-*/
+ */
 Max.addHandler("loadGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
@@ -221,7 +221,7 @@ Max.addHandler("autoSync", async (step) => {
  * ========================
  * Read a MIDI file and update the pattern seen in the matrixCtrl
  * @param {string} filePath: path to MIDI file
-*/
+ */
 Max.addHandler("readMidiFile", async (filePath) => {
   if (path.extname(filePath) === ".mid") {
     fs.readFile(filePath, { encoding: "binary" }, (err, midiBuffer) => {
@@ -296,7 +296,7 @@ Max.addHandler("updateTimeRand", async () => {
 /**
  * Update the detail view data
  * @param {float} instrumentIndex: range = [0, 8]
-*/
+ */
 Max.addHandler("updateDetailData", async (instrumentIndex) => {
   if (store.uiParamsStore.detailViewMode == "Velocity") {
     const detailViewData = await Max.getDict("velocitiesData");
@@ -316,7 +316,7 @@ Max.addHandler("updateDetailData", async (instrumentIndex) => {
 /**
  * set the detail view mode
  * @param {string} v: "Velocity" or "Microtiming"
-*/
+ */
 Max.addHandler("setDetailViewMode", (v) => {
   store.uiParamsStore.detailViewModeIndex = v;
   log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
