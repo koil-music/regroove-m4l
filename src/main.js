@@ -116,7 +116,7 @@ Max.addHandler("readMidiFile", async (filePath) => {
       } else {
         readMidiFile(midiBuffer, pitchIndexMapping).then(
           async (midiPattern) => {
-            store.patternStore.current = midiPattern;
+            store.patternStore.updateCurrent(...midiPattern);
             const [
               onsetsDataSequence,
               velocitiesDataSequence,

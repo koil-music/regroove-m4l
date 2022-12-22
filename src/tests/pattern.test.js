@@ -1,5 +1,6 @@
 const { expect, test } = require("@jest/globals");
-const { Pattern } = require("regroovejs");
+const { Pattern, PatternDataMatrix, LOOP_DURATION } = require("regroovejs");
+const { NUM_INSTRUMENTS } = require("../config");
 const { PatternStore } = require("../store/pattern");
 
 const createPatternData = (dims, value) => {
@@ -225,7 +226,7 @@ test("setCurrent", () => {
     createPatternData(patternStore.dims, 0.69),
     patternStore.dims
   );
-  patternStore.current = [expPattern, expPattern, expPattern];
+  patternStore.updateCurrent(expPattern, expPattern, expPattern);
 
   expect(patternStore.currentOnsets).toEqual(expPattern);
   expect(patternStore.currentVelocities).toEqual(expPattern);
@@ -238,7 +239,7 @@ test("setInput", () => {
     createPatternData(patternStore.dims, 0.69),
     patternStore.dims
   );
-  patternStore.current = [somePattern, somePattern, somePattern];
+  patternStore.updateCurrent(somePattern, somePattern, somePattern);
 
   const expPattern = new Pattern(
     createPatternData(patternStore.dims, 0.42),
@@ -260,17 +261,83 @@ test("setPrevious", () => {
     createPatternData(patternStore.dims, 0.69),
     patternStore.dims
   );
-  patternStore.current = [somePattern, somePattern, somePattern];
+  patternStore.updateCurrent(somePattern, somePattern, somePattern);
   patternStore.updateHistory();
 
   const expPattern = new Pattern(
     createPatternData(patternStore.dims, 0.42),
     patternStore.dims
   );
-  patternStore.current = [expPattern, expPattern, expPattern];
+  patternStore.updateCurrent(expPattern, expPattern, expPattern);
 
   patternStore.setPrevious();
   expect(patternStore.currentOnsets).toEqual(somePattern);
   expect(patternStore.currentVelocities).toEqual(somePattern);
   expect(patternStore.currentOffsets).toEqual(somePattern);
+});
+
+test("updateCurrent", () => {
+  const patternStore = new PatternStore();
+  const firstValue = 0.69;
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, firstValue),
+    patternStore.dims
+  );
+  patternStore.updateCurrent(
+    expPattern,
+    expPattern,
+    expPattern,
+    [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  );
+  expect(patternStore.currentOnsets).toEqual(expPattern);
+  expect(patternStore.currentVelocities).toEqual(expPattern);
+  expect(patternStore.currentOffsets).toEqual(expPattern);
+
+  const someValue = 0.42;
+  const somePattern = new Pattern(
+    createPatternData(patternStore.dims, someValue),
+    patternStore.dims
+  );
+  patternStore.updateCurrent(
+    somePattern,
+    somePattern,
+    somePattern,
+    [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  );
+
+  expect(patternStore.currentOnsets).toEqual(expPattern);
+  expect(patternStore.currentVelocities).toEqual(expPattern);
+  expect(patternStore.currentOffsets).toEqual(expPattern);
+
+  patternStore.updateCurrent(
+    somePattern,
+    somePattern,
+    somePattern,
+    [1, 1, 0, 0, 0, 0, 0, 0, 0]
+  );
+  for (let i = 0; i < LOOP_DURATION; i++) {
+    for (let j = 0; j < NUM_INSTRUMENTS; j++) {
+      if (j < 2) {
+        expect(patternStore.currentOnsets.tensor()[0][i][j]).toBeCloseTo(
+          someValue
+        );
+        expect(patternStore.currentVelocities.tensor()[0][i][j]).toBeCloseTo(
+          someValue
+        );
+        expect(patternStore.currentOffsets.tensor()[0][i][j]).toBeCloseTo(
+          someValue
+        );
+      } else {
+        expect(patternStore.currentOnsets.tensor()[0][i][j]).toBeCloseTo(
+          firstValue
+        );
+        expect(patternStore.currentVelocities.tensor()[0][i][j]).toBeCloseTo(
+          firstValue
+        );
+        expect(patternStore.currentOffsets.tensor()[0][i][j]).toBeCloseTo(
+          firstValue
+        );
+      }
+    }
+  }
 });

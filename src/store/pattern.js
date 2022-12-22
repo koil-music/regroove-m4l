@@ -92,42 +92,36 @@ class PatternStore {
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
   }
 
-  updateCurrent() {
+  updateCurrent(
+    newOnsetsPattern,
+    newVelocitiesPattern,
+    newOffsetsPattern,
+    activeInstruments
+  ) {
     // handle history and state
     this.updateHistory();
     const previousOnsetsTensor = this.currentOnsets.tensor();
     const previousVelocitiesTensor = this.currentVelocities.tensor();
     const previousOffsetsTensor = this.currentOffsets.tensor();
 
-    // get random sample index
-    const randomIndex = Math.floor(
-      Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
-    );
-    const x = parseInt(this.root.uiParamsStore.densityIndex);
-    const y = parseInt(randomIndex);
-
-    // retrieve new pattern from inference store
-    const newOnsetsTensor = new Pattern(
-      this.root.inferenceStore.generator.onsets.sample(x, y),
-      this.dims
-    ).tensor();
-    const newVelocitiesTensor = new Pattern(
-      this.root.inferenceStore.generator.velocities.sample(x, y),
-      this.dims
-    ).tensor();
-    const newOffsetsTensor = new Pattern(
-      this.root.inferenceStore.generator.offsets.sample(x, y),
-      this.dims
-    ).tensor();
-
     // get inactive instrument indices
-    const activeInstruments = this.root.uiParamsStore.activeInstruments;
+    if (activeInstruments === undefined) {
+      activeInstruments = [];
+      for (let i = 0; i < NUM_INSTRUMENTS; i++) {
+        activeInstruments.push(1);
+      }
+    }
     const inactiveInstruments = [];
     for (let i = 0; i < activeInstruments.length; i++) {
       if (activeInstruments[i] === 0) {
         inactiveInstruments.push(i);
       }
     }
+
+    // get new pattern tensors
+    const newOnsetsTensor = newOnsetsPattern.tensor();
+    const newVelocitiesTensor = newVelocitiesPattern.tensor();
+    const newOffsetsTensor = newOffsetsPattern.tensor();
 
     // preserve previous pattern to new pattern for inactive instruments
     for (const channel of inactiveInstruments) {
@@ -179,14 +173,6 @@ class PatternStore {
 
   get current() {
     return [this.currentOnsets, this.currentVelocities, this.currentOffsets];
-  }
-
-  set current(pattern) {
-    const [onsets, velocities, offsets] = pattern;
-    this.updateHistory();
-    this.currentOnsets = onsets;
-    this.currentVelocities = velocities;
-    this.currentOffsets = offsets;
   }
 
   setInput() {

@@ -70,6 +70,33 @@ class InferenceStore {
   toggleGenerating() {
     this.isGenerating = !this.isGenerating;
   }
+
+  getRandomPattern() {
+    // get random sample index
+    const randomIndex = Math.floor(
+      Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
+    );
+    const x = parseInt(this.root.uiParamsStore.densityIndex);
+    const y = parseInt(randomIndex);
+    return this.getPattern(x, y);
+  }
+
+  getPattern(x, y) {
+    // retrieve pattern from generator
+    const onsetsPattern = new Pattern(
+      this.generator.onsets.sample(x, y),
+      this.dims
+    );
+    const velocitiesPattern = new Pattern(
+      this.generator.velocities.sample(x, y),
+      this.dims
+    );
+    const offsetsPattern = new Pattern(
+      this.generator.offsets.sample(x, y),
+      this.dims
+    );
+    return [onsetsPattern, velocitiesPattern, offsetsPattern];
+  }
 }
 
 module.exports = { InferenceStore };

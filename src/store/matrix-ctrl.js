@@ -61,7 +61,14 @@ class MatrixCtrlStore {
   autoSync() {
     this.barsCount += 1;
     if (this.barsCount % this.root.uiParamsStore.syncRate === 0) {
-      this.root.patternStore.updateCurrent();
+      const [onsetsPattern, velocitiesPattern, offsetsPattern] =
+        this.root.inferenceStore.getRandomPattern();
+      this.root.patternStore.updateCurrent(
+        onsetsPattern,
+        velocitiesPattern,
+        offsetsPattern,
+        this.root.uiParamsStore.activeInstruments
+      );
       this.barsCount = 0;
       return this.data;
     }
@@ -81,7 +88,14 @@ class MatrixCtrlStore {
     if (this.root.uiParamsStore.syncModeName === "Snap") {
       if (this.oddSnap) {
         this.toggleOddSnap();
-        this.root.patternStore.updateCurrent();
+        const [onsetsPattern, velocitiesPattern, offsetsPattern] =
+          this.root.inferenceStore.getRandomPattern();
+        this.root.patternStore.updateCurrent(
+          onsetsPattern,
+          velocitiesPattern,
+          offsetsPattern,
+          this.root.uiParamsStore.activeInstruments
+        );
       } else {
         this.toggleOddSnap();
       }
@@ -92,7 +106,14 @@ class MatrixCtrlStore {
       } else {
         // save pattern to temp and update
         this.root.patternStore.setTempFromCurrent();
-        this.root.patternStore.updateCurrent();
+        const [onsetsPattern, velocitiesPattern, offsetsPattern] =
+          this.root.inferenceStore.getRandomPattern();
+        this.root.patternStore.updateCurrent(
+          onsetsPattern,
+          velocitiesPattern,
+          offsetsPattern,
+          this.root.uiParamsStore.activeInstruments
+        );
       }
       this.toggleSync();
     }
