@@ -1,8 +1,12 @@
 const process = require("process");
 
-const env = process.env.JEST_DEBUG || false;
+let IS_TEST = false;
+if (process.env.JEST_WORKER_ID !== undefined) {
+  IS_TEST = true;
+}
+
 let Max;
-if (env) {
+if (!IS_TEST) {
   Max = require("max-api");
 } else {
   Max = {
