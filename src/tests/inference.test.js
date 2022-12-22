@@ -18,10 +18,7 @@ const createPatternData = (dims, value) => {
 test("InferenceStore", async () => {
   const root = new RootStore(MODEL_DIR, false);
   const somePatternData = createPatternData(root.patternStore.dims, 1.0);
-  const somePattern = new Pattern(
-    somePatternData,
-    root.patternStore.dims
-  );
+  const somePattern = new Pattern(somePatternData, root.patternStore.dims);
   root.patternStore.updateCurrent(
     somePattern,
     somePattern,

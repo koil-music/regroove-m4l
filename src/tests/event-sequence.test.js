@@ -254,7 +254,10 @@ test("EventSequenceHandler.updateNote", () => {
     timeShiftDict
   );
   const exp1 = {};
-  exp1[step * TICKS_PER_16TH] = [instrument.matrixCtrlIndex, 127 * globalDynamics];
+  exp1[step * TICKS_PER_16TH] = [
+    instrument.matrixCtrlIndex,
+    127 * globalDynamics,
+  ];
   expect(got1).toEqual(exp1);
 
   // remove event

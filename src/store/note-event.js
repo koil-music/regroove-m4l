@@ -1,8 +1,4 @@
-const {
-  BUFFER_LENGTH,
-  TICKS_PER_16TH,
-  MAX_VELOCITY,
-} = require("../config");
+const { BUFFER_LENGTH, TICKS_PER_16TH, MAX_VELOCITY } = require("../config");
 
 class NoteEvent {
   constructor(

@@ -59,7 +59,10 @@ class EventSequence {
     // update quantizedData
     if (event.onsetValue === 1) {
       currentNoteEvents[event.instrument.matrixCtrlIndex] = event;
-      bufferUpdates[event.tick] = [event.instrument.matrixCtrlIndex, event.velocity];
+      bufferUpdates[event.tick] = [
+        event.instrument.matrixCtrlIndex,
+        event.velocity,
+      ];
     } else if (event.onsetValue === 0) {
       delete currentNoteEvents[event.instrument.matrixCtrlIndex];
       bufferUpdates[previousEvent.tick] = [event.instrument.matrixCtrlIndex, 0];
