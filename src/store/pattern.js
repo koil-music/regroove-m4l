@@ -80,12 +80,6 @@ class PatternStore {
     this.resetHistoryIndex();
   }
 
-  resetHistory() {
-    this.onsetsHistory._queue = [];
-    this.velocitiesHistory._queue = [];
-    this.offsetsHistory._queue = [];
-  }
-
   clearCurrent() {
     this.updateHistory();
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
@@ -115,7 +109,7 @@ class PatternStore {
     const inactiveInstruments = [];
     for (let i = 0; i < activeInstruments.length; i++) {
       if (activeInstruments[i] === 0) {
-        inactiveInstruments.push(Instrument.from_index(i));
+        inactiveInstruments.push(Instrument.fromIndex(i));
       }
     }
 

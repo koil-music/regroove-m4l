@@ -1,6 +1,6 @@
 "use_strict";
 
-const Max = require("./max-api");
+const Max = require("max-api");
 
 const assert = require("assert");
 const fs = require("fs");
@@ -12,7 +12,12 @@ const pitchIndexMapping = require("./data/pitch-index-mapping.json");
 const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { validModelDir } = require("./utils");
-const { DEBUG, MODEL_DIR, GENERATOR_STATE_DICT_NAME } = require("./config");
+const {
+  DEBUG,
+  MODEL_DIR,
+  GENERATOR_STATE_DICT_NAME,
+  NOTE_UPDATE_THROTTLE,
+} = require("./config");
 const Instrument = require("./store/instrument");
 
 const log = (value) => {
@@ -22,7 +27,7 @@ const log = (value) => {
 };
 
 assert.ok(validModelDir(MODEL_DIR));
-const store = new RootStore(MODEL_DIR);
+const store = new RootStore(MODEL_DIR, true);
 
 /**
  * Turns debug on or off.
@@ -182,41 +187,6 @@ const writeDetailViewDict = async (dataSequence, dictName) => {
 
 /**
  * ========================
- * MatrixCtrl
- * ========================
- * Trigger a sync between the matrixCtrl view and the matrixCtrlStore
- */
-Max.addHandler("/params/sync", () => {
-  if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
-    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-      store.matrixCtrlStore.sync();
-    writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-    writeDetailViewDict(offsetsDataSequence, "offsetsData");
-    Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-  }
-});
-
-/**
- * Trigger a sync with the matrixCtrl view if step is at downbeat
- * @param {float} step: range = [0, loopDuration]
- */
-Max.addHandler("autoSync", async (step) => {
-  if (
-    store.uiParamsStore.syncModeName == "Auto" &&
-    step % store.uiParamsStore.loopDuration === 0
-  ) {
-    log(`autoSync: ${step}`);
-    const dataSequences = store.matrixCtrlStore.autoSync(step);
-    if (dataSequences !== undefined) {
-      writeDetailViewDict(dataSequences[1], "velocitiesData");
-      await writeDetailViewDict(dataSequences[2], "offsetsData");
-      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
-    }
-  }
-});
-
-/**
- * ========================
  * readMidiFile
  * ========================
  * Read a MIDI file and update the pattern seen in the matrixCtrl
@@ -231,6 +201,19 @@ Max.addHandler("readMidiFile", async (filePath) => {
         readMidiFile(midiBuffer, pitchIndexMapping).then(
           async (midiPattern) => {
             store.patternStore.updateCurrent(...midiPattern);
+            store.eventSequenceHandler.updateAll(
+              store.patternStore.currentOnsets.tensor()[0],
+              store.uiParamsStore.globalVelocity,
+              store.uiParamsStore.globalDynamics,
+              store.uiParamsStore.globalDynamicsOn,
+              store.uiParamsStore.globalMicrotiming,
+              store.uiParamsStore.globalMicrotimingOn,
+              store.uiParamsStore.velAmpDict,
+              store.uiParamsStore.velRandDict,
+              store.uiParamsStore.timeRandDict,
+              store.uiParamsStore.timeShiftDict,
+              Max.setDict
+            );
             const [
               onsetsDataSequence,
               velocitiesDataSequence,
@@ -246,22 +229,6 @@ Max.addHandler("readMidiFile", async (filePath) => {
     });
   } else {
     log(`Invalid filePath: ${filePath}, not a MIDI file.`);
-  }
-});
-
-/**
- * ===========================
- * Expression
- * ===========================
- * Set velocity parameter
- * @param {float} value: range = [0, 1]
- */
-Max.addHandler("/params/velocity", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set velocity to ${value}`);
-    store.uiParamsStore.velocity = value;
-  } else {
-    log(`invalid velocity value ${value} - must be between 0 and 1`);
   }
 });
 
@@ -396,6 +363,60 @@ Max.addHandler("/params/density", (value) => {
 });
 
 /**
+ * ========================
+ * MatrixCtrl
+ * ========================
+ * Trigger a sync between the matrixCtrl view and the matrixCtrlStore
+ */
+Max.addHandler("/params/sync", async () => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
+      // syncing with PatternStore and eventSequence is handled by the
+      // matrixCtrlStore.sync() method
+      const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+        store.matrixCtrlStore.sync();
+
+      // write detail data to Max dicts for interaction with detail view
+      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+      writeDetailViewDict(offsetsDataSequence, "offsetsData");
+
+      // populate matrixCtrl view with new onsets data we need to ignore the
+      // note update event triggered by the matrixCtrl view because it will trigger
+      // a note update event for each cell update. These are not needed because
+      // the matrixCtrlStore.sync() method already updated the eventSequence and
+      // patternStore
+      store.eventSequenceHandler.ignoreNoteUpdate = true;
+      Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+      setTimeout(() => {
+        store.eventSequenceHandler.ignoreNoteUpdate = false;
+      }, NOTE_UPDATE_THROTTLE);
+    }
+  }
+});
+
+/**
+ * Trigger a sync with the matrixCtrl view if step is at downbeat
+ * @param {float} step: range = [0, loopDuration]
+ */
+Max.addHandler("autoSync", (step) => {
+  if (
+    store.uiParamsStore.syncModeName == "Auto" &&
+    step % store.uiParamsStore.loopDuration === 0
+  ) {
+    log(`autoSync: ${step}`);
+    // syncing with PatternStore and eventSequence is handled by the
+    // matrixCtrlStore.sync() method
+    const dataSequences = store.matrixCtrlStore.autoSync(step);
+    if (dataSequences !== undefined) {
+      // update Max views
+      writeDetailViewDict(dataSequences[1], "velocitiesData");
+      writeDetailViewDict(dataSequences[2], "offsetsData");
+      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
+    }
+  }
+});
+
+/**
  * ================================
  * Pattern Matrix
  * ================================
@@ -404,56 +425,66 @@ Max.addHandler("/params/density", (value) => {
  * @param {int} instrument: range = [0, numInstruments - 1]
  * @param {int} value: range = [0, 1]
  */
-Max.addHandler("updateNote", async (step, instrumentIndex, onsetValue) => {
-  const instrument = new Instrument(instrumentIndex);
-  if (
-    step < store.uiParamsStore.loopDuration &&
-    instrument.index < store.uiParamsStore.numInstruments
-  ) {
-    if (!store.eventSequenceHandler.ignoreNoteUpdate) {
-      // we explicitly ignore the note update from the patternStore
-      // to avoid the eventSequenceHandler from automatically updating
-      // the eventSequence via EventSequenceHandler.reactToPatternChange
-      store.eventSequenceHandler.ignoreNoteUpdate = true;
-      store.patternStore.updateNote(step, instrument, onsetValue);
-      store.eventSequenceHandler.ignoreNoteUpdate = false;
-
-      // ... and then call updateNote directly
-      const midiEventUpdates = store.eventSequenceHandler.updateNote(
-        store.eventSequenceHandler.eventSequence,
-        instrument,
-        step,
-        onsetValue,
-        store.uiParamsStore.globalVelocity,
-        store.uiParamsStore.globalDynamics,
-        store.uiParamsStore.globalDynamicsOn,
-        store.uiParamsStore.globalMicrotiming,
-        store.uiParamsStore.globalMicrotimingOn,
-        store.uiParamsStore.velAmpDict,
-        store.uiParamsStore.velRandDict,
-        store.uiParamsStore.timeShiftDict,
-        store.uiParamsStore.timeRandDict
-      );
-      for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
-        await Max.updateDict("midiEventSequence", idx, noteEvents);
-        log("Updated midiEventSequence dictionary");
-      }
+Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    const instrument = Instrument.fromMatrixCtrlIndex(matrixCtrlIndex);
+    store.patternStore.updateNote(step, instrument, onsetValue);
+    const midiEventUpdates = store.eventSequenceHandler.updateNote(
+      store.eventSequenceHandler.eventSequence,
+      instrument,
+      step,
+      onsetValue,
+      store.uiParamsStore.globalVelocity,
+      store.uiParamsStore.globalDynamics,
+      store.uiParamsStore.globalDynamicsOn,
+      store.uiParamsStore.globalMicrotiming,
+      store.uiParamsStore.globalMicrotimingOn,
+      store.uiParamsStore.velAmpDict,
+      store.uiParamsStore.velRandDict,
+      store.uiParamsStore.timeShiftDict,
+      store.uiParamsStore.timeRandDict
+    );
+    for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
+      await Max.updateDict("midiEventSequence", idx, noteEvents);
+      log(`Updated midiEventSequence: [${idx}, ${noteEvents}]`);
     }
   } else {
-    log(`Invalid pattern index: [${step}, ${instrument}]`);
+    // log("ignoreNoteUpdate = true: ignoring note update");
   }
 });
 
 /**
  * Clear current pattern in patternStore
  */
-Max.addHandler("clearPattern", async () => {
+Max.addHandler("clearPattern", () => {
+  // clear patternStore
   store.patternStore.clearCurrent();
+
+  // clear eventSequenceHandler
+  store.eventSequenceHandler.updateAll(
+    store.patternStore.currentOnsets.tensor()[0],
+    store.uiParamsStore.globalVelocity,
+    store.uiParamsStore.globalDynamics,
+    store.uiParamsStore.globalDynamicsOn,
+    store.uiParamsStore.globalMicrotiming,
+    store.uiParamsStore.globalMicrotimingOn,
+    store.uiParamsStore.velAmpDict,
+    store.uiParamsStore.velRandDict,
+    store.uiParamsStore.timeRandDict,
+    store.uiParamsStore.timeShiftDict,
+    Max.setDict
+  );
+
+  // clear matrixCtrl view
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  store.eventSequenceHandler.ignoreNoteUpdate = true;
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  setTimeout(() => {
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
+  }, NOTE_UPDATE_THROTTLE);
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
 });
 
 /**
@@ -471,30 +502,69 @@ Max.addHandler("updateActiveInstruments", () => {
 /**
  * Populate matrixCtrl view with previous pattern from history
  */
-Max.addHandler("setPreviousPattern", async () => {
+Max.addHandler("setPreviousPattern", () => {
+  // update patternStore
+  log("Setting previous pattern");
   store.patternStore.setPrevious();
+
+  // update eventSequenceHandler
+  store.eventSequenceHandler.updateAll(
+    store.patternStore.currentOnsets.tensor()[0],
+    store.uiParamsStore.globalVelocity,
+    store.uiParamsStore.globalDynamics,
+    store.uiParamsStore.globalDynamicsOn,
+    store.uiParamsStore.globalMicrotiming,
+    store.uiParamsStore.globalMicrotimingOn,
+    store.uiParamsStore.velAmpDict,
+    store.uiParamsStore.velRandDict,
+    store.uiParamsStore.timeRandDict,
+    store.uiParamsStore.timeShiftDict,
+    Max.setDict
+  );
+
+  // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  store.eventSequenceHandler.ignoreNoteUpdate = true;
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  setTimeout(() => {
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
+  }, NOTE_UPDATE_THROTTLE);
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
 });
 
 /**
  * Populate matrixCtrl view with the pattern used as input to the neural net
  */
-Max.addHandler("setInputPattern", async () => {
+Max.addHandler("setInputPattern", () => {
+  // update patternStore
+  log("Setting input pattern");
   store.patternStore.setInput();
+
+  // update eventSequenceHandler
+  store.eventSequenceHandler.updateAll(
+    store.patternStore.currentOnsets.tensor()[0],
+    store.uiParamsStore.globalVelocity,
+    store.uiParamsStore.globalDynamics,
+    store.uiParamsStore.globalDynamicsOn,
+    store.uiParamsStore.globalMicrotiming,
+    store.uiParamsStore.globalMicrotimingOn,
+    store.uiParamsStore.velAmpDict,
+    store.uiParamsStore.velRandDict,
+    store.uiParamsStore.timeRandDict,
+    store.uiParamsStore.timeShiftDict,
+    Max.setDict
+  );
+
+  // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  store.eventSequenceHandler.ignoreNoteUpdate = true;
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-});
-
-/**
- * Reset the pattern history
- */
-Max.addHandler("resetPatternHistory", () => {
-  store.patternStore.resetHistory();
+  setTimeout(() => {
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
+  }, NOTE_UPDATE_THROTTLE);
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
 });

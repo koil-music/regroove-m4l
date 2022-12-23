@@ -124,23 +124,6 @@ test("updateHistory", () => {
   expect(patternStore.offsetsHistory._queue[0]).toEqual(expPattern2);
 });
 
-test("resetHistory", () => {
-  const patternStore = new PatternStore();
-  const expPattern = new Pattern(
-    createPatternData(patternStore.dims, 1),
-    patternStore.dims
-  );
-  patternStore.currentOnsets = expPattern;
-  patternStore.currentVelocities = expPattern;
-  patternStore.currentOffsets = expPattern;
-  patternStore.updateHistory();
-
-  patternStore.resetHistory();
-  expect(patternStore.onsetsHistory._queue.length).toEqual(0);
-  expect(patternStore.velocitiesHistory._queue.length).toEqual(0);
-  expect(patternStore.offsetsHistory._queue.length).toEqual(0);
-});
-
 test("currentMeanVelocity", () => {
   const patternStore = new PatternStore();
   const expPattern = new Pattern(
@@ -165,7 +148,7 @@ test("updateNote", () => {
   patternStore.currentOffsets = expPattern;
 
   const step = 5;
-  const instrument = Instrument.from_index(2);
+  const instrument = Instrument.fromIndex(2);
   patternStore.updateNote(step, instrument, 1);
 
   expect(
@@ -189,7 +172,7 @@ test("updateInstrumentVelocities", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  const instrument = Instrument.from_index(2);
+  const instrument = Instrument.fromIndex(2);
   const velocities = [
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
     1.6,
@@ -212,7 +195,7 @@ test("updateInstrumentOffsets", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  const instrument = Instrument.from_index(2);
+  const instrument = Instrument.fromIndex(2);
   const offsets = [
     0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
     1.6,

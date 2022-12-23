@@ -32,14 +32,14 @@ test("Instrument", () => {
   expect(Instrument.Ride.name).toBe("ride");
 });
 
-test("Instrument.from_index", () => {
-  expect(Instrument.from_index(0)).toEqual(Instrument.Kick);
-  expect(Instrument.from_index(1)).toEqual(Instrument.Snare);
-  expect(Instrument.from_index(2)).toEqual(Instrument.ClosedHat);
-  expect(Instrument.from_index(3)).toEqual(Instrument.OpenHat);
-  expect(Instrument.from_index(4)).toEqual(Instrument.LowTom);
-  expect(Instrument.from_index(5)).toEqual(Instrument.MidTom);
-  expect(Instrument.from_index(6)).toEqual(Instrument.HighTom);
-  expect(Instrument.from_index(7)).toEqual(Instrument.Crash);
-  expect(Instrument.from_index(8)).toEqual(Instrument.Ride);
+test("Instrument.fromIndex", () => {
+  expect(Instrument.fromIndex(0)).toEqual(Instrument.Kick);
+  expect(Instrument.fromIndex(1)).toEqual(Instrument.Snare);
+  expect(Instrument.fromIndex(2)).toEqual(Instrument.ClosedHat);
+  expect(Instrument.fromIndex(3)).toEqual(Instrument.OpenHat);
+  expect(Instrument.fromIndex(4)).toEqual(Instrument.LowTom);
+  expect(Instrument.fromIndex(5)).toEqual(Instrument.MidTom);
+  expect(Instrument.fromIndex(6)).toEqual(Instrument.HighTom);
+  expect(Instrument.fromIndex(7)).toEqual(Instrument.Crash);
+  expect(Instrument.fromIndex(8)).toEqual(Instrument.Ride);
 });

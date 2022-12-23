@@ -1,3 +1,4 @@
+const Max = require("../max-api");
 const { makeAutoObservable } = require("mobx");
 
 const Instrument = require("./instrument");
@@ -7,7 +8,7 @@ class MatrixCtrlStore {
   rootStore;
   barsCount = 0;
   oddSnap = true;
-  isSyncing = false;
+  isToggleSyncActive = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -22,15 +23,15 @@ class MatrixCtrlStore {
 
     for (let instrumentIndex = 8; instrumentIndex >= 0; instrumentIndex--) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const instrument = new Instrument(instrumentIndex);
+        const instrument = Instrument.fromIndex(instrumentIndex);
 
         // onset
-        const onsetValue = onsets[step][instrument.matrixCtrlIndex];
+        const onsetValue = onsets[step][instrument.index];
 
         // velocity
         let velocityValue;
         if (onsetValue == 1) {
-          velocityValue = velocities[step][instrument.matrixCtrlIndex];
+          velocityValue = velocities[step][instrument.index];
         } else {
           velocityValue = 0.0;
         }
@@ -38,8 +39,8 @@ class MatrixCtrlStore {
         // offset
         let offsetValue;
         if (onsetValue == 1) {
-          // scale offset values to [0, 1] for bpatcher compatability
-          offsetValue = offsets[step][instrument.matrixCtrlIndex];
+          // scale offset values to [0, 1] for bpatcher compatibility
+          offsetValue = offsets[step][instrument.index];
           offsetValue += 1;
           offsetValue /= 2;
         } else {
@@ -48,13 +49,15 @@ class MatrixCtrlStore {
 
         // push data to output arrays
         onsetsData.push(step);
-        onsetsData.push(instrument.index);
+        onsetsData.push(instrument.matrixCtrlIndex);
         onsetsData.push(onsetValue);
+
         velocitiesData.push(step);
-        velocitiesData.push(instrument.index);
+        velocitiesData.push(instrument.matrixCtrlIndex);
         velocitiesData.push(velocityValue);
+
         offsetsData.push(step);
-        offsetsData.push(instrument.index);
+        offsetsData.push(instrument.matrixCtrlIndex);
         offsetsData.push(offsetValue);
       }
     }
@@ -72,6 +75,19 @@ class MatrixCtrlStore {
         offsetsPattern,
         this.root.uiParamsStore.activeInstruments
       );
+      this.root.eventSequenceHandler.updateAll(
+        this.root.patternStore.currentOnsets.tensor()[0],
+        this.root.uiParamsStore.globalVelocity,
+        this.root.uiParamsStore.globalDynamics,
+        this.root.uiParamsStore.globalDynamicsOn,
+        this.root.uiParamsStore.globalMicrotiming,
+        this.root.uiParamsStore.globalMicrotimingOn,
+        this.root.uiParamsStore.velAmpDict,
+        this.root.uiParamsStore.velRandDict,
+        this.root.uiParamsStore.timeRandDict,
+        this.root.uiParamsStore.timeShiftDict,
+        Max.setDict
+      );
       this.barsCount = 0;
       return this.data;
     }
@@ -83,12 +99,9 @@ class MatrixCtrlStore {
     this.oddSnap = !this.oddSnap;
   }
 
-  toggleSync() {
-    this.isSyncing = !this.isSyncing;
-  }
-
   sync() {
     if (this.root.uiParamsStore.syncModeName === "Snap") {
+      this.isToggleSyncActive = false;
       if (this.oddSnap) {
         this.toggleOddSnap();
         const [onsetsPattern, velocitiesPattern, offsetsPattern] =
@@ -99,13 +112,40 @@ class MatrixCtrlStore {
           offsetsPattern,
           this.root.uiParamsStore.activeInstruments
         );
+        this.root.eventSequenceHandler.updateAll(
+          this.root.patternStore.currentOnsets.tensor()[0],
+          this.root.uiParamsStore.globalVelocity,
+          this.root.uiParamsStore.globalDynamics,
+          this.root.uiParamsStore.globalDynamicsOn,
+          this.root.uiParamsStore.globalMicrotiming,
+          this.root.uiParamsStore.globalMicrotimingOn,
+          this.root.uiParamsStore.velAmpDict,
+          this.root.uiParamsStore.velRandDict,
+          this.root.uiParamsStore.timeRandDict,
+          this.root.uiParamsStore.timeShiftDict,
+          Max.setDict
+        );
       } else {
         this.toggleOddSnap();
       }
     } else if (this.root.uiParamsStore.syncModeName == "Toggle") {
-      if (this.isSyncing) {
+      if (this.isToggleSyncActive) {
         // switch back to previous pattern
         this.root.patternStore.setCurrentFromTemp();
+        this.root.eventSequenceHandler.updateAll(
+          this.root.patternStore.currentOnsets.tensor()[0],
+          this.root.uiParamsStore.globalVelocity,
+          this.root.uiParamsStore.globalDynamics,
+          this.root.uiParamsStore.globalDynamicsOn,
+          this.root.uiParamsStore.globalMicrotiming,
+          this.root.uiParamsStore.globalMicrotimingOn,
+          this.root.uiParamsStore.velAmpDict,
+          this.root.uiParamsStore.velRandDict,
+          this.root.uiParamsStore.timeRandDict,
+          this.root.uiParamsStore.timeShiftDict,
+          Max.setDict
+        );
+        this.isToggleSyncActive = false;
       } else {
         // save pattern to temp and update
         this.root.patternStore.setTempFromCurrent();
@@ -117,8 +157,21 @@ class MatrixCtrlStore {
           offsetsPattern,
           this.root.uiParamsStore.activeInstruments
         );
+        this.root.eventSequenceHandler.updateAll(
+          this.root.patternStore.currentOnsets.tensor()[0],
+          this.root.uiParamsStore.globalVelocity,
+          this.root.uiParamsStore.globalDynamics,
+          this.root.uiParamsStore.globalDynamicsOn,
+          this.root.uiParamsStore.globalMicrotiming,
+          this.root.uiParamsStore.globalMicrotimingOn,
+          this.root.uiParamsStore.velAmpDict,
+          this.root.uiParamsStore.velRandDict,
+          this.root.uiParamsStore.timeRandDict,
+          this.root.uiParamsStore.timeShiftDict,
+          Max.setDict
+        );
+        this.isToggleSyncActive = true;
       }
-      this.toggleSync();
     }
     return this.data;
   }

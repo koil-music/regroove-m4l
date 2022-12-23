@@ -65,7 +65,6 @@ class EventSequence {
       ];
     } else if (event.onsetValue === 0) {
       delete currentNoteEvents[event.instrument.matrixCtrlIndex];
-      bufferUpdates[previousEvent.tick] = [event.instrument.matrixCtrlIndex, 0];
     }
 
     // update bufferData with new events
@@ -78,7 +77,6 @@ class EventSequence {
 
 class EventSequenceHandler {
   rootStore;
-  isPatternUpdate = true;
   ignoreNoteUpdate = false;
   eventSequence;
 
@@ -86,7 +84,7 @@ class EventSequenceHandler {
     // i.e. quantizedEventSequence = [{"36": [2, 100], "42": [0, 127]}, ...]
     makeAutoObservable(this);
     this.root = rootStore;
-    this.ignoreNoteUpdate = false;
+    this.eventSequence = new EventSequence();
 
     this.reactToParamsChange = reaction(
       () => this.root.uiParamsStore.expressionParams,
@@ -106,36 +104,6 @@ class EventSequenceHandler {
         );
       }
     );
-
-    this.reactToPatternChange = reaction(
-      () => this.root.patternStore.currentOnsets,
-      (currentOnsets) => {
-        // only trigger updateSequence if isPatternUpdate flag is set
-        if (!this.ignoreNoteUpdate) {
-          this.toggleIgnoreNoteUpdate();
-          this.updateAll(
-            currentOnsets.tensor()[0],
-            this.root.uiParamsStore.globalVelocity,
-            this.root.uiParamsStore.globalDynamics,
-            this.root.uiParamsStore.globalDynamicsOn,
-            this.root.uiParamsStore.globalMicrotiming,
-            this.root.uiParamsStore.globalMicrotimingOn,
-            this.root.uiParamsStore.velAmpDict,
-            this.root.uiParamsStore.velRandDict,
-            this.root.uiParamsStore.timeRandDict,
-            this.root.uiParamsStore.timeShiftDict,
-            Max.setDict
-          );
-        }
-      }
-    );
-  }
-
-  toggleIgnoreNoteUpdate() {
-    // throttle note updates, this is to avoid spamming the server with note
-    // update requests when the data is already up-to-date
-    this.ignoreNoteUpdate = true;
-    setTimeout(() => (this.ignoreNoteUpdate = false), NOTE_UPDATE_THROTTLE);
   }
 
   updateNote(
@@ -195,7 +163,7 @@ class EventSequenceHandler {
       instrumentIndex++
     ) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const instrument = Instrument.from_index(instrumentIndex);
+        const instrument = Instrument.fromIndex(instrumentIndex);
         const onset = onsetsTensor[step][instrument.index];
         this.updateNote(
           eventSequence,

@@ -71,9 +71,9 @@ class NoteEvent {
 
     // wrap around
     if (tick < 0) {
-      return BUFFER_LENGTH + tick;
+      return Math.floor(BUFFER_LENGTH + tick);
     } else {
-      return tick;
+      return Math.floor(tick);
     }
   }
 

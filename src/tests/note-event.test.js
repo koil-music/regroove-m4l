@@ -20,7 +20,7 @@ const createNoteEvent = (
   timeShift = 0.0
 ) => {
   // create note event with all defined values
-  const instrument = Instrument.from_index(instrumentIndex);
+  const instrument = Instrument.fromIndex(instrumentIndex);
   const noteEvent = new NoteEvent(
     instrument,
     step,

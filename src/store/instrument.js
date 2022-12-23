@@ -1,6 +1,6 @@
 const { NUM_INSTRUMENTS } = require("../config");
 
-const INSTRUMENT_INDEX = Object.freeze({
+const INSTRUMENTS = Object.freeze({
   kick: 0,
   snare: 1,
   closedhat: 2,
@@ -27,12 +27,16 @@ class Instrument {
     this.name = name;
   }
 
-  static from_index(index) {
-    return new Instrument(Object.keys(INSTRUMENT_INDEX)[index]);
+  static fromIndex(index) {
+    return new Instrument(Object.keys(INSTRUMENTS)[index]);
+  }
+
+  static fromMatrixCtrlIndex(idx) {
+    return Instrument.fromIndex(NUM_INSTRUMENTS - idx - 1);
   }
 
   get index() {
-    return INSTRUMENT_INDEX[this.name];
+    return INSTRUMENTS[this.name];
   }
 
   get matrixCtrlIndex() {

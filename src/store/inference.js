@@ -1,7 +1,10 @@
-const { Generator, ONNXModel } = require("regroovejs");
-const { InferenceSession } = require("onnxruntime-node");
 const { makeAutoObservable } = require("mobx");
+const { InferenceSession } = require("onnxruntime-node");
 const path = require("path");
+
+const { Generator, ONNXModel } = require("regroovejs");
+const { Pattern } = require("regroovejs/dist/pattern");
+
 const defaultUiParams = require("../data/default-ui-params.json");
 const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("../config");
 
@@ -85,15 +88,15 @@ class InferenceStore {
     // retrieve pattern from generator
     const onsetsPattern = new Pattern(
       this.generator.onsets.sample(x, y),
-      this.dims
+      this.root.patternStore.dims
     );
     const velocitiesPattern = new Pattern(
       this.generator.velocities.sample(x, y),
-      this.dims
+      this.root.patternStore.dims
     );
     const offsetsPattern = new Pattern(
       this.generator.offsets.sample(x, y),
-      this.dims
+      this.root.patternStore.dims
     );
     return [onsetsPattern, velocitiesPattern, offsetsPattern];
   }

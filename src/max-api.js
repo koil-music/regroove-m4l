@@ -2,6 +2,7 @@ const process = require("process");
 
 let IS_TEST = false;
 if (process.env.JEST_WORKER_ID !== undefined) {
+  // this might break the tests but that's easy to debug
   IS_TEST = true;
 }
 
