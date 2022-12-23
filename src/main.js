@@ -11,7 +11,7 @@ const pitchIndexMapping = require("./data/pitch-index-mapping.json");
 
 const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
-const { validModelDir } = require("./utils");
+const { log, validModelDir } = require("./utils");
 const {
   DEBUG,
   MODEL_DIR,
@@ -19,12 +19,6 @@ const {
   NOTE_UPDATE_THROTTLE,
 } = require("./config");
 const Instrument = require("./store/instrument");
-
-const log = (value) => {
-  if (DEBUG) {
-    Max.post(`${value}`);
-  }
-};
 
 assert.ok(validModelDir(MODEL_DIR));
 const store = new RootStore(MODEL_DIR, true);

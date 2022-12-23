@@ -1,4 +1,12 @@
 const glob = require("glob");
+const Max = require("./max-api");
+const { DEBUG } = require("./config");
+
+const log = (value) => {
+  if (DEBUG) {
+    Max.post(`${value}`);
+  }
+};
 
 function validModelDir(dir) {
   const globPath = dir + "*.onnx";
@@ -20,4 +28,4 @@ const normalize = (value, min, max) => {
   return (max - min) * value + min;
 };
 
-module.exports = { validModelDir, normalize };
+module.exports = { log, normalize, validModelDir };
