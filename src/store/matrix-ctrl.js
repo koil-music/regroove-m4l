@@ -3,6 +3,7 @@ const { makeAutoObservable } = require("mobx");
 
 const Instrument = require("./instrument");
 const { LOOP_DURATION } = require("./ui-params");
+const NoteEvent = require("./note-event");
 
 class MatrixCtrlStore {
   rootStore;
@@ -24,23 +25,38 @@ class MatrixCtrlStore {
     for (let instrumentIndex = 8; instrumentIndex >= 0; instrumentIndex--) {
       for (let step = 0; step < LOOP_DURATION; step++) {
         const instrument = Instrument.fromIndex(instrumentIndex);
-
-        // onset
         const onsetValue = onsets[step][instrument.index];
+
+        const event = new NoteEvent(
+          instrument,
+          step,
+          onsetValue,
+          velocities[step][instrument.index],
+          offsets[step][instrument.index],
+          this.root.uiParamsStore.globalVelocity,
+          this.root.uiParamsStore.globalDynamics,
+          this.root.uiParamsStore.globalDynamicsOn,
+          this.root.uiParamsStore.globalMicrotiming,
+          this.root.uiParamsStore.globalMicrotimingOn,
+          this.root.uiParamsStore.velAmpDict[instrument.matrixCtrlIndex],
+          this.root.uiParamsStore.velRandDict[instrument.matrixCtrlIndex],
+          this.root.uiParamsStore.timeRandDict[instrument.matrixCtrlIndex],
+          this.root.uiParamsStore.timeShiftDict[instrument.matrixCtrlIndex]
+        );
 
         // velocity
         let velocityValue;
-        if (onsetValue == 1) {
-          velocityValue = velocities[step][instrument.index];
+        if (event.onsetValue == 1) {
+          velocityValue = event.velocity / 127;
         } else {
           velocityValue = 0.0;
         }
 
         // offset
         let offsetValue;
-        if (onsetValue == 1) {
+        if (event.onsetValue == 1) {
           // scale offset values to [0, 1] for bpatcher compatibility
-          offsetValue = offsets[step][instrument.index];
+          offsetValue = event.augmentedOffsetValue;
           offsetValue += 1;
           offsetValue /= 2;
         } else {

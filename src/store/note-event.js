@@ -40,12 +40,12 @@ class NoteEvent {
 
   get tickRange() {
     return {
-      min: this.quantizedTick - TICKS_PER_16TH / 2 + 1,
-      max: this.quantizedTick + TICKS_PER_16TH / 2,
+      min: -TICKS_PER_16TH / 2 + 1,
+      max: TICKS_PER_16TH / 2,
     };
   }
 
-  get tick() {
+  get augmentedOffsetValue() {
     let offsetValue = 0;
     if (this.globalMicrotimingOn) {
       // scale the predicted offsetValue by globalMicrotiming
@@ -58,16 +58,24 @@ class NoteEvent {
       const randTimeShift = this.timeRand * (Math.random() - 0.5);
       offsetValue += randTimeShift;
     }
+    return offsetValue;
+  }
 
-    // calculate tick
-    let tick = this.quantizedTick + (offsetValue * TICKS_PER_16TH) / 2;
+  get offsetTicks() {
+    let offsetTicks = (this.augmentedOffsetValue * TICKS_PER_16TH) / 2;
 
     // check if offsetValue is within allowed range
-    if (tick < this.tickRange.min) {
-      tick = this.tickRange.min;
-    } else if (tick > this.tickRange.max) {
-      tick = this.tickRange.max;
+    if (offsetTicks < this.tickRange.min) {
+      offsetTicks = this.tickRange.min;
+    } else if (offsetTicks > this.tickRange.max) {
+      offsetTicks = this.tickRange.max;
     }
+    return offsetTicks;
+  }
+
+  get tick() {
+    // calculate tick
+    let tick = this.quantizedTick + this.offsetTicks;
 
     // wrap around
     if (tick < 0) {

@@ -1,13 +1,10 @@
 const Max = require("../max-api");
 const { makeAutoObservable, reaction } = require("mobx");
-const NoteEvent = require("./note-event");
+
+const { NUM_INSTRUMENTS, LOOP_DURATION, BUFFER_LENGTH } = require("../config");
 const Instrument = require("./instrument");
-const {
-  NUM_INSTRUMENTS,
-  LOOP_DURATION,
-  BUFFER_LENGTH,
-  NOTE_UPDATE_THROTTLE,
-} = require("../config");
+const NoteEvent = require("./note-event");
+const { log } = require("../utils");
 
 class EventSequence {
   constructor(
@@ -182,6 +179,7 @@ class EventSequenceHandler {
         );
       }
     }
+    log("Updating event sequence");
     callback("midiEventSequence", eventSequence.bufferData);
   }
 }

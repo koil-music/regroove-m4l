@@ -53,8 +53,8 @@ test("NoteEvent.tickRange", () => {
   for (let i = 0; i < 16; i++) {
     noteEvent.step = i;
     expect(noteEvent.tickRange).toEqual({
-      min: i * TICKS_PER_16TH - TICKS_PER_16TH / 2 + 1,
-      max: i * TICKS_PER_16TH + TICKS_PER_16TH / 2,
+      min: -TICKS_PER_16TH / 2 + 1,
+      max: TICKS_PER_16TH / 2,
     });
   }
 });

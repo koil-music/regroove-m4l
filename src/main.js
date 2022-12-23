@@ -235,23 +235,46 @@ Max.addHandler("readMidiFile", async (filePath) => {
 
 Max.addHandler("updateVelAmp", async () => {
   store.uiParamsStore.velAmpDict = await Max.getDict("velAmp");
-  const [_, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  log(`Updated velAmp dict to ${store.uiParamsStore.velAmpDict}`);
+  const dataSequences = store.matrixCtrlStore.data;
+  writeDetailViewDict(dataSequences[1], "velocitiesData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated velAmp dict to ${Object.values(store.uiParamsStore.velAmpDict)}`
+  );
 });
+
 Max.addHandler("updateVelRand", async () => {
   store.uiParamsStore.velRandDict = await Max.getDict("velRand");
-  log(`Updated velRand dict to ${store.uiParamsStore.velRandDict}`);
+  const dataSequences = store.matrixCtrlStore.data;
+  writeDetailViewDict(dataSequences[1], "velocitiesData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated velRand dict to ${Object.values(store.uiParamsStore.velRandDict)}`
+  );
 });
+
 Max.addHandler("updateTimeShift", async () => {
   store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
-  log(`Updated timeShift dict to ${store.uiParamsStore.timeShiftDict}`);
+  const dataSequences = store.matrixCtrlStore.data;
+  writeDetailViewDict(dataSequences[2], "offsetsData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated timeShift dict to ${Object.values(
+      store.uiParamsStore.timeShiftDict
+    )}`
+  );
 });
+
 Max.addHandler("updateTimeRand", async () => {
   store.uiParamsStore.timeRandDict = await Max.getDict("timeRand");
-  log(`Updated timeRand dict to ${store.uiParamsStore.timeRandDict}`);
+  const dataSequences = store.matrixCtrlStore.data;
+  writeDetailViewDict(dataSequences[2], "offsetsData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated timeRand dict to ${Object.values(
+      store.uiParamsStore.timeRandDict
+    )}`
+  );
 });
 
 /**
@@ -259,16 +282,17 @@ Max.addHandler("updateTimeRand", async () => {
  * @param {float} instrumentIndex: range = [0, 8]
  */
 Max.addHandler("updateDetailData", async (instrumentIndex) => {
+  const instrument = Instrument.fromIndex(instrumentIndex);
   if (store.uiParamsStore.detailViewMode == "Velocity") {
     const detailViewData = await Max.getDict("velocitiesData");
     store.patternStore.updateInstrumentVelocities(
-      instrumentIndex,
+      instrument.index,
       detailViewData[instrumentIndex]
     );
   } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
     const detailViewData = await Max.getDict("offsetsData");
     store.patternStore.updateInstrumentOffsets(
-      instrumentIndex,
+      instrument.index,
       detailViewData[instrumentIndex]
     );
   }
@@ -294,6 +318,7 @@ Max.addHandler("/params/dynamics", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set dynamics to ${value}`);
     store.uiParamsStore.globalDynamics = value;
+    Max.outlet("updateDetailView", 1);
   } else {
     log(`invalid dynamics value ${value} - must be between 0 and 1`);
   }
@@ -307,6 +332,7 @@ Max.addHandler("/params/velocity", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set velocity to ${value}`);
     store.uiParamsStore.globalVelocity = value;
+    Max.outlet("updateDetailView", 1);
   } else {
     log(`invalid velocity value ${value} - must be between 0 and 1`);
   }
@@ -320,6 +346,7 @@ Max.addHandler("/params/microtiming", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set microtiming to ${value}`);
     store.uiParamsStore.globalMicrotiming = value;
+    Max.outlet("updateDetailView", 1);
   } else {
     log(`invalid microtiming value ${value} - must be between 0 and 1`);
   }
@@ -331,7 +358,8 @@ Max.addHandler("/params/microtiming", (value) => {
  */
 Max.addHandler("/params/microtimingOn", (value) => {
   store.uiParamsStore.globalMicrotimingOn = Boolean(parseInt(value));
-  log(`Set microtimingOn to ${store.uiParamsStore.microtimingOn}`);
+  Max.outlet("updateDetailView", 1);
+  log(`Set microtimingOn to ${store.uiParamsStore.globalMicrotimingOn}`);
 });
 
 /**
@@ -340,7 +368,8 @@ Max.addHandler("/params/microtimingOn", (value) => {
  */
 Max.addHandler("/params/dynamicsOn", (value) => {
   store.uiParamsStore.globalDynamicsOn = Boolean(parseInt(value));
-  log(`Set dynamicsOn to ${store.uiParamsStore.dynamicsOn}`);
+  Max.outlet("updateDetailView", 1);
+  log(`Set dynamicsOn to ${store.uiParamsStore.globalDynamicsOn}`);
 });
 
 /**
@@ -473,12 +502,12 @@ Max.addHandler("clearPattern", () => {
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   store.eventSequenceHandler.ignoreNoteUpdate = true;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
   setTimeout(() => {
     store.eventSequenceHandler.ignoreNoteUpdate = false;
   }, NOTE_UPDATE_THROTTLE);
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
 });
 
 /**
@@ -520,6 +549,8 @@ Max.addHandler("setPreviousPattern", () => {
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   store.eventSequenceHandler.ignoreNoteUpdate = true;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
   setTimeout(() => {
     store.eventSequenceHandler.ignoreNoteUpdate = false;
@@ -555,6 +586,8 @@ Max.addHandler("setInputPattern", () => {
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   store.eventSequenceHandler.ignoreNoteUpdate = true;
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  writeDetailViewDict(offsetsDataSequence, "offsetsData");
   Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
   setTimeout(() => {
     store.eventSequenceHandler.ignoreNoteUpdate = false;
