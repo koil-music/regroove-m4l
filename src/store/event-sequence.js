@@ -47,30 +47,53 @@ class EventSequence {
     return data;
   }
 
+  _getExistingTickForEvent(event) {
+    let existingTick;
+    let ticksFound = 0;
+    for (let tick = event.minTick; tick <= event.maxTick; tick++) {
+      const wrappedTick = event.wrapTick(tick);
+      if (this.bufferData[wrappedTick][event.instrument.matrixCtrlIndex] > 0) {
+        existingTick = wrappedTick;
+        ticksFound += 1;
+      }
+    }
+    if (ticksFound > 1) {
+      log("Error: more than one tick found for event");
+    }
+    return existingTick;
+  }
+
   update(event) {
     const bufferUpdates = {};
-    const currentNoteEvents = this.quantizedData[event.step];
 
     // check previousEvent and delete it from bufferData if it exists
-    const previousEvent = currentNoteEvents[event.instrument.matrixCtrlIndex];
+    const previousEvent =
+      this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
     if (previousEvent !== undefined) {
-      this.bufferData[previousEvent.tick][event.instrument.matrixCtrlIndex] = 0;
-      bufferUpdates[previousEvent.tick] = [event.instrument.matrixCtrlIndex, 0];
+      // TODO: Implement NoteEvent hashing so we can easily remote events even if
+      // the underlying tick data has changed
+      const previousTick = this._getExistingTickForEvent(previousEvent);
+      this.bufferData[previousTick][event.instrument.matrixCtrlIndex] = 0;
+
+      // add to bufferUpdates
+      bufferUpdates[previousTick] = {};
+      bufferUpdates[previousTick][event.instrument.matrixCtrlIndex] = 0;
     }
 
     // update quantizedData
     if (event.onsetValue === 1) {
-      currentNoteEvents[event.instrument.matrixCtrlIndex] = event;
-      bufferUpdates[event.tick] = [
-        event.instrument.matrixCtrlIndex,
-        event.velocity,
-      ];
+      this.quantizedData[event.step][event.instrument.matrixCtrlIndex] = event;
+
+      // add to bufferUpdates
+      bufferUpdates[event.tick] = {};
+      bufferUpdates[event.tick][event.instrument.matrixCtrlIndex] =
+        event.velocity;
     } else if (event.onsetValue === 0) {
-      delete currentNoteEvents[event.instrument.matrixCtrlIndex];
+      delete this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
     }
 
     // update bufferData with new events
-    for (const e of Object.values(currentNoteEvents)) {
+    for (const e of Object.values(this.quantizedData[event.step])) {
       this.bufferData[e.tick][e.instrument.matrixCtrlIndex] = e.velocity;
     }
     return bufferUpdates;
@@ -158,7 +181,6 @@ class EventSequenceHandler {
     timeShiftDict,
     callback
   ) {
-    const eventSequence = new EventSequence();
     for (
       let instrumentIndex = 0;
       instrumentIndex < NUM_INSTRUMENTS;
@@ -168,7 +190,7 @@ class EventSequenceHandler {
         const instrument = Instrument.fromIndex(instrumentIndex);
         const onset = onsetsTensor[step][instrument.index];
         this.updateNote(
-          eventSequence,
+          this.eventSequence,
           instrument,
           step,
           onset,
@@ -185,7 +207,7 @@ class EventSequenceHandler {
       }
     }
     log("Updating event sequence");
-    callback("midiEventSequence", eventSequence.bufferData);
+    callback("midiEventSequence", this.eventSequence.bufferData);
   }
 }
 

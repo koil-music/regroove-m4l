@@ -38,6 +38,24 @@ class NoteEvent {
     return this.step * TICKS_PER_16TH;
   }
 
+  wrapTick(tick) {
+    // wrap around
+    if (tick < 0) {
+      return Math.floor(BUFFER_LENGTH + tick);
+    } else {
+      return Math.floor(tick);
+    }
+  }
+
+  get minTick() {
+    // can be negative, be careful!
+    return this.quantizedTick + this.tickRange.min;
+  }
+
+  get maxTick() {
+    return this.quantizedTick + this.tickRange.max;
+  }
+
   get tickRange() {
     return {
       min: -TICKS_PER_16TH / 2 + 1,
@@ -76,13 +94,7 @@ class NoteEvent {
   get tick() {
     // calculate tick
     let tick = this.quantizedTick + this.offsetTicks;
-
-    // wrap around
-    if (tick < 0) {
-      return Math.floor(BUFFER_LENGTH + tick);
-    } else {
-      return Math.floor(tick);
-    }
+    return this.wrapTick(tick);
   }
 
   get velocity() {
