@@ -9,7 +9,7 @@ const MIN_ONSET_THRESHOLD = 0.3;
 const MAX_ONSET_THRESHOLD = 0.7;
 const MAX_VELOCITY = 127;
 const NUM_INSTRUMENTS = 9;
-const NOTE_UPDATE_THROTTLE = 50; // milliseconds
+const NOTE_UPDATE_THROTTLE = 100; // milliseconds
 const TICKS_PER_16TH = BUFFER_LENGTH / LOOP_DURATION;
 
 const ROOT = path.dirname(process.cwd());

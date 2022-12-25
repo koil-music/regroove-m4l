@@ -479,11 +479,7 @@ Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
 /**
  * Clear current pattern in patternStore
  */
-Max.addHandler("clearPattern", () => {
-  // clear patternStore
-  store.patternStore.clearCurrent();
-
-  // clear eventSequenceHandler
+const updateEventSequence = () => {
   store.eventSequenceHandler.updateAll(
     store.patternStore.currentOnsets.tensor()[0],
     store.uiParamsStore.globalVelocity,
@@ -497,8 +493,10 @@ Max.addHandler("clearPattern", () => {
     store.uiParamsStore.timeShiftDict,
     Max.setDict
   );
+};
 
-  // clear matrixCtrl view
+const updatePatternViews = () => {
+  // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
   store.eventSequenceHandler.ignoreNoteUpdate = true;
@@ -508,6 +506,34 @@ Max.addHandler("clearPattern", () => {
   setTimeout(() => {
     store.eventSequenceHandler.ignoreNoteUpdate = false;
   }, NOTE_UPDATE_THROTTLE);
+};
+
+Max.addHandler("clearPattern", () => {
+  store.patternStore.clearCurrent();
+  updateEventSequence();
+  updatePatternViews();
+});
+
+/**
+ * Populate matrixCtrl view with previous pattern from history
+ */
+Max.addHandler("setPreviousPattern", () => {
+  // update patternStore
+  log("Setting previous pattern");
+  store.patternStore.setPrevious();
+  updateEventSequence();
+  updatePatternViews();
+});
+
+/**
+ * Populate matrixCtrl view with the pattern used as input to the neural net
+ */
+Max.addHandler("setInputPattern", () => {
+  // update patternStore
+  log("Setting input pattern");
+  store.patternStore.setInput();
+  updateEventSequence();
+  updatePatternViews();
 });
 
 /**
@@ -520,78 +546,4 @@ Max.addHandler("updateActiveInstruments", () => {
       `Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`
     );
   });
-});
-
-/**
- * Populate matrixCtrl view with previous pattern from history
- */
-Max.addHandler("setPreviousPattern", () => {
-  // update patternStore
-  log("Setting previous pattern");
-  store.patternStore.setPrevious();
-
-  // update eventSequenceHandler
-  store.eventSequenceHandler.updateAll(
-    store.patternStore.currentOnsets.tensor()[0],
-    store.uiParamsStore.globalVelocity,
-    store.uiParamsStore.globalDynamics,
-    store.uiParamsStore.globalDynamicsOn,
-    store.uiParamsStore.globalMicrotiming,
-    store.uiParamsStore.globalMicrotimingOn,
-    store.uiParamsStore.velAmpDict,
-    store.uiParamsStore.velRandDict,
-    store.uiParamsStore.timeRandDict,
-    store.uiParamsStore.timeShiftDict,
-    Max.setDict
-  );
-
-  // update matrixCtrl and detail views
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  store.eventSequenceHandler.ignoreNoteUpdate = true;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-  setTimeout(() => {
-    store.eventSequenceHandler.ignoreNoteUpdate = false;
-  }, NOTE_UPDATE_THROTTLE);
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-});
-
-/**
- * Populate matrixCtrl view with the pattern used as input to the neural net
- */
-Max.addHandler("setInputPattern", () => {
-  // update patternStore
-  log("Setting input pattern");
-  store.patternStore.setInput();
-
-  // update eventSequenceHandler
-  store.eventSequenceHandler.updateAll(
-    store.patternStore.currentOnsets.tensor()[0],
-    store.uiParamsStore.globalVelocity,
-    store.uiParamsStore.globalDynamics,
-    store.uiParamsStore.globalDynamicsOn,
-    store.uiParamsStore.globalMicrotiming,
-    store.uiParamsStore.globalMicrotimingOn,
-    store.uiParamsStore.velAmpDict,
-    store.uiParamsStore.velRandDict,
-    store.uiParamsStore.timeRandDict,
-    store.uiParamsStore.timeShiftDict,
-    Max.setDict
-  );
-
-  // update matrixCtrl and detail views
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  store.eventSequenceHandler.ignoreNoteUpdate = true;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-  setTimeout(() => {
-    store.eventSequenceHandler.ignoreNoteUpdate = false;
-  }, NOTE_UPDATE_THROTTLE);
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
 });

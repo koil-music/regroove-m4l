@@ -1,7 +1,12 @@
 const Max = require("../max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 
-const { NUM_INSTRUMENTS, LOOP_DURATION, BUFFER_LENGTH } = require("../config");
+const {
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+  BUFFER_LENGTH,
+  TICKS_PER_16TH,
+} = require("../config");
 const Instrument = require("./instrument");
 const NoteEvent = require("./note-event");
 const { log } = require("../utils");
