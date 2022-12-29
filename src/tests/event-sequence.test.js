@@ -293,18 +293,21 @@ test("EventSequenceHandler.updateAll", () => {
   const onsets = new Pattern(createPatternData(dims, 1), dims);
 
   const mockSetDict = jest.fn();
+  const params = {
+    globalVelocity: globalVelocity,
+    globalDynamics: globalDynamics,
+    globalDynamicsOn: globalDynamicsOn,
+    globalMicrotiming: globalMicrotiming,
+    globalMicrotimingOn: globalMicrotimingOn,
+    velAmpDict: velAmpDict,
+    velRandDict: velRandDict,
+    timeRandDict: timeRandDict,
+    timeShiftDict: timeShiftDict,
+  };
 
   rootStore.eventSequenceHandler.updateAll(
     onsets.tensor()[0],
-    globalVelocity,
-    globalDynamics,
-    globalDynamicsOn,
-    globalMicrotiming,
-    globalMicrotimingOn,
-    velAmpDict,
-    velRandDict,
-    timeRandDict,
-    timeShiftDict,
+    params,
     mockSetDict
   );
   const expBufferData = eventSequence._resetBufferData(0, BUFFER_LENGTH);

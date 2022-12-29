@@ -80,30 +80,31 @@ class MatrixCtrlStore {
     return [onsetsData, velocitiesData, offsetsData];
   }
 
+  updateWithRandomPattern() {
+    // get random pattern from inference store
+    const [onsetsPattern, velocitiesPattern, offsetsPattern] =
+      this.root.inferenceStore.getRandomPattern();
+
+    // update current pattern
+    this.root.patternStore.updateCurrent(
+      onsetsPattern,
+      velocitiesPattern,
+      offsetsPattern,
+      this.root.uiParamsStore.activeInstruments
+    );
+
+    // update event sequence
+    // this.root.eventSequenceHandler.updateAll(
+    //   this.root.patternStore.currentOnsets.tensor()[0],
+    //   this.root.uiParamsStore,
+    //   Max.setDict
+    // );
+  }
+
   autoSync() {
     this.barsCount += 1;
     if (this.barsCount % this.root.uiParamsStore.syncRate === 0) {
-      const [onsetsPattern, velocitiesPattern, offsetsPattern] =
-        this.root.inferenceStore.getRandomPattern();
-      this.root.patternStore.updateCurrent(
-        onsetsPattern,
-        velocitiesPattern,
-        offsetsPattern,
-        this.root.uiParamsStore.activeInstruments
-      );
-      this.root.eventSequenceHandler.updateAll(
-        this.root.patternStore.currentOnsets.tensor()[0],
-        this.root.uiParamsStore.globalVelocity,
-        this.root.uiParamsStore.globalDynamics,
-        this.root.uiParamsStore.globalDynamicsOn,
-        this.root.uiParamsStore.globalMicrotiming,
-        this.root.uiParamsStore.globalMicrotimingOn,
-        this.root.uiParamsStore.velAmpDict,
-        this.root.uiParamsStore.velRandDict,
-        this.root.uiParamsStore.timeRandDict,
-        this.root.uiParamsStore.timeShiftDict,
-        Max.setDict
-      );
+      this.updateWithRandomPattern();
       this.barsCount = 0;
       return this.data;
     }
@@ -120,76 +121,27 @@ class MatrixCtrlStore {
       this.isToggleSyncActive = false;
       if (this.oddSnap) {
         this.toggleOddSnap();
-        const [onsetsPattern, velocitiesPattern, offsetsPattern] =
-          this.root.inferenceStore.getRandomPattern();
-        this.root.patternStore.updateCurrent(
-          onsetsPattern,
-          velocitiesPattern,
-          offsetsPattern,
-          this.root.uiParamsStore.activeInstruments
-        );
-        this.root.eventSequenceHandler.updateAll(
-          this.root.patternStore.currentOnsets.tensor()[0],
-          this.root.uiParamsStore.globalVelocity,
-          this.root.uiParamsStore.globalDynamics,
-          this.root.uiParamsStore.globalDynamicsOn,
-          this.root.uiParamsStore.globalMicrotiming,
-          this.root.uiParamsStore.globalMicrotimingOn,
-          this.root.uiParamsStore.velAmpDict,
-          this.root.uiParamsStore.velRandDict,
-          this.root.uiParamsStore.timeRandDict,
-          this.root.uiParamsStore.timeShiftDict,
-          Max.setDict
-        );
+        this.updateWithRandomPattern();
       } else {
         this.toggleOddSnap();
       }
-    } else if (this.root.uiParamsStore.syncModeName == "Toggle") {
+    } else if (this.root.uiParamsStore.syncModeName === "Toggle") {
       if (this.isToggleSyncActive) {
-        // switch back to previous pattern
+        // switch current back from temp pattern
         this.root.patternStore.setCurrentFromTemp();
-        this.root.eventSequenceHandler.updateAll(
-          this.root.patternStore.currentOnsets.tensor()[0],
-          this.root.uiParamsStore.globalVelocity,
-          this.root.uiParamsStore.globalDynamics,
-          this.root.uiParamsStore.globalDynamicsOn,
-          this.root.uiParamsStore.globalMicrotiming,
-          this.root.uiParamsStore.globalMicrotimingOn,
-          this.root.uiParamsStore.velAmpDict,
-          this.root.uiParamsStore.velRandDict,
-          this.root.uiParamsStore.timeRandDict,
-          this.root.uiParamsStore.timeShiftDict,
-          Max.setDict
-        );
+        // this.root.eventSequenceHandler.updateAll(
+        //   this.root.patternStore.currentOnsets.tensor()[0],
+        //   this.root.uiParamsStore,
+        //   Max.setDict
+        // );
         this.isToggleSyncActive = false;
       } else {
-        // save pattern to temp and update
+        // save current pattern to temp
         this.root.patternStore.setTempFromCurrent();
-        const [onsetsPattern, velocitiesPattern, offsetsPattern] =
-          this.root.inferenceStore.getRandomPattern();
-        this.root.patternStore.updateCurrent(
-          onsetsPattern,
-          velocitiesPattern,
-          offsetsPattern,
-          this.root.uiParamsStore.activeInstruments
-        );
-        this.root.eventSequenceHandler.updateAll(
-          this.root.patternStore.currentOnsets.tensor()[0],
-          this.root.uiParamsStore.globalVelocity,
-          this.root.uiParamsStore.globalDynamics,
-          this.root.uiParamsStore.globalDynamicsOn,
-          this.root.uiParamsStore.globalMicrotiming,
-          this.root.uiParamsStore.globalMicrotimingOn,
-          this.root.uiParamsStore.velAmpDict,
-          this.root.uiParamsStore.velRandDict,
-          this.root.uiParamsStore.timeRandDict,
-          this.root.uiParamsStore.timeShiftDict,
-          Max.setDict
-        );
+        this.updateWithRandomPattern();
         this.isToggleSyncActive = true;
       }
     }
-    return this.data;
   }
 }
 

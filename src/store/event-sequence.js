@@ -47,6 +47,18 @@ class EventSequence {
     return data;
   }
 
+  // get maxData() {
+  //   const data = {};
+  //   for (let i = 0; i < this.bufferLength; i++) {
+  //     data[i] = [];
+  //     for (let j = 0; j < this.numInstruments; j++) {
+  //       data[i].push(j);
+  //       data.push(this.bufferData[i][j]);
+  //     }
+  //   }
+  //   return data;
+  // }
+
   _getExistingTickForEvent(event) {
     let existingTick;
     let ticksFound = 0;
@@ -116,15 +128,18 @@ class EventSequenceHandler {
       (params) => {
         this.updateAll(
           this.root.patternStore.currentOnsets.tensor()[0],
-          params.globalVelocity,
-          params.globalDynamics,
-          params.globalDynamicsOn,
-          params.globalMicrotiming,
-          params.globalMicrotimingOn,
-          params.velAmpDict,
-          params.velRandDict,
-          params.timeRandDict,
-          params.timeShiftDict,
+          params,
+          Max.setDict
+        );
+      }
+    );
+
+    this.reactToPatternChange = reaction(
+      () => this.root.patternStore.currentOnsets.tensor()[0],
+      (onsets) => {
+        this.updateAll(
+          onsets,
+          this.root.uiParamsStore.expressionParams,
           Max.setDict
         );
       }
@@ -168,19 +183,7 @@ class EventSequenceHandler {
     return bufferUpdates;
   }
 
-  async updateAll(
-    onsetsTensor,
-    globalVelocity,
-    globalDynamics,
-    globalDynamicsOn,
-    globalMicrotiming,
-    globalMicrotimingOn,
-    velAmpDict,
-    velRandDict,
-    timeRandDict,
-    timeShiftDict,
-    callback
-  ) {
+  updateAll(onsetsTensor, params, callback) {
     for (
       let instrumentIndex = 0;
       instrumentIndex < NUM_INSTRUMENTS;
@@ -194,15 +197,15 @@ class EventSequenceHandler {
           instrument,
           step,
           onset,
-          globalVelocity,
-          globalDynamics,
-          globalDynamicsOn,
-          globalMicrotiming,
-          globalMicrotimingOn,
-          velAmpDict,
-          velRandDict,
-          timeRandDict,
-          timeShiftDict
+          params.globalVelocity,
+          params.globalDynamics,
+          params.globalDynamicsOn,
+          params.globalMicrotiming,
+          params.globalMicrotimingOn,
+          params.velAmpDict,
+          params.velRandDict,
+          params.timeRandDict,
+          params.timeShiftDict
         );
       }
     }

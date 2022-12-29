@@ -195,19 +195,11 @@ Max.addHandler("readMidiFile", async (filePath) => {
         readMidiFile(midiBuffer, pitchIndexMapping).then(
           async (midiPattern) => {
             store.patternStore.updateCurrent(...midiPattern);
-            store.eventSequenceHandler.updateAll(
-              store.patternStore.currentOnsets.tensor()[0],
-              store.uiParamsStore.globalVelocity,
-              store.uiParamsStore.globalDynamics,
-              store.uiParamsStore.globalDynamicsOn,
-              store.uiParamsStore.globalMicrotiming,
-              store.uiParamsStore.globalMicrotimingOn,
-              store.uiParamsStore.velAmpDict,
-              store.uiParamsStore.velRandDict,
-              store.uiParamsStore.timeRandDict,
-              store.uiParamsStore.timeShiftDict,
-              Max.setDict
-            );
+            // store.eventSequenceHandler.updateAll(
+            //   store.patternStore.currentOnsets.tensor()[0],
+            //   store.uiParamsStore,
+            //   Max.setDict
+            // );
             const [
               onsetsDataSequence,
               velocitiesDataSequence,
@@ -386,60 +378,6 @@ Max.addHandler("/params/density", (value) => {
 });
 
 /**
- * ========================
- * MatrixCtrl
- * ========================
- * Trigger a sync between the matrixCtrl view and the matrixCtrlStore
- */
-Max.addHandler("/params/sync", async () => {
-  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
-    if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
-      // syncing with PatternStore and eventSequence is handled by the
-      // matrixCtrlStore.sync() method
-      const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-        store.matrixCtrlStore.sync();
-
-      // write detail data to Max dicts for interaction with detail view
-      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-      writeDetailViewDict(offsetsDataSequence, "offsetsData");
-
-      // populate matrixCtrl view with new onsets data we need to ignore the
-      // note update event triggered by the matrixCtrl view because it will trigger
-      // a note update event for each cell update. These are not needed because
-      // the matrixCtrlStore.sync() method already updated the eventSequence and
-      // patternStore
-      store.eventSequenceHandler.ignoreNoteUpdate = true;
-      Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-      setTimeout(() => {
-        store.eventSequenceHandler.ignoreNoteUpdate = false;
-      }, NOTE_UPDATE_THROTTLE);
-    }
-  }
-});
-
-/**
- * Trigger a sync with the matrixCtrl view if step is at downbeat
- * @param {float} step: range = [0, loopDuration]
- */
-Max.addHandler("autoSync", (step) => {
-  if (
-    store.uiParamsStore.syncModeName == "Auto" &&
-    step % store.uiParamsStore.loopDuration === 0
-  ) {
-    log(`autoSync: ${step}`);
-    // syncing with PatternStore and eventSequence is handled by the
-    // matrixCtrlStore.sync() method
-    const dataSequences = store.matrixCtrlStore.autoSync(step);
-    if (dataSequences !== undefined) {
-      // update Max views
-      writeDetailViewDict(dataSequences[1], "velocitiesData");
-      writeDetailViewDict(dataSequences[2], "offsetsData");
-      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
-    }
-  }
-});
-
-/**
  * ================================
  * Pattern Matrix
  * ================================
@@ -471,8 +409,7 @@ Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
       await Max.updateDict("midiEventSequence", idx, noteEvents);
       log(`Updated midiEventSequence: [${idx}, ${noteEvents}]`);
     }
-  } else {
-    // log("ignoreNoteUpdate = true: ignoring note update");
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
   }
 });
 
@@ -480,60 +417,96 @@ Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
  * Clear current pattern in patternStore
  */
 const updateEventSequence = () => {
-  store.eventSequenceHandler.updateAll(
-    store.patternStore.currentOnsets.tensor()[0],
-    store.uiParamsStore.globalVelocity,
-    store.uiParamsStore.globalDynamics,
-    store.uiParamsStore.globalDynamicsOn,
-    store.uiParamsStore.globalMicrotiming,
-    store.uiParamsStore.globalMicrotimingOn,
-    store.uiParamsStore.velAmpDict,
-    store.uiParamsStore.velRandDict,
-    store.uiParamsStore.timeRandDict,
-    store.uiParamsStore.timeShiftDict,
-    Max.setDict
-  );
+  // store.eventSequenceHandler.updateAll(
+  //   store.patternStore.currentOnsets.tensor()[0],
+  //   store.uiParamsStore,
+  //   Max.setDict
+  // );
+  // Max.outlet("saveEventSequence");
 };
 
-const updatePatternViews = () => {
+const updatePatternViews = async () => {
   // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
-  store.eventSequenceHandler.ignoreNoteUpdate = true;
+
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+
+  store.eventSequenceHandler.ignoreNoteUpdate = true;
+  await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
   setTimeout(() => {
     store.eventSequenceHandler.ignoreNoteUpdate = false;
   }, NOTE_UPDATE_THROTTLE);
 };
 
+Max.addHandler("/params/sync", () => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
+      // syncing with PatternStore and eventSequence is handled by the
+      // matrixCtrlStore.sync() method
+      store.matrixCtrlStore.sync();
+
+      // write detail data to Max dicts for interaction with detail view
+      updatePatternViews();
+    }
+  }
+});
+
+/**
+ * Trigger a sync with the matrixCtrl view if step is at downbeat
+ * @param {float} step: range = [0, loopDuration]
+ */
+Max.addHandler("autoSync", (step) => {
+  if (
+    store.uiParamsStore.syncModeName == "Auto" &&
+    step % store.uiParamsStore.loopDuration === 0 &&
+    !store.eventSequenceHandler.ignoreNoteUpdate
+  ) {
+    log(`autoSync: ${step}`);
+    // syncing with PatternStore and eventSequence is handled by the
+    // matrixCtrlStore.sync() method
+    const dataSequences = store.matrixCtrlStore.autoSync(step);
+    if (dataSequences !== undefined) {
+      // update Max views
+      writeDetailViewDict(dataSequences[1], "velocitiesData");
+      writeDetailViewDict(dataSequences[2], "offsetsData");
+      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
+    }
+  }
+});
+
 Max.addHandler("clearPattern", () => {
-  store.patternStore.clearCurrent();
-  updateEventSequence();
-  updatePatternViews();
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Clearing pattern");
+    store.patternStore.clearCurrent();
+    updateEventSequence();
+    updatePatternViews();
+  }
 });
 
 /**
  * Populate matrixCtrl view with previous pattern from history
  */
 Max.addHandler("setPreviousPattern", () => {
-  // update patternStore
-  log("Setting previous pattern");
-  store.patternStore.setPrevious();
-  updateEventSequence();
-  updatePatternViews();
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Setting previous pattern");
+    store.patternStore.setPrevious();
+    updateEventSequence();
+    updatePatternViews();
+  }
 });
 
 /**
  * Populate matrixCtrl view with the pattern used as input to the neural net
  */
 Max.addHandler("setInputPattern", () => {
-  // update patternStore
-  log("Setting input pattern");
-  store.patternStore.setInput();
-  updateEventSequence();
-  updatePatternViews();
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Setting input pattern");
+    store.patternStore.setInput();
+    updateEventSequence();
+    updatePatternViews();
+  }
 });
 
 /**
