@@ -381,10 +381,12 @@ Max.addHandler("/params/density", (value) => {
  * ================================
  * Pattern Matrix
  * ================================
- * Update the onset value of a specific note
- * @param {int} step: range = [0, loopDuration - 1]
- * @param {int} instrument: range = [0, numInstruments - 1]
- * @param {int} value: range = [0, 1]
+ */
+/**
+ * Handle a user update to a note in the pattern matrix
+ * @param {int} step: range = [0, 15]
+ * @param {int} matrixCtrlIndex: range = [0, 63]
+ * @param {int} onsetValue: range = [0, 1]
  */
 Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
   if (!store.eventSequenceHandler.ignoreNoteUpdate) {
@@ -405,27 +407,22 @@ Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
       store.uiParamsStore.timeShiftDict,
       store.uiParamsStore.timeRandDict
     );
-    for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
-      await Max.updateDict("midiEventSequence", idx, noteEvents);
-      log(`Updated midiEventSequence: [${idx}, ${noteEvents}]`);
+    for (const [tick, noteEvents] of Object.entries(midiEventUpdates)) {
+      await Max.updateDict(
+        store.eventSequenceHandler.eventSequenceDictName,
+        tick,
+        noteEvents
+      );
+      log(
+        `Updated EventSequence for tick: ${tick} with events: ${noteEvents}]`
+      );
     }
     store.eventSequenceHandler.ignoreNoteUpdate = false;
+    Max.outlet("saveEventSequence");
   }
 });
 
-/**
- * Clear current pattern in patternStore
- */
-const updateEventSequence = () => {
-  // store.eventSequenceHandler.updateAll(
-  //   store.patternStore.currentOnsets.tensor()[0],
-  //   store.uiParamsStore,
-  //   Max.setDict
-  // );
-  // Max.outlet("saveEventSequence");
-};
-
-const updatePatternViews = async () => {
+const updateMaxViews = async () => {
   // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
     store.matrixCtrlStore.data;
@@ -441,15 +438,15 @@ const updatePatternViews = async () => {
 };
 
 Max.addHandler("/params/sync", () => {
-  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
-    if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
-      // syncing with PatternStore and eventSequence is handled by the
-      // matrixCtrlStore.sync() method
-      store.matrixCtrlStore.sync();
-
-      // write detail data to Max dicts for interaction with detail view
-      updatePatternViews();
-    }
+  if (
+    !store.eventSequenceHandler.ignoreNoteUpdate &&
+    ["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)
+  ) {
+    // syncing with PatternStore and eventSequence is handled by the
+    // matrixCtrlStore.sync() method
+    store.matrixCtrlStore.sync();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
   }
 });
 
@@ -457,7 +454,7 @@ Max.addHandler("/params/sync", () => {
  * Trigger a sync with the matrixCtrl view if step is at downbeat
  * @param {float} step: range = [0, loopDuration]
  */
-Max.addHandler("autoSync", (step) => {
+Max.addHandler("autoSync", async (step) => {
   if (
     store.uiParamsStore.syncModeName == "Auto" &&
     step % store.uiParamsStore.loopDuration === 0 &&
@@ -468,10 +465,15 @@ Max.addHandler("autoSync", (step) => {
     // matrixCtrlStore.sync() method
     const dataSequences = store.matrixCtrlStore.autoSync(step);
     if (dataSequences !== undefined) {
-      // update Max views
-      writeDetailViewDict(dataSequences[1], "velocitiesData");
-      writeDetailViewDict(dataSequences[2], "offsetsData");
-      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
+      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+      await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+
+      store.eventSequenceHandler.ignoreNoteUpdate = true;
+      await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+      setTimeout(() => {
+        store.eventSequenceHandler.ignoreNoteUpdate = false;
+      }, NOTE_UPDATE_THROTTLE);
+      Max.outlet("saveEventSequence");
     }
   }
 });
@@ -480,8 +482,8 @@ Max.addHandler("clearPattern", () => {
   if (!store.eventSequenceHandler.ignoreNoteUpdate) {
     log("Clearing pattern");
     store.patternStore.clearCurrent();
-    updateEventSequence();
-    updatePatternViews();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
   }
 });
 
@@ -492,8 +494,8 @@ Max.addHandler("setPreviousPattern", () => {
   if (!store.eventSequenceHandler.ignoreNoteUpdate) {
     log("Setting previous pattern");
     store.patternStore.setPrevious();
-    updateEventSequence();
-    updatePatternViews();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
   }
 });
 
@@ -504,8 +506,8 @@ Max.addHandler("setInputPattern", () => {
   if (!store.eventSequenceHandler.ignoreNoteUpdate) {
     log("Setting input pattern");
     store.patternStore.setInput();
-    updateEventSequence();
-    updatePatternViews();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
   }
 });
 

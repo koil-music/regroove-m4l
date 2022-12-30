@@ -47,17 +47,16 @@ class EventSequence {
     return data;
   }
 
-  // get maxData() {
-  //   const data = {};
-  //   for (let i = 0; i < this.bufferLength; i++) {
-  //     data[i] = [];
-  //     for (let j = 0; j < this.numInstruments; j++) {
-  //       data[i].push(j);
-  //       data.push(this.bufferData[i][j]);
-  //     }
-  //   }
-  //   return data;
-  // }
+  get maxData() {
+    const data = {};
+    for (let i = 0; i < this.bufferLength; i++) {
+      data[i] = [];
+      for (let j = 0; j < this.numInstruments; j++) {
+        data[i].push(...[j, this.bufferData[i][j]]);
+      }
+    }
+    return data;
+  }
 
   _getExistingTickForEvent(event) {
     let existingTick;
@@ -75,38 +74,53 @@ class EventSequence {
     return existingTick;
   }
 
+  /**
+   * Updates an event in the event sequence. This involves updating the
+   * quantizedData and bufferData. If the event is a note on, it also
+   * updates the bufferData for the previous event at that step. If the
+   * event is a note off, it deletes the event from quantizedData and
+   * bufferData. Lastly, it returns a dictionary of buffer updates to
+   * send to Max.
+   * @param {*} NoteEvent
+   * @returns Dictionary of buffer updates to send to Max
+   */
   update(event) {
-    const bufferUpdates = {};
-
-    // check previousEvent and delete it from bufferData if it exists
+    // handling existing event at step
     const previousEvent =
       this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
+    const bufferUpdates = {};
     if (previousEvent !== undefined) {
-      // TODO: Implement NoteEvent hashing so we can easily remote events even if
-      // the underlying tick data has changed
       const previousTick = this._getExistingTickForEvent(previousEvent);
-      this.bufferData[previousTick][event.instrument.matrixCtrlIndex] = 0;
 
-      // add to bufferUpdates
-      bufferUpdates[previousTick] = {};
-      bufferUpdates[previousTick][event.instrument.matrixCtrlIndex] = 0;
+      // remove previous event from quantizedData, set bufferData entry to 0
+      delete this.quantizedData[previousEvent.step][
+        previousEvent.instrument.matrixCtrlIndex
+      ];
+      this.bufferData[previousEvent.tick][
+        previousEvent.instrument.matrixCtrlIndex
+      ] = 0;
+
+      // add previous tick to bufferUpdates
+      bufferUpdates[previousTick] = [];
     }
 
-    // update quantizedData
     if (event.onsetValue === 1) {
+      // add event to quantizedData, set bufferData entry to event velocity
       this.quantizedData[event.step][event.instrument.matrixCtrlIndex] = event;
-
-      // add to bufferUpdates
-      bufferUpdates[event.tick] = {};
-      bufferUpdates[event.tick][event.instrument.matrixCtrlIndex] =
+      this.bufferData[event.tick][event.instrument.matrixCtrlIndex] =
         event.velocity;
     } else if (event.onsetValue === 0) {
+      // remove event from quantizedData, set bufferData entry to 0
       delete this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
+      this.bufferData[event.tick][event.instrument.matrixCtrlIndex] = 0;
     }
 
-    // update bufferData with new events
-    for (const e of Object.values(this.quantizedData[event.step])) {
-      this.bufferData[e.tick][e.instrument.matrixCtrlIndex] = e.velocity;
+    // construct bufferUpdates
+    bufferUpdates[event.tick] = [];
+    for (const [tick, updates] of Object.entries(bufferUpdates)) {
+      for (let i = 0; i < this.numInstruments; i++) {
+        updates.push(...[i, this.bufferData[tick][i]]);
+      }
     }
     return bufferUpdates;
   }
@@ -115,6 +129,7 @@ class EventSequence {
 class EventSequenceHandler {
   rootStore;
   ignoreNoteUpdate = false;
+  eventSequenceDictName = "midiEventSequence";
   eventSequence;
 
   constructor(rootStore) {
@@ -210,7 +225,7 @@ class EventSequenceHandler {
       }
     }
     log("Updating event sequence");
-    callback("midiEventSequence", this.eventSequence.bufferData);
+    callback(this.eventSequenceDictName, this.eventSequence.maxData);
   }
 }
 
