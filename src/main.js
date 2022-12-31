@@ -385,7 +385,7 @@ Max.addHandler("/params/density", (value) => {
 /**
  * Handle a user update to a note in the pattern matrix
  * @param {int} step: range = [0, 15]
- * @param {int} matrixCtrlIndex: range = [0, 63]
+ * @param {int} matrixCtrlIndex: range = [0, 9]
  * @param {int} onsetValue: range = [0, 1]
  */
 Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
