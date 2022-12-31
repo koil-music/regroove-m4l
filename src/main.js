@@ -204,7 +204,7 @@ Max.addHandler("readMidiFile", async (filePath) => {
               onsetsDataSequence,
               velocitiesDataSequence,
               offsetsDataSequence,
-            ] = store.matrixCtrlStore.data;
+            ] = store.maxDisplayStore.data;
             writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
             await writeDetailViewDict(offsetsDataSequence, "offsetsData");
             Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
@@ -227,7 +227,7 @@ Max.addHandler("readMidiFile", async (filePath) => {
 
 Max.addHandler("updateVelAmp", async () => {
   store.uiParamsStore.velAmpDict = await Max.getDict("velAmp");
-  const dataSequences = store.matrixCtrlStore.data;
+  const dataSequences = store.maxDisplayStore.data;
   writeDetailViewDict(dataSequences[1], "velocitiesData");
   Max.outlet("updateDetailView", 1);
   log(
@@ -237,7 +237,7 @@ Max.addHandler("updateVelAmp", async () => {
 
 Max.addHandler("updateVelRand", async () => {
   store.uiParamsStore.velRandDict = await Max.getDict("velRand");
-  const dataSequences = store.matrixCtrlStore.data;
+  const dataSequences = store.maxDisplayStore.data;
   writeDetailViewDict(dataSequences[1], "velocitiesData");
   Max.outlet("updateDetailView", 1);
   log(
@@ -247,7 +247,7 @@ Max.addHandler("updateVelRand", async () => {
 
 Max.addHandler("updateTimeShift", async () => {
   store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
-  const dataSequences = store.matrixCtrlStore.data;
+  const dataSequences = store.maxDisplayStore.data;
   writeDetailViewDict(dataSequences[2], "offsetsData");
   Max.outlet("updateDetailView", 1);
   log(
@@ -259,7 +259,7 @@ Max.addHandler("updateTimeShift", async () => {
 
 Max.addHandler("updateTimeRand", async () => {
   store.uiParamsStore.timeRandDict = await Max.getDict("timeRand");
-  const dataSequences = store.matrixCtrlStore.data;
+  const dataSequences = store.maxDisplayStore.data;
   writeDetailViewDict(dataSequences[2], "offsetsData");
   Max.outlet("updateDetailView", 1);
   log(
@@ -425,7 +425,7 @@ Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
 const updateMaxViews = async () => {
   // update matrixCtrl and detail views
   const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
+    store.maxDisplayStore.data;
 
   writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
   await writeDetailViewDict(offsetsDataSequence, "offsetsData");
@@ -442,9 +442,7 @@ Max.addHandler("/params/sync", () => {
     !store.eventSequenceHandler.ignoreNoteUpdate &&
     ["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)
   ) {
-    // syncing with PatternStore and eventSequence is handled by the
-    // matrixCtrlStore.sync() method
-    store.matrixCtrlStore.sync();
+    store.maxDisplayStore.sync();
     updateMaxViews();
     Max.outlet("saveEventSequence");
   }
@@ -461,9 +459,7 @@ Max.addHandler("autoSync", async (step) => {
     !store.eventSequenceHandler.ignoreNoteUpdate
   ) {
     log(`autoSync: ${step}`);
-    // syncing with PatternStore and eventSequence is handled by the
-    // matrixCtrlStore.sync() method
-    const dataSequences = store.matrixCtrlStore.autoSync(step);
+    const dataSequences = store.maxDisplayStore.autoSync(step);
     if (dataSequences !== undefined) {
       writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
       await writeDetailViewDict(offsetsDataSequence, "offsetsData");

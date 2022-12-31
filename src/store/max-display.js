@@ -1,11 +1,10 @@
-const Max = require("../max-api");
 const { makeAutoObservable } = require("mobx");
 
 const Instrument = require("./instrument");
 const { LOOP_DURATION } = require("./ui-params");
 const NoteEvent = require("./note-event");
 
-class MatrixCtrlStore {
+class MaxDisplayStore {
   rootStore;
   barsCount = 0;
   oddSnap = true;
@@ -92,13 +91,6 @@ class MatrixCtrlStore {
       offsetsPattern,
       this.root.uiParamsStore.activeInstruments
     );
-
-    // update event sequence
-    // this.root.eventSequenceHandler.updateAll(
-    //   this.root.patternStore.currentOnsets.tensor()[0],
-    //   this.root.uiParamsStore,
-    //   Max.setDict
-    // );
   }
 
   autoSync() {
@@ -127,16 +119,12 @@ class MatrixCtrlStore {
       }
     } else if (this.root.uiParamsStore.syncModeName === "Toggle") {
       if (this.isToggleSyncActive) {
-        // switch current back from temp pattern
+        // toggle is active -> restore current pattern from temp
         this.root.patternStore.setCurrentFromTemp();
-        // this.root.eventSequenceHandler.updateAll(
-        //   this.root.patternStore.currentOnsets.tensor()[0],
-        //   this.root.uiParamsStore,
-        //   Max.setDict
-        // );
         this.isToggleSyncActive = false;
       } else {
-        // save current pattern to temp
+        // toggle is not active; save current pattern to temp
+        // and update with random pattern
         this.root.patternStore.setTempFromCurrent();
         this.updateWithRandomPattern();
         this.isToggleSyncActive = true;
@@ -145,4 +133,4 @@ class MatrixCtrlStore {
   }
 }
 
-module.exports = { MatrixCtrlStore };
+module.exports = { MaxDisplayStore };
