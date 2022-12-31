@@ -453,23 +453,23 @@ Max.addHandler("/params/sync", () => {
  * @param {float} step: range = [0, loopDuration]
  */
 Max.addHandler("autoSync", async (step) => {
-  if (
-    store.uiParamsStore.syncModeName == "Auto" &&
-    step % store.uiParamsStore.loopDuration === 0 &&
-    !store.eventSequenceHandler.ignoreNoteUpdate
-  ) {
-    log(`autoSync: ${step}`);
-    const dataSequences = store.maxDisplayStore.autoSync(step);
-    if (dataSequences !== undefined) {
-      writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-      await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+  if (store.uiParamsStore.syncModeName == "Auto") {
+    if (
+      step % store.uiParamsStore.loopDuration === 0 &&
+      !store.eventSequenceHandler.ignoreNoteUpdate
+    ) {
+      const dataSequences = store.maxDisplayStore.autoSync(step);
+      if (dataSequences !== undefined) {
+        writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+        await writeDetailViewDict(offsetsDataSequence, "offsetsData");
 
-      store.eventSequenceHandler.ignoreNoteUpdate = true;
-      await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-      setTimeout(() => {
-        store.eventSequenceHandler.ignoreNoteUpdate = false;
-      }, NOTE_UPDATE_THROTTLE);
-      Max.outlet("saveEventSequence");
+        store.eventSequenceHandler.ignoreNoteUpdate = true;
+        await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+        setTimeout(() => {
+          store.eventSequenceHandler.ignoreNoteUpdate = false;
+        }, NOTE_UPDATE_THROTTLE);
+        Max.outlet("saveEventSequence");
+      }
     }
   }
 });
