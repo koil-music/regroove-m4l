@@ -24,11 +24,11 @@ class EventSequence {
   }
 
   reset() {
-    this.quantizedData = this._resetQuantizedData(this.loopDuration);
-    this.bufferData = this._resetBufferData(0, this.bufferLength);
+    this.quantizedDict = this._resetQuantizedDict(this.loopDuration);
+    this.bufferDict = this._resetBufferDict(0, this.bufferLength);
   }
 
-  _resetQuantizedData(length) {
+  _resetQuantizedDict(length) {
     const data = [];
     for (let i = 0; i < length; i++) {
       data.push({});
@@ -36,7 +36,7 @@ class EventSequence {
     return data;
   }
 
-  _resetBufferData(start, end) {
+  _resetBufferDict(start, end) {
     const data = {};
     for (let i = start; i < end; i++) {
       data[i] = {};
@@ -47,12 +47,12 @@ class EventSequence {
     return data;
   }
 
-  get maxData() {
+  get bufferData() {
     const data = {};
     for (let i = 0; i < this.bufferLength; i++) {
       data[i] = [];
       for (let j = 0; j < this.numInstruments; j++) {
-        data[i].push(...[j, this.bufferData[i][j]]);
+        data[i].push(...[j, this.bufferDict[i][j]]);
       }
     }
     return data;
@@ -63,7 +63,7 @@ class EventSequence {
     let ticksFound = 0;
     for (let tick = event.minTick; tick <= event.maxTick; tick++) {
       const wrappedTick = event.wrapTick(tick);
-      if (this.bufferData[wrappedTick][event.instrument.matrixCtrlIndex] > 0) {
+      if (this.bufferDict[wrappedTick][event.instrument.matrixCtrlIndex] > 0) {
         existingTick = wrappedTick;
         ticksFound += 1;
       }
@@ -87,16 +87,16 @@ class EventSequence {
   update(event) {
     // handling existing event at step
     const previousEvent =
-      this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
+      this.quantizedDict[event.step][event.instrument.matrixCtrlIndex];
     const bufferUpdates = {};
     if (previousEvent !== undefined) {
       const previousTick = this._getExistingTickForEvent(previousEvent);
 
       // remove previous event from quantizedData, set bufferData entry to 0
-      delete this.quantizedData[previousEvent.step][
+      delete this.quantizedDict[previousEvent.step][
         previousEvent.instrument.matrixCtrlIndex
       ];
-      this.bufferData[previousEvent.tick][
+      this.bufferDict[previousEvent.tick][
         previousEvent.instrument.matrixCtrlIndex
       ] = 0;
 
@@ -106,20 +106,20 @@ class EventSequence {
 
     if (event.onsetValue === 1) {
       // add event to quantizedData, set bufferData entry to event velocity
-      this.quantizedData[event.step][event.instrument.matrixCtrlIndex] = event;
-      this.bufferData[event.tick][event.instrument.matrixCtrlIndex] =
+      this.quantizedDict[event.step][event.instrument.matrixCtrlIndex] = event;
+      this.bufferDict[event.tick][event.instrument.matrixCtrlIndex] =
         event.velocity;
     } else if (event.onsetValue === 0) {
       // remove event from quantizedData, set bufferData entry to 0
-      delete this.quantizedData[event.step][event.instrument.matrixCtrlIndex];
-      this.bufferData[event.tick][event.instrument.matrixCtrlIndex] = 0;
+      delete this.quantizedDict[event.step][event.instrument.matrixCtrlIndex];
+      this.bufferDict[event.tick][event.instrument.matrixCtrlIndex] = 0;
     }
 
     // construct bufferUpdates
     bufferUpdates[event.tick] = [];
     for (const [tick, updates] of Object.entries(bufferUpdates)) {
       for (let i = 0; i < this.numInstruments; i++) {
-        updates.push(...[i, this.bufferData[tick][i]]);
+        updates.push(...[i, this.bufferDict[tick][i]]);
       }
     }
     return bufferUpdates;
@@ -225,7 +225,7 @@ class EventSequenceHandler {
       }
     }
     log("Updating event sequence");
-    callback(this.eventSequenceDictName, this.eventSequence.maxData);
+    callback(this.eventSequenceDictName, this.eventSequence.bufferData);
   }
 }
 
