@@ -1,9 +1,12 @@
-const { Generator, ONNXModel } = require("regroovejs");
-const { InferenceSession } = require("onnxruntime-node");
 const { makeAutoObservable } = require("mobx");
+const { InferenceSession } = require("onnxruntime-node");
 const path = require("path");
+
+const { Generator, ONNXModel } = require("regroovejs");
+const { Pattern } = require("regroovejs/dist/pattern");
+
 const defaultUiParams = require("../data/default-ui-params.json");
-const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("./ui-params");
+const { MIN_ONSET_THRESHOLD, MAX_ONSET_THRESHOLD } = require("../config");
 
 class InferenceStore {
   root;
@@ -21,12 +24,14 @@ class InferenceStore {
   grooveLatentSize = 64;
   grooveModelName = "groove.onnx";
 
-  constructor(rootStore, modelDir) {
+  constructor(rootStore, modelDir, eager = true) {
     makeAutoObservable(this);
     this.root = rootStore;
     this.modelDir = modelDir;
 
-    this.run();
+    if (eager) {
+      this.run();
+    }
   }
 
   async run() {
@@ -67,6 +72,33 @@ class InferenceStore {
 
   toggleGenerating() {
     this.isGenerating = !this.isGenerating;
+  }
+
+  getRandomPattern() {
+    // get random sample index
+    const randomIndex = Math.floor(
+      Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
+    );
+    const x = parseInt(this.root.uiParamsStore.densityIndex);
+    const y = parseInt(randomIndex);
+    return this.getPattern(x, y);
+  }
+
+  getPattern(x, y) {
+    // retrieve pattern from generator
+    const onsetsPattern = new Pattern(
+      this.generator.onsets.sample(x, y),
+      this.root.patternStore.dims
+    );
+    const velocitiesPattern = new Pattern(
+      this.generator.velocities.sample(x, y),
+      this.root.patternStore.dims
+    );
+    const offsetsPattern = new Pattern(
+      this.generator.offsets.sample(x, y),
+      this.root.patternStore.dims
+    );
+    return [onsetsPattern, velocitiesPattern, offsetsPattern];
   }
 }
 

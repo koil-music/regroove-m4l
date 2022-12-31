@@ -1,30 +1,12 @@
 const glob = require("glob");
-const Max = require("max-api");
-const process = require("process");
-
-let DEBUG = true;
-if (process.env.MAX_ENV == "maxforlive") {
-  DEBUG = false;
-}
+const Max = require("./max-api");
+const { DEBUG } = require("./config");
 
 const log = (value) => {
   if (DEBUG) {
     Max.post(`${value}`);
   }
 };
-
-/**
- * Turns debug on or off.
- * @param {bool} value
- */
-Max.addHandler("debug", (value) => {
-  if (value === 1) {
-    DEBUG = true;
-  } else if (value == 0) {
-    DEBUG = false;
-  }
-  debug(`DEBUG: ${DEBUG}`);
-});
 
 function validModelDir(dir) {
   const globPath = dir + "*.onnx";
@@ -46,4 +28,4 @@ const normalize = (value, min, max) => {
   return (max - min) * value + min;
 };
 
-module.exports = { log, validModelDir, normalize };
+module.exports = { log, normalize, validModelDir };

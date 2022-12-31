@@ -1,13 +1,13 @@
 const { makeAutoObservable } = require("mobx");
 const { normalize } = require("../utils");
 const defaultDetailParam = require("../data/default-detail-param.json");
-const defaultVelocityAmplitude = require("../data/default-velocity-amplitude.json");
 const defaultUiParams = require("../data/default-ui-params.json");
-
-const MIN_ONSET_THRESHOLD = 0.3;
-const MAX_ONSET_THRESHOLD = 0.7;
-const LOOP_DURATION = 16;
-const NUM_INSTRUMENTS = 9;
+const {
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+  MIN_ONSET_THRESHOLD,
+  MAX_ONSET_THRESHOLD,
+} = require("../config");
 
 const SyncMode = Object.freeze({
   Snap: 0,
@@ -29,20 +29,23 @@ class UIParamsStore {
   minDensity = defaultUiParams.minDensity;
   random = defaultUiParams.random;
   numSamples = defaultUiParams.numSamples;
-  microtiming = defaultUiParams.globalMicrotiming;
-  dynamics = defaultUiParams.globalDynamics;
-  microtimingOn = defaultUiParams.microtimingOn;
-  dynamicsOn = defaultUiParams.dynamicsOn;
+  globalVelocity = defaultUiParams.globalVelocity;
+  globalDynamics = defaultUiParams.globalDynamics;
+  globalDynamicsOn = defaultUiParams.globalDynamicsOn;
+  globalMicrotiming = defaultUiParams.globalMicrotiming;
+  globalMicrotimingOn = defaultUiParams.globalMicrotimingOn;
   density = defaultUiParams.density;
-  _activeInstruments = defaultUiParams.activeInstruments;
   syncModeIndex = defaultUiParams.syncModeIndex;
   syncRateOptions = defaultUiParams.syncRateOptions;
   syncRate = defaultUiParams.syncRate;
   detailViewModeIndex = defaultUiParams.detailViewModeIndex;
-  _velocityScaleDict = defaultVelocityAmplitude;
-  _velocityRandDict = defaultDetailParam;
-  _timeShiftDict = defaultDetailParam;
-  _timeRandDict = defaultDetailParam;
+
+  _activeInstruments = defaultUiParams.activeInstruments;
+
+  velAmpDict = defaultDetailParam;
+  velRandDict = defaultDetailParam;
+  timeShiftDict = defaultDetailParam;
+  timeRandDict = defaultDetailParam;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -51,11 +54,15 @@ class UIParamsStore {
 
   get expressionParams() {
     return {
-      dynamics: this.dynamics,
-      microtiming: this.microtiming,
-      velocityScaleDict: this.velocityScaleDict,
-      dynamicsOn: this.dynamicsOn,
-      microtimingOn: this.microtimingOn,
+      globalVelocity: this.globalVelocity,
+      globalDynamics: this.globalDynamics,
+      globalMicrotiming: this.globalMicrotiming,
+      globalDynamicsOn: this.globalDynamicsOn,
+      globalMicrotimingOn: this.globalMicrotimingOn,
+      velAmpDict: this.velAmpDict,
+      velRandDict: this.velRandDict,
+      timeShiftDict: this.timeShiftDict,
+      timeRandDict: this.timeRandDict,
     };
   }
 
@@ -102,39 +109,12 @@ class UIParamsStore {
   get activeInstruments() {
     return this._activeInstruments;
   }
-
-  set velocityScaleDict(d) {
-    this._velocityScaleDict = d;
-  }
-  get velocityScaleDict() {
-    return this._velocityScaleDict;
-  }
-
-  set velocityRandDict(d) {
-    this._velocityRandDict = d;
-  }
-  get velocityRandDict() {
-    return this._velocityRandDict;
-  }
-
-  set timeRandDict(d) {
-    this._timeRandDict = d;
-  }
-  get timeRandDict() {
-    return this._timeRandDict;
-  }
-
-  set timeShiftDict(d) {
-    this._timeShiftDict = d;
-  }
-  get timeShiftDict() {
-    return this._timeShiftDict;
-  }
 }
 
 module.exports = {
   UIParamsStore,
   SyncMode,
+  DetailViewMode,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
   LOOP_DURATION,

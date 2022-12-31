@@ -1,35 +1,44 @@
 "use_strict";
 
+const Max = require("max-api");
+
 const assert = require("assert");
 const fs = require("fs");
-const Max = require("max-api");
 const path = require("path");
-const process = require("process");
 
 const { readMidiFile } = require("regroovejs/dist/midi");
 const pitchIndexMapping = require("./data/pitch-index-mapping.json");
 
-const { RootStore } = require("./store/root");
+const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
-
-const ROOT = path.dirname(process.cwd());
-
-let MODEL_DIR;
-if (process.env.MAX_ENV == "max") {
-  MODEL_DIR = path.join(ROOT, "regroove-models/current");
-} else {
-  MODEL_DIR = path.join(ROOT, "current");
-}
-const GENERATOR_STATE_DICT_NAME = "generatorState";
-
+const {
+  DEBUG,
+  MODEL_DIR,
+  GENERATOR_STATE_DICT_NAME,
+  NOTE_UPDATE_THROTTLE,
+} = require("./config");
+const Instrument = require("./store/instrument");
 
 assert.ok(validModelDir(MODEL_DIR));
-const store = new RootStore(MODEL_DIR);
+const store = new RootStore(MODEL_DIR, true);
+
+/**
+ * Turns debug on or off.
+ * @param {bool} value
+ */
+Max.addHandler("debug", (value) => {
+  if (value === 1) {
+    DEBUG = true;
+  } else if (value == 0) {
+    DEBUG = false;
+  }
+  log(`DEBUG: ${DEBUG}`);
+});
 
 /**
  * ========================
- * Inference
+ * Inference Parameters
  * ========================
  * Update minimum density value in uiParamsStore; used as an inference parameter
  * @param {float} value: [0, 1]
@@ -77,43 +86,32 @@ Max.addHandler("/params/generate", () => {
   log("Generator successfully ran.");
 });
 
+/**
+ * ========================
+ * Generator State
+ * ========================
+ * Save the current state of the generator to a Max dictionary for persistence
+ */
 Max.addHandler("saveGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await store.inferenceStore.generator.toDict();
     Max.setDict(GENERATOR_STATE_DICT_NAME, data);
-    log(`Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`);
+    log(
+      `Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`
+    );
   }
 });
 
+/**
+ * Restore the state of the generator from a Max dictionary
+ */
 Max.addHandler("loadGenerator", async () => {
   if (store.inferenceStore.generator !== undefined) {
     const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
-    log(`Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`);
+    log(
+      `Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`
+    );
     store.inferenceStore.generator.fromDict(data);
-  }
-});
-
-Max.addHandler("readMidiFile", async (filePath) => {
-  if (path.extname(filePath) === ".mid") {
-    fs.readFile(filePath, { encoding: "binary" }, (err, midiBuffer) => {
-      if (err) {
-        log(`Error loading MIDI file: ${err}`)
-      } else {
-        readMidiFile(midiBuffer, pitchIndexMapping)
-          .then(async (midiPattern) => {
-            store.patternStore.current = midiPattern;
-            const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-              store.matrixCtrlStore.data;
-            writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-            await writeDetailViewDict(offsetsDataSequence, "offsetsData");
-            Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-            log(`Set new pattern from MIDI file: ${filePath}`);
-          }
-        );
-      }
-    });
-  } else {
-    log(`Invalid filePath: ${filePath}, not a MIDI file.`);
   }
 });
 
@@ -182,122 +180,178 @@ const writeDetailViewDict = async (dataSequence, dictName) => {
 };
 
 /**
- * Triggers an update to the pattern seen in the matrixCtrl
+ * ========================
+ * readMidiFile
+ * ========================
+ * Read a MIDI file and update the pattern seen in the matrixCtrl
+ * @param {string} filePath: path to MIDI file
  */
-Max.addHandler("/params/sync", () => {
-  if (["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)) {
-    const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-      store.matrixCtrlStore.sync();
-    writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-    writeDetailViewDict(offsetsDataSequence, "offsetsData");
-    Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-  }
-});
-
-/**
- * Trigger a sync with the matrixCtrl view if step is at downbeat
- * @param {float} step: range = [0, loopDuration]
- */
-Max.addHandler("autoSync", async (step) => {
-  if (
-    store.uiParamsStore.syncModeName == "Auto" &&
-    step % store.uiParamsStore.loopDuration === 0
-  ) {
-    log(`autoSync: ${step}`);
-    const dataSequences = store.matrixCtrlStore.autoSync(step);
-    if (dataSequences !== undefined) {
-      writeDetailViewDict(dataSequences[1], "velocitiesData");
-      await writeDetailViewDict(dataSequences[2], "offsetsData");
-      Max.outlet("updateMatrixCtrl", ...dataSequences[0]);
-    }
-  }
-});
-
-/**
- * ===========================
- * Expression
- * ===========================
- * Set velocity parameter
- * @param {float} value: range = [0, 1]
- */
-Max.addHandler("/params/velocity", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set velocity to ${value}`);
-    store.uiParamsStore.velocity = value;
+Max.addHandler("readMidiFile", async (filePath) => {
+  if (path.extname(filePath) === ".mid") {
+    fs.readFile(filePath, { encoding: "binary" }, (err, midiBuffer) => {
+      if (err) {
+        log(`Error loading MIDI file: ${err}`);
+      } else {
+        readMidiFile(midiBuffer, pitchIndexMapping).then(
+          async (midiPattern) => {
+            store.patternStore.updateCurrent(...midiPattern);
+            // store.eventSequenceHandler.updateAll(
+            //   store.patternStore.currentOnsets.tensor()[0],
+            //   store.uiParamsStore,
+            //   Max.setDict
+            // );
+            const [
+              onsetsDataSequence,
+              velocitiesDataSequence,
+              offsetsDataSequence,
+            ] = store.maxDisplayStore.data;
+            writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+            await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+            Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+            log(`Set new pattern from MIDI file: ${filePath}`);
+          }
+        );
+      }
+    });
   } else {
-    log(`invalid velocity value ${value} - must be between 0 and 1`);
+    log(`Invalid filePath: ${filePath}, not a MIDI file.`);
   }
 });
 
 /**
  * ===========================
- * Expression
+ * DetailView
  * ===========================
- * Update velocityAmplitude dict in uiParamsStore
+ * Update the velocity and offset dictionaries
  */
+
 Max.addHandler("updateVelAmp", async () => {
-  store.uiParamsStore.velocityScaleDict = await Max.getDict("velAmp");
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  log(`Updated velAmp dict.`);
+  store.uiParamsStore.velAmpDict = await Max.getDict("velAmp");
+  const dataSequences = store.maxDisplayStore.data;
+  writeDetailViewDict(dataSequences[1], "velocitiesData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated velAmp dict to ${Object.values(store.uiParamsStore.velAmpDict)}`
+  );
 });
+
 Max.addHandler("updateVelRand", async () => {
-  store.uiParamsStore.velocityRandDict = await Max.getDict("velRand");
-  log(`Updated velRand dict.`);
+  store.uiParamsStore.velRandDict = await Max.getDict("velRand");
+  const dataSequences = store.maxDisplayStore.data;
+  writeDetailViewDict(dataSequences[1], "velocitiesData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated velRand dict to ${Object.values(store.uiParamsStore.velRandDict)}`
+  );
 });
+
 Max.addHandler("updateTimeShift", async () => {
   store.uiParamsStore.timeShiftDict = await Max.getDict("timeShift");
-  log(`Updated timeShift dict.`);
+  const dataSequences = store.maxDisplayStore.data;
+  writeDetailViewDict(dataSequences[2], "offsetsData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated timeShift dict to ${Object.values(
+      store.uiParamsStore.timeShiftDict
+    )}`
+  );
 });
+
 Max.addHandler("updateTimeRand", async () => {
   store.uiParamsStore.timeRandDict = await Max.getDict("timeRand");
-  log(`Updated timeRand dict.`);
+  const dataSequences = store.maxDisplayStore.data;
+  writeDetailViewDict(dataSequences[2], "offsetsData");
+  Max.outlet("updateDetailView", 1);
+  log(
+    `Updated timeRand dict to ${Object.values(
+      store.uiParamsStore.timeRandDict
+    )}`
+  );
 });
 
 /**
- * Trigger a sync with the matrixCtrl view if step is at downbeat
- * @param {float} step: range = [0, loopDuration]
+ * Update the detail view data
+ * @param {float} instrumentIndex: range = [0, 8]
  */
-Max.addHandler("/params/dynamics", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set dynamics to ${value}`);
-    store.uiParamsStore.dynamics = value;
-  } else {
-    log(`invalid dynamics value ${value} - must be between 0 and 1`);
-  }
-});
-
-Max.addHandler("/params/microtiming", (value) => {
-  if (value >= 0 && value <= 1) {
-    log(`Set microtiming to ${value}`);
-    store.uiParamsStore.microtiming = value;
-  } else {
-    log(`invalid microtiming value ${value} - must be between 0 and 1`);
+Max.addHandler("updateDetailData", async (instrumentIndex) => {
+  const instrument = Instrument.fromIndex(instrumentIndex);
+  if (store.uiParamsStore.detailViewMode == "Velocity") {
+    const detailViewData = await Max.getDict("velocitiesData");
+    store.patternStore.updateInstrumentVelocities(
+      instrument.index,
+      detailViewData[instrumentIndex]
+    );
+  } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
+    const detailViewData = await Max.getDict("offsetsData");
+    store.patternStore.updateInstrumentOffsets(
+      instrument.index,
+      detailViewData[instrumentIndex]
+    );
   }
 });
 
 /**
+ * set the detail view mode
+ * @param {string} v: "Velocity" or "Microtiming"
+ */
+Max.addHandler("setDetailViewMode", (v) => {
+  store.uiParamsStore.detailViewModeIndex = v;
+  log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
+});
+
+/**
+ * ===========================
+ * Global Expression
+ * ===========================
  * Set dynamics parameter
  * @param {float} value: range = [0, 1]
  */
 Max.addHandler("/params/dynamics", (value) => {
   if (value >= 0 && value <= 1) {
     log(`Set dynamics to ${value}`);
-    store.uiParamsStore.dynamics = value;
+    store.uiParamsStore.globalDynamics = value;
+    Max.outlet("updateDetailView", 1);
   } else {
-    Max.post(`invalid dynamics value ${value} - must be between 0 and 1`);
+    log(`invalid dynamics value ${value} - must be between 0 and 1`);
+  }
+});
+
+/**
+ * Set velocity parameter
+ * @param {float} value: range = [0, 1]
+ */
+Max.addHandler("/params/velocity", (value) => {
+  if (value >= 0 && value <= 1) {
+    log(`Set velocity to ${value}`);
+    store.uiParamsStore.globalVelocity = value;
+    Max.outlet("updateDetailView", 1);
+  } else {
+    log(`invalid velocity value ${value} - must be between 0 and 1`);
   }
 });
 
 /**
  * Set microtiming parameter
+ * @param {float} value: range = [-1, 1]
+ */
+Max.addHandler("/params/microtiming", (value) => {
+  if (value >= 0 && value <= 1) {
+    log(`Set microtiming to ${value}`);
+    store.uiParamsStore.globalMicrotiming = value;
+    Max.outlet("updateDetailView", 1);
+  } else {
+    log(`invalid microtiming value ${value} - must be between 0 and 1`);
+  }
+});
+
+/**
+ * Set microtimingOn parameter
  * @param {int} value: On or off
  */
 Max.addHandler("/params/microtimingOn", (value) => {
-  store.uiParamsStore.microtimingOn = Boolean(parseInt(value));
-  log(`Set microtimingOn to ${store.uiParamsStore.microtimingOn}`);
+  store.uiParamsStore.globalMicrotimingOn = Boolean(parseInt(value));
+  Max.outlet("updateDetailView", 1);
+  log(`Set microtimingOn to ${store.uiParamsStore.globalMicrotimingOn}`);
 });
 
 /**
@@ -305,8 +359,9 @@ Max.addHandler("/params/microtimingOn", (value) => {
  * @param {int} value: On or off
  */
 Max.addHandler("/params/dynamicsOn", (value) => {
-  store.uiParamsStore.dynamicsOn = Boolean(parseInt(value));
-  log(`Set dynamicsOn to ${store.uiParamsStore.dynamicsOn}`);
+  store.uiParamsStore.globalDynamicsOn = Boolean(parseInt(value));
+  Max.outlet("updateDetailView", 1);
+  log(`Set dynamicsOn to ${store.uiParamsStore.globalDynamicsOn}`);
 });
 
 /**
@@ -326,70 +381,130 @@ Max.addHandler("/params/density", (value) => {
  * ================================
  * Pattern Matrix
  * ================================
- * Update the onset value of a specific note
- * @param {int} step: range = [0, loopDuration - 1]
- * @param {int} instrument: range = [0, numInstruments - 1]
- * @param {int} value: range = [0, 1]
  */
-Max.addHandler("updateNote", async (step, instrument, value) => {
-  const instrumentIndex = store.uiParamsStore.numInstruments - instrument - 1;
-  if (
-    step < store.uiParamsStore.loopDuration &&
-    instrument < store.uiParamsStore.numInstruments
-  ) {
-    if (!store.eventSequenceHandler.ignoreNoteUpdate) {
-      store.patternStore.updateNote(step, instrumentIndex, value);
-      const midiEventUpdates = store.eventSequenceHandler.updateNoteEvents(
-        step,
-        instrumentIndex,
-        value,
-        store.uiParamsStore.dynamics,
-        store.uiParamsStore.microtiming,
-        store.uiParamsStore.velocityScaleDict[instrumentIndex.toString()],
-        store.uiParamsStore.dynamicsOn,
-        store.uiParamsStore.microtimingOn
+/**
+ * Handle a user update to a note in the pattern matrix
+ * @param {int} step: range = [0, 15]
+ * @param {int} matrixCtrlIndex: range = [0, 9]
+ * @param {int} onsetValue: range = [0, 1]
+ */
+Max.addHandler("updateNote", async (step, matrixCtrlIndex, onsetValue) => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    const instrument = Instrument.fromMatrixCtrlIndex(matrixCtrlIndex);
+    store.patternStore.updateNote(step, instrument, onsetValue);
+    const midiEventUpdates = store.eventSequenceHandler.updateNote(
+      store.eventSequenceHandler.eventSequence,
+      instrument,
+      step,
+      onsetValue,
+      store.uiParamsStore.globalVelocity,
+      store.uiParamsStore.globalDynamics,
+      store.uiParamsStore.globalDynamicsOn,
+      store.uiParamsStore.globalMicrotiming,
+      store.uiParamsStore.globalMicrotimingOn,
+      store.uiParamsStore.velAmpDict,
+      store.uiParamsStore.velRandDict,
+      store.uiParamsStore.timeShiftDict,
+      store.uiParamsStore.timeRandDict
+    );
+    for (const [tick, noteEvents] of Object.entries(midiEventUpdates)) {
+      await Max.updateDict(
+        store.eventSequenceHandler.eventSequenceDictName,
+        tick,
+        noteEvents
       );
-      for (const [idx, noteEvents] of Object.entries(midiEventUpdates)) {
-        await Max.updateDict("midiEventSequence", idx, noteEvents);
-        log("Updated midiEventSequence dictionary");
-      }
+      log(
+        `Updated EventSequence for tick: ${tick} with events: ${noteEvents}]`
+      );
     }
-  } else {
-    log(`Invalid pattern index: [${step}, ${instrument}]`);
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
+    Max.outlet("saveEventSequence");
   }
 });
 
-Max.addHandler("updateDetailData", async (instrumentIndex) => {
-  if (store.uiParamsStore.detailViewMode == "Velocity") {
-    const detailViewData = await Max.getDict("velocitiesData");
-    store.patternStore.updateInstrumentVelocities(
-      instrumentIndex,
-      detailViewData[instrumentIndex]
-    );
-  } else if (store.uiParamsStore.detailViewMode == "Microtiming") {
-    const detailViewData = await Max.getDict("offsetsData");
-    store.patternStore.updateInstrumentOffsets(
-      instrumentIndex,
-      detailViewData[instrumentIndex]
-    );
-  }
-});
+const updateMaxViews = async () => {
+  // update matrixCtrl and detail views
+  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
+    store.maxDisplayStore.data;
 
-Max.addHandler("setDetailViewMode", (v) => {
-  store.uiParamsStore.detailViewModeIndex = v;
-  log(`Set detailViewMode to ${store.uiParamsStore.detailViewMode}`);
+  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+
+  store.eventSequenceHandler.ignoreNoteUpdate = true;
+  await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+  setTimeout(() => {
+    store.eventSequenceHandler.ignoreNoteUpdate = false;
+  }, NOTE_UPDATE_THROTTLE);
+};
+
+Max.addHandler("/params/sync", () => {
+  if (
+    !store.eventSequenceHandler.ignoreNoteUpdate &&
+    ["Snap", "Toggle"].includes(store.uiParamsStore.syncModeName)
+  ) {
+    store.maxDisplayStore.sync();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
+  }
 });
 
 /**
- * Clear current pattern
+ * Trigger a sync with the matrixCtrl view if step is at downbeat
+ * @param {float} step: range = [0, loopDuration]
  */
-Max.addHandler("clearPattern", async () => {
-  store.patternStore.clearCurrent();
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+Max.addHandler("autoSync", async (step) => {
+  if (store.uiParamsStore.syncModeName == "Auto") {
+    if (
+      step % store.uiParamsStore.loopDuration === 0 &&
+      !store.eventSequenceHandler.ignoreNoteUpdate
+    ) {
+      const dataSequences = store.maxDisplayStore.autoSync(step);
+      if (dataSequences !== undefined) {
+        writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
+        await writeDetailViewDict(offsetsDataSequence, "offsetsData");
+
+        store.eventSequenceHandler.ignoreNoteUpdate = true;
+        await Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
+        setTimeout(() => {
+          store.eventSequenceHandler.ignoreNoteUpdate = false;
+        }, NOTE_UPDATE_THROTTLE);
+        Max.outlet("saveEventSequence");
+      }
+    }
+  }
+});
+
+Max.addHandler("clearPattern", () => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Clearing pattern");
+    store.patternStore.clearCurrent();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
+  }
+});
+
+/**
+ * Populate matrixCtrl view with previous pattern from history
+ */
+Max.addHandler("setPreviousPattern", () => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Setting previous pattern");
+    store.patternStore.setPrevious();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
+  }
+});
+
+/**
+ * Populate matrixCtrl view with the pattern used as input to the neural net
+ */
+Max.addHandler("setInputPattern", () => {
+  if (!store.eventSequenceHandler.ignoreNoteUpdate) {
+    log("Setting input pattern");
+    store.patternStore.setInput();
+    updateMaxViews();
+    Max.outlet("saveEventSequence");
+  }
 });
 
 /**
@@ -402,35 +517,4 @@ Max.addHandler("updateActiveInstruments", () => {
       `Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`
     );
   });
-});
-
-/**
- * Populate matrixCtrl view with previous pattern from history
- */
-Max.addHandler("setPreviousPattern", async () => {
-  store.patternStore.setPrevious();
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-});
-
-/**
- * Populate matrixCtrl view with the pattern used as input to the neural net
- */
-Max.addHandler("setInputPattern", async () => {
-  store.patternStore.setInput();
-  const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] =
-    store.matrixCtrlStore.data;
-  writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
-  await writeDetailViewDict(offsetsDataSequence, "offsetsData");
-  Max.outlet("updateMatrixCtrl", ...onsetsDataSequence);
-});
-
-/**
- * Reset the pattern history
- */
-Max.addHandler("resetPatternHistory", () => {
-  store.patternStore.resetHistory();
 });

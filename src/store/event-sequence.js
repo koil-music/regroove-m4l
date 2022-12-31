@@ -1,101 +1,22 @@
-const Max = require("max-api");
+const Max = require("../max-api");
 const { makeAutoObservable, reaction } = require("mobx");
 
+const {
+  NUM_INSTRUMENTS,
+  LOOP_DURATION,
+  BUFFER_LENGTH,
+  TICKS_PER_16TH,
+} = require("../config");
+const Instrument = require("./instrument");
+const NoteEvent = require("./note-event");
 const { log } = require("../utils");
-const { NUM_INSTRUMENTS, LOOP_DURATION } = require("./ui-params");
-
-const BUFFER_LENGTH = 512;
-const TICKS_PER_16TH = 512 / 16;
-const MAX_VELOCITY = 127;
-
-class NoteEvent {
-  constructor(
-    onset,
-    instrumentIndex,
-    step,
-    offsetValue,
-    offsetMagnitude,
-    offsetOn,
-    velocityValue,
-    velocityMagnitude,
-    dynamicsMagnitude,
-    dynamicsOn,
-    velocityRand,
-    offsetRand,
-    offsetShift
-  ) {
-    this.onset = onset;
-    this.instrumentIndex = instrumentIndex;
-    this.step = step;
-    this.offsetValue = offsetValue;
-    this.offsetMagnitude = offsetMagnitude;
-    this.offsetOn = offsetOn;
-    this.velocityValue = velocityValue;
-    this.velocityMagnitude = velocityMagnitude;
-    this.dynamicsMagnitude = dynamicsMagnitude;
-    this.dynamicsOn = dynamicsOn;
-    this.velocityRand = velocityRand;
-    this.offsetRand = offsetRand;
-    this.offsetShift = offsetShift;
-  }
-
-  get instrument() {
-    return NUM_INSTRUMENTS - 1 - this.instrumentIndex;
-  }
-
-  get quantizedBufferIndex() {
-    return this.step * TICKS_PER_16TH;
-  }
-
-  get bufferIndexRange() {
-    return {
-      min: this.quantizedBufferIndex - TICKS_PER_16TH / 2,
-      max: this.quantizedBufferIndex + TICKS_PER_16TH / 2,
-    };
-  }
-
-  get bufferIndex() {
-    let bufferIndex = this.quantizedBufferIndex;
-    if (this.offsetOn) {
-      const offsetTicks = this.offsetValue * (TICKS_PER_16TH / 2);
-      const randomOffsetTicks =
-        Math.random() * this.offsetRand * (TICKS_PER_16TH / 2);
-      const shiftOffsetTicks = this.offsetShift * (TICKS_PER_16TH / 2);
-      bufferIndex += Math.floor(offsetTicks * this.offsetMagnitude);
-      bufferIndex += Math.floor(shiftOffsetTicks);
-      bufferIndex += Math.floor(randomOffsetTicks);
-    }
-    if (bufferIndex < 0) {
-      return BUFFER_LENGTH + bufferIndex;
-    } else {
-      return bufferIndex;
-    }
-  }
-
-  get velocity() {
-    let velocity = this.velocityValue * MAX_VELOCITY;
-    if (this.dynamicsOn) {
-      velocity *= this.dynamicsMagnitude;
-    }
-    const randomVelocityScale = Math.random() * this.velocityRand * velocity;
-    const scaledVelocity = Math.floor(velocity * this.velocityMagnitude);
-    return scaledVelocity + randomVelocityScale;
-  }
-}
-
-class BufferEvent {
-  constructor(pitch, velocity) {
-    this.pitch = pitch;
-    this.velocity = velocity;
-  }
-
-  get array() {
-    return [this.pitch, this.velocity];
-  }
-}
 
 class EventSequence {
-  constructor(numInstruments, loopDuration, bufferLength) {
+  constructor(
+    numInstruments = NUM_INSTRUMENTS,
+    loopDuration = LOOP_DURATION,
+    bufferLength = BUFFER_LENGTH
+  ) {
     this.numInstruments = numInstruments;
     this.loopDuration = loopDuration;
     this.bufferLength = bufferLength;
@@ -103,13 +24,11 @@ class EventSequence {
   }
 
   reset() {
-    // public
-    this.quantizedData = this._resetQuantizedData(this.loopDuration);
-    this.bufferData = this._initBufferData(0, this.bufferLength);
+    this.quantizedDict = this._resetQuantizedDict(this.loopDuration);
+    this.bufferDict = this._resetBufferDict(0, this.bufferLength);
   }
 
-  _resetQuantizedData(length) {
-    // private
+  _resetQuantizedDict(length) {
     const data = [];
     for (let i = 0; i < length; i++) {
       data.push({});
@@ -117,171 +36,197 @@ class EventSequence {
     return data;
   }
 
-  _initBufferData(start, end) {
-    // private
+  _resetBufferDict(start, end) {
     const data = {};
     for (let i = start; i < end; i++) {
-      data[i] = new BufferEvent(-1, 0).array;
+      data[i] = {};
+      for (let j = 0; j < this.numInstruments; j++) {
+        data[i][j] = 0;
+      }
     }
     return data;
   }
 
-  update(event) {
-    // public
-    const events = this.quantizedData[event.step];
-    const previousEvent = events[event.instrument];
-    const bufferDataUpdates = {};
-    if (event.onset === 1) {
-      events[event.instrument] = event;
-    } else {
-      // event.onset === 0
-      delete events[event.instrument];
-      if (previousEvent !== undefined) {
-        bufferDataUpdates[previousEvent.bufferIndex] = new BufferEvent(
-          previousEvent.instrument,
-          0
-        ).array;
+  get bufferData() {
+    const data = {};
+    for (let i = 0; i < this.bufferLength; i++) {
+      data[i] = [];
+      for (let j = 0; j < this.numInstruments; j++) {
+        data[i].push(...[j, this.bufferDict[i][j]]);
       }
     }
-    this.quantizedData[event.step] = events;
+    return data;
+  }
 
-    for (const e of Object.values(events)) {
-      const bufferEvent = new BufferEvent(e.instrument, e.velocity);
-      if (Object.keys(bufferDataUpdates).includes(e.bufferIndex.toString())) {
-        bufferDataUpdates[e.bufferIndex].push(...bufferEvent.array);
-      } else {
-        bufferDataUpdates[e.bufferIndex] = bufferEvent.array;
+  _getExistingTickForEvent(event) {
+    let existingTick;
+    let ticksFound = 0;
+    for (let tick = event.minTick; tick <= event.maxTick; tick++) {
+      const wrappedTick = event.wrapTick(tick);
+      if (this.bufferDict[wrappedTick][event.instrument.matrixCtrlIndex] > 0) {
+        existingTick = wrappedTick;
+        ticksFound += 1;
       }
     }
-    return bufferDataUpdates;
+    if (ticksFound > 1) {
+      log("Error: more than one tick found for event");
+    }
+    return existingTick;
+  }
+
+  /**
+   * Updates an event in the event sequence. This involves updating the
+   * quantizedData and bufferData. If the event is a note on, it also
+   * updates the bufferData for the previous event at that step. If the
+   * event is a note off, it deletes the event from quantizedData and
+   * bufferData. Lastly, it returns a dictionary of buffer updates to
+   * send to Max.
+   * @param {*} NoteEvent
+   * @returns Dictionary of buffer updates to send to Max
+   */
+  update(event) {
+    // handling existing event at step
+    const previousEvent =
+      this.quantizedDict[event.step][event.instrument.matrixCtrlIndex];
+    const bufferUpdates = {};
+    if (previousEvent !== undefined) {
+      const previousTick = this._getExistingTickForEvent(previousEvent);
+
+      // remove previous event from quantizedData, set bufferData entry to 0
+      delete this.quantizedDict[previousEvent.step][
+        previousEvent.instrument.matrixCtrlIndex
+      ];
+      this.bufferDict[previousEvent.tick][
+        previousEvent.instrument.matrixCtrlIndex
+      ] = 0;
+
+      // add previous tick to bufferUpdates
+      bufferUpdates[previousTick] = [];
+    }
+
+    if (event.onsetValue === 1) {
+      // add event to quantizedData, set bufferData entry to event velocity
+      this.quantizedDict[event.step][event.instrument.matrixCtrlIndex] = event;
+      this.bufferDict[event.tick][event.instrument.matrixCtrlIndex] =
+        event.velocity;
+    } else if (event.onsetValue === 0) {
+      // remove event from quantizedData, set bufferData entry to 0
+      delete this.quantizedDict[event.step][event.instrument.matrixCtrlIndex];
+      this.bufferDict[event.tick][event.instrument.matrixCtrlIndex] = 0;
+    }
+
+    // construct bufferUpdates
+    bufferUpdates[event.tick] = [];
+    for (const [tick, updates] of Object.entries(bufferUpdates)) {
+      for (let i = 0; i < this.numInstruments; i++) {
+        updates.push(...[i, this.bufferDict[tick][i]]);
+      }
+    }
+    return bufferUpdates;
   }
 }
 
 class EventSequenceHandler {
   rootStore;
-  isPatternUpdate = true;
   ignoreNoteUpdate = false;
+  eventSequenceDictName = "midiEventSequence";
   eventSequence;
 
   constructor(rootStore) {
     // i.e. quantizedEventSequence = [{"36": [2, 100], "42": [0, 127]}, ...]
     makeAutoObservable(this);
     this.root = rootStore;
-    this.eventSequence = new EventSequence(
-      NUM_INSTRUMENTS,
-      LOOP_DURATION,
-      BUFFER_LENGTH
-    );
+    this.eventSequence = new EventSequence();
 
     this.reactToParamsChange = reaction(
       () => this.root.uiParamsStore.expressionParams,
       (params) => {
-        this.updateSequence(
+        this.updateAll(
           this.root.patternStore.currentOnsets.tensor()[0],
-          params.dynamics,
-          params.microtiming,
-          params.velocityScaleDict,
-          params.dynamicsOn,
-          params.microtimingOn
+          params,
+          Max.setDict
         );
       }
     );
 
     this.reactToPatternChange = reaction(
-      () => this.root.patternStore.currentOnsets,
-      (currentOnsets) => {
-        // only trigger updateSequence if isPatternUpdate flag is set
-        if (this.isPatternUpdate) {
-          this.updateSequence(
-            currentOnsets.tensor()[0],
-            this.root.uiParamsStore.dynamics,
-            this.root.uiParamsStore.microtiming,
-            this.root.uiParamsStore.velocityScaleDict,
-            this.root.uiParamsStore.dynamicsOn,
-            this.root.uiParamsStore.microtimingOn
-          );
-          this.togglePatternUpdate();
-          this.toggleIgnoreNoteUpdate();
-        }
+      () => this.root.patternStore.currentOnsets.tensor()[0],
+      (onsets) => {
+        this.updateAll(
+          onsets,
+          this.root.uiParamsStore.expressionParams,
+          Max.setDict
+        );
       }
     );
   }
 
-  reset() {
-    this.quantizedEventSequence.reset();
-  }
-
-  togglePatternUpdate() {
-    this.isPatternUpdate = !this.isPatternUpdate;
-  }
-
-  toggleIgnoreNoteUpdate() {
-    // workaround to throttle note updates, this is to avoid spamming the
-    // server with note update requests when the data is already up-to-date
-    this.ignoreNoteUpdate = true;
-    setTimeout(() => (this.ignoreNoteUpdate = false), 250);
-  }
-
-  updateNoteEvents(
-    step,
+  updateNote(
+    eventSequence,
     instrument,
+    step,
     onset,
-    dynamicsMagnitude,
-    offsetMagnitude,
-    velocityMagnitude,
-    dynamicsOn,
-    microtimingOn
+    globalVelocity,
+    globalDynamics,
+    globalDynamicsOn,
+    globalMicrotiming,
+    globalMicrotimingOn,
+    velAmpDict,
+    velRandDict,
+    timeRandDict,
+    timeShiftDict
   ) {
     const event = new NoteEvent(
-      onset,
       instrument,
       step,
-      this.root.patternStore.currentOffsets.tensor()[0][step][instrument],
-      offsetMagnitude,
-      microtimingOn,
-      this.root.patternStore.currentVelocities.tensor()[0][step][instrument],
-      velocityMagnitude,
-      dynamicsMagnitude,
-      dynamicsOn,
-      this.root.uiParamsStore.velocityRandDict[instrument],
-      this.root.uiParamsStore.timeRandDict[instrument],
-      this.root.uiParamsStore.timeShiftDict[instrument]
+      onset,
+      this.root.patternStore.currentVelocities.tensor()[0][step][
+        instrument.index
+      ],
+      this.root.patternStore.currentOffsets.tensor()[0][step][instrument.index],
+      globalVelocity,
+      globalDynamics,
+      globalDynamicsOn,
+      globalMicrotiming,
+      globalMicrotimingOn,
+      velAmpDict[instrument.matrixCtrlIndex],
+      velRandDict[instrument.matrixCtrlIndex],
+      timeRandDict[instrument.matrixCtrlIndex],
+      timeShiftDict[instrument.matrixCtrlIndex]
     );
-    const bufferDataUpdates = this.eventSequence.update(event);
-    return bufferDataUpdates;
+    const bufferUpdates = eventSequence.update(event);
+    return bufferUpdates;
   }
 
-  async updateSequence(
-    onsetsTensor,
-    dynamicsMagnitude,
-    offsetMagnitude,
-    velocityScaleDict,
-    dynamicsOn,
-    microtimingOn
-  ) {
-    this.eventSequence.reset();
-    for (let instrument = 0; instrument < NUM_INSTRUMENTS; instrument++) {
+  updateAll(onsetsTensor, params, callback) {
+    for (
+      let instrumentIndex = 0;
+      instrumentIndex < NUM_INSTRUMENTS;
+      instrumentIndex++
+    ) {
       for (let step = 0; step < LOOP_DURATION; step++) {
-        const onset = onsetsTensor[step][instrument];
-        const bufferDataUpdates = this.updateNoteEvents(
-          step,
+        const instrument = Instrument.fromIndex(instrumentIndex);
+        const onset = onsetsTensor[step][instrument.index];
+        this.updateNote(
+          this.eventSequence,
           instrument,
+          step,
           onset,
-          dynamicsMagnitude,
-          offsetMagnitude,
-          velocityScaleDict[instrument.toString()],
-          dynamicsOn,
-          microtimingOn
+          params.globalVelocity,
+          params.globalDynamics,
+          params.globalDynamicsOn,
+          params.globalMicrotiming,
+          params.globalMicrotimingOn,
+          params.velAmpDict,
+          params.velRandDict,
+          params.timeRandDict,
+          params.timeShiftDict
         );
-        // sync this.bufferData
-        for (const [idx, noteEvents] of Object.entries(bufferDataUpdates)) {
-          this.eventSequence.bufferData[idx] = noteEvents;
-        }
       }
     }
-    log("Setting eventSequence dictionary.");
-    Max.setDict("midiEventSequence", this.eventSequence.bufferData);
+    log("Updating event sequence");
+    callback(this.eventSequenceDictName, this.eventSequence.bufferData);
   }
 }
 
-module.exports = { EventSequenceHandler, NoteEvent };
+module.exports = { EventSequence, EventSequenceHandler };

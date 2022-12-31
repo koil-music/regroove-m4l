@@ -2,36 +2,43 @@ const { makeAutoObservable } = require("mobx");
 
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
-const { LOOP_DURATION, NUM_INSTRUMENTS, NUM_SAMPLES } = require("./ui-params");
-const { log } = require("../utils");
+const { LOOP_DURATION, NUM_INSTRUMENTS, HISTORY_DEPTH } = require("../config");
+const Instrument = require("./instrument");
 
 class PatternStore {
   root;
-  _currentOnsets;
-  _currentVelocities;
-  _currentOffsets;
+
+  dims = [1, LOOP_DURATION, NUM_INSTRUMENTS];
+
+  currentOnsets;
+  currentVelocities;
+  currentOffsets;
+
   inputOnsets;
   inputVelocities;
   inputOffsets;
+
   tempOnsets;
   tempVelocities;
   tempOffsets;
-  dims = [1, LOOP_DURATION, NUM_INSTRUMENTS];
+
   currentHistoryIndex = 0;
-  onsetsHistory = new PatternHistory(100);
-  velocitiesHistory = new PatternHistory(100);
-  offsetsHistory = new PatternHistory(100);
+  onsetsHistory = new PatternHistory(HISTORY_DEPTH);
+  velocitiesHistory = new PatternHistory(HISTORY_DEPTH);
+  offsetsHistory = new PatternHistory(HISTORY_DEPTH);
 
   constructor(rootStore) {
     makeAutoObservable(this);
     this.root = rootStore;
 
-    this._currentOnsets = new Pattern(this.emptyPatternData, this.dims);
-    this._currentVelocities = new Pattern(this.emptyPatternData, this.dims);
-    this._currentOffsets = new Pattern(this.emptyPatternData, this.dims);
+    this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
+    this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
+
     this.inputOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.inputVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.inputOffsets = new Pattern(this.emptyPatternData, this.dims);
+
     this.tempOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.tempVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.tempOffsets = new Pattern(this.emptyPatternData, this.dims);
@@ -57,7 +64,6 @@ class PatternStore {
   }
 
   setCurrentFromTemp() {
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = this.tempOnsets;
     this.currentVelocities = this.tempVelocities;
     this.currentOffsets = this.tempOffsets;
@@ -74,167 +80,106 @@ class PatternStore {
     this.resetHistoryIndex();
   }
 
-  resetHistory() {
-    this.onsetsHistory._queue = [];
-    this.velocitiesHistory._queue = [];
-    this.offsetsHistory._queue = [];
-  }
-
   clearCurrent() {
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
-    log(`Cleared current pattern.`);
   }
 
-  updateCurrent() {
-    const randomIndex = Math.floor(
-      Math.random() * Math.sqrt(this.root.uiParamsStore.numSamples)
-    );
+  updateCurrent(
+    newOnsetsPattern,
+    newVelocitiesPattern,
+    newOffsetsPattern,
+    activeInstruments
+  ) {
+    // handle history and state
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
-    const x = parseInt(this.root.uiParamsStore.densityIndex);
-    const y = parseInt(randomIndex);
-
     const previousOnsetsTensor = this.currentOnsets.tensor();
     const previousVelocitiesTensor = this.currentVelocities.tensor();
     const previousOffsetsTensor = this.currentOffsets.tensor();
 
-    const newOnsetsTensor = new Pattern(
-      this.root.inferenceStore.generator.onsets.sample(x, y),
-      this.dims
-    ).tensor();
-    const newVelocitiesTensor = new Pattern(
-      this.root.inferenceStore.generator.velocities.sample(x, y),
-      this.dims
-    ).tensor();
-    const newOffsetsTensor = new Pattern(
-      this.root.inferenceStore.generator.offsets.sample(x, y),
-      this.dims
-    ).tensor();
-
-    // if a channel is inactive, use previousOnsetsTensor data
-    const activeInstruments = this.root.uiParamsStore.activeInstruments;
+    // get inactive instrument indices
+    if (activeInstruments === undefined) {
+      activeInstruments = [];
+      for (let i = 0; i < NUM_INSTRUMENTS; i++) {
+        activeInstruments.push(1);
+      }
+    }
     const inactiveInstruments = [];
     for (let i = 0; i < activeInstruments.length; i++) {
       if (activeInstruments[i] === 0) {
-        inactiveInstruments.push(i);
-      }
-    }
-    for (const channel of inactiveInstruments) {
-      for (let step = 0; step < previousOnsetsTensor[0].length; step++) {
-        newOnsetsTensor[0][step][channel] =
-          previousOnsetsTensor[0][step][channel];
-        newVelocitiesTensor[0][step][channel] =
-          previousVelocitiesTensor[0][step][channel];
-        newOffsetsTensor[0][step][channel] =
-          previousOffsetsTensor[0][step][channel];
+        inactiveInstruments.push(Instrument.fromIndex(i));
       }
     }
 
+    // get new pattern tensors
+    const newOnsetsTensor = newOnsetsPattern.tensor();
+    const newVelocitiesTensor = newVelocitiesPattern.tensor();
+    const newOffsetsTensor = newOffsetsPattern.tensor();
+
+    // preserve previous pattern to new pattern for inactive instruments
+    for (const instrument of inactiveInstruments) {
+      for (let step = 0; step < previousOnsetsTensor[0].length; step++) {
+        newOnsetsTensor[0][step][instrument.index] =
+          previousOnsetsTensor[0][step][instrument.index];
+        newVelocitiesTensor[0][step][instrument.index] =
+          previousVelocitiesTensor[0][step][instrument.index];
+        newOffsetsTensor[0][step][instrument.index] =
+          previousOffsetsTensor[0][step][instrument.index];
+      }
+    }
+
+    // update current patterns
     this.currentOnsets = new Pattern(newOnsetsTensor, this.dims);
     this.currentVelocities = new Pattern(newVelocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(newOffsetsTensor, this.dims);
-    log(`Updated current patterns using updateCurrent.`);
   }
 
-  updateNote(step, instrumentIndex, value) {
+  updateNote(step, instrument, onsetValue) {
     const onsetsTensor = this.currentOnsets.tensor();
     const velocitiesTensor = this.currentVelocities.tensor();
     const offsetsTensor = this.currentOffsets.tensor();
 
-    onsetsTensor[0][step][instrumentIndex] = value;
-    velocitiesTensor[0][step][instrumentIndex] = this.currentMeanVelocity;
-    offsetsTensor[0][step][instrumentIndex] = 0;
+    onsetsTensor[0][step][instrument.index] = onsetValue;
+    velocitiesTensor[0][step][instrument.index] = this.currentMeanVelocity;
+    offsetsTensor[0][step][instrument.index] = 0;
 
     this.currentOnsets = new Pattern(onsetsTensor, this.dims);
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
-    log(
-      `Changed note value for [${step}, ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }] to ${value}`
-    );
   }
 
-  updateInstrumentVelocities(instrumentIndex, data) {
+  updateInstrumentVelocities(instrument, velocities) {
     const velocitiesTensor = this.currentVelocities.tensor();
     for (let i = 0; i < LOOP_DURATION; i++) {
-      velocitiesTensor[0][i][NUM_INSTRUMENTS - 1 - instrumentIndex] = data[i];
+      velocitiesTensor[0][i][instrument.index] = velocities[i];
     }
     this.currentVelocities = new Pattern(velocitiesTensor, this.dims);
-    log(
-      `Updated currentVelocities for instrument: ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }`
-    );
   }
 
-  updateInstrumentOffsets(instrumentIndex, data) {
+  updateInstrumentOffsets(instrument, data) {
     const offsetsTensor = this.currentOffsets.tensor();
     for (let i = 0; i < LOOP_DURATION; i++) {
-      offsetsTensor[0][i][instrumentIndex] = data[i];
+      offsetsTensor[0][i][instrument.index] = data[i];
     }
     this.currentOffsets = new Pattern(offsetsTensor, this.dims);
-    log(
-      `Updated currentOffsets for instrument: ${
-        NUM_INSTRUMENTS - 1 - instrumentIndex
-      }`
-    );
   }
 
   get current() {
     return [this.currentOnsets, this.currentVelocities, this.currentOffsets];
   }
 
-  set current(pattern) {
-    const [onsets, velocities, offsets] = pattern;
-    this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
-    this.currentOnsets = onsets;
-    this.currentVelocities = velocities;
-    this.currentOffsets = offsets;
-  }
-
-  get currentOnsets() {
-    return this._currentOnsets;
-  }
-
-  set currentOnsets(v) {
-    this._currentOnsets = v;
-  }
-
-  get currentVelocities() {
-    return this._currentVelocities;
-  }
-
-  set currentVelocities(v) {
-    this._currentVelocities = v;
-  }
-
-  get currentOffsets() {
-    return this._currentOffsets;
-  }
-
-  set currentOffsets(v) {
-    this._currentOffsets = v;
-  }
-
   setInput() {
     this.updateHistory();
-    this.root.eventSequenceHandler.togglePatternUpdate();
     this.currentOnsets = this.inputOnsets;
     this.currentVelocities = this.inputVelocities;
     this.currentOffsets = this.inputOffsets;
-    log(`Set current pattern to input pattern.`);
   }
 
   setPrevious() {
     this.currentHistoryIndex += 1;
     if (this.currentHistoryIndex < this.onsetsHistory._queue.length) {
-      this.root.eventSequenceHandler.togglePatternUpdate();
       this.currentOnsets = this.onsetsHistory.sample(this.currentHistoryIndex);
       this.currentVelocities = this.velocitiesHistory.sample(
         this.currentHistoryIndex
@@ -242,7 +187,6 @@ class PatternStore {
       this.currentOffsets = this.offsetsHistory.sample(
         this.currentHistoryIndex
       );
-      log(`Set current pattern to previous pattern.`);
     }
   }
 
