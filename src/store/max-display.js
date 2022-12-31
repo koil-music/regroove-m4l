@@ -43,7 +43,6 @@ class MaxDisplayStore {
           this.root.uiParamsStore.timeShiftDict[instrument.matrixCtrlIndex]
         );
 
-        // velocity
         let velocityValue;
         if (event.onsetValue == 1) {
           velocityValue = event.velocity / 127;
@@ -51,7 +50,6 @@ class MaxDisplayStore {
           velocityValue = 0.0;
         }
 
-        // offset
         let offsetValue;
         if (event.onsetValue == 1) {
           // scale offset values to [0, 1] for bpatcher compatibility
@@ -62,18 +60,12 @@ class MaxDisplayStore {
           offsetValue = 0.5;
         }
 
-        // push data to output arrays
-        onsetsData.push(step);
-        onsetsData.push(instrument.matrixCtrlIndex);
-        onsetsData.push(onsetValue);
-
-        velocitiesData.push(step);
-        velocitiesData.push(instrument.matrixCtrlIndex);
-        velocitiesData.push(velocityValue);
-
-        offsetsData.push(step);
-        offsetsData.push(instrument.matrixCtrlIndex);
-        offsetsData.push(offsetValue);
+        // push flattened data to output arrays
+        onsetsData.push(...[step, instrument.matrixCtrlIndex, onsetValue]);
+        velocitiesData.push(
+          ...[step, instrument.matrixCtrlIndex, velocityValue]
+        );
+        offsetsData.push(...[step, instrument.matrixCtrlIndex, offsetValue]);
       }
     }
     return [onsetsData, velocitiesData, offsetsData];
