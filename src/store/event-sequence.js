@@ -59,19 +59,17 @@ class EventSequence {
   }
 
   _getExistingTickForEvent(event) {
-    let existingTick;
-    let ticksFound = 0;
+    let existingTicks = [];
     for (let tick = event.minTick; tick <= event.maxTick; tick++) {
       const wrappedTick = event.wrapTick(tick);
       if (this.bufferDict[wrappedTick][event.instrument.matrixCtrlIndex] > 0) {
-        existingTick = wrappedTick;
-        ticksFound += 1;
+        existingTicks.push(wrappedTick);
       }
     }
-    if (ticksFound > 1) {
+    if (existingTicks.length > 1) {
       log("Error: more than one tick found for event");
     }
-    return existingTick;
+    return existingTicks;
   }
 
   /**
@@ -90,18 +88,18 @@ class EventSequence {
       this.quantizedDict[event.step][event.instrument.matrixCtrlIndex];
     const bufferUpdates = {};
     if (previousEvent !== undefined) {
-      const previousTick = this._getExistingTickForEvent(previousEvent);
+      const previousTicks = this._getExistingTickForEvent(previousEvent);
 
       // remove previous event from quantizedData, set bufferData entry to 0
-      delete this.quantizedDict[previousEvent.step][
-        previousEvent.instrument.matrixCtrlIndex
-      ];
-      this.bufferDict[previousEvent.tick][
-        previousEvent.instrument.matrixCtrlIndex
-      ] = 0;
 
       // add previous tick to bufferUpdates
-      bufferUpdates[previousTick] = [];
+      for (const t of previousTicks) {
+        delete this.quantizedDict[previousEvent.step][
+          previousEvent.instrument.matrixCtrlIndex
+        ];
+        this.bufferDict[t][previousEvent.instrument.matrixCtrlIndex] = 0;
+        bufferUpdates[t] = [];
+      }
     }
 
     if (event.onsetValue === 1) {
