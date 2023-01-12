@@ -217,6 +217,58 @@ class PatternStore {
       return total / count;
     }
   }
+
+  toDict() {
+    const onsetsHistoryQueue = [];
+    for (const pattern of this.onsetsHistory._queue) {
+      onsetsHistoryQueue.push(pattern.data);
+    }
+    const velocitiesHistoryQueue = [];
+    for (const pattern of this.velocitiesHistory._queue) {
+      velocitiesHistoryQueue.push(pattern.data);
+    }
+    const offsetsHistoryQueue = [];
+    for (const pattern of this.offsetsHistory._queue) {
+      offsetsHistoryQueue.push(pattern.data);
+    }
+    return {
+      dims: this.dims,
+      currentOnsets: this.currentOnsets.data,
+      currentVelocities: this.currentVelocities.data,
+      currentOffsets: this.currentOffsets.data,
+      inputOnsets: this.inputOnsets.data,
+      inputVelocities: this.inputVelocities.data,
+      inputOffsets: this.inputOffsets.data,
+      onsetsHistoryQueue: onsetsHistoryQueue,
+      velocitiesHistoryQueue: velocitiesHistoryQueue,
+      offsetsHistoryQueue: offsetsHistoryQueue,
+      currentHistoryIndex: this.currentHistoryIndex,
+    };
+  }
+
+  fromDict(dict) {
+    this.dims = dict.dims;
+    this.currentOnsets = new Pattern(dict.currentOnsets, this.dims);
+    this.currentVelocities = new Pattern(dict.currentVelocities, this.dims);
+    this.currentOffsets = new Pattern(dict.currentOffsets, this.dims);
+    this.inputOnsets = new Pattern(dict.inputOnsets, this.dims);
+    this.inputVelocities = new Pattern(dict.inputVelocities, this.dims);
+    this.inputOffsets = new Pattern(dict.inputOffsets, this.dims);
+    this.currentHistoryIndex = dict.currentHistoryIndex;
+
+    this.onsetsHistory = new PatternHistory(HISTORY_DEPTH);
+    for (const data of dict.onsetsHistoryQueue) {
+      this.onsetsHistory._queue.push(new Pattern(data, this.dims));
+    }
+    this.velocitiesHistory = new PatternHistory(HISTORY_DEPTH);
+    for (const data of dict.velocitiesHistoryQueue) {
+      this.velocitiesHistory._queue.push(new Pattern(data, this.dims));
+    }
+    this.offsetsHistory = new PatternHistory(HISTORY_DEPTH);
+    for (const data of dict.offsetsHistoryQueue) {
+      this.offsetsHistory._queue.push(new Pattern(data, this.dims));
+    }
+  }
 }
 
 module.exports = { PatternStore };

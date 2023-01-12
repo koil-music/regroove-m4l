@@ -328,3 +328,56 @@ test("updateCurrent", () => {
     }
   }
 });
+
+test("PatternStore.toFromDict", () => {
+  const patternStore = new PatternStore();
+  const firstPattern = patternStore.currentVelocities;
+  const firstValue = 0.69;
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, firstValue),
+    patternStore.dims
+  );
+  patternStore.updateCurrent(
+    expPattern,
+    expPattern,
+    expPattern,
+    [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  );
+  patternStore.resetInput();
+  patternStore.updateHistory();
+
+  const dict = patternStore.toDict();
+  expect(dict).toEqual({
+    dims: patternStore.dims,
+    currentOnsets: expPattern.data,
+    currentVelocities: expPattern.data,
+    currentOffsets: expPattern.data,
+    inputOnsets: expPattern.data,
+    inputVelocities: expPattern.data,
+    inputOffsets: expPattern.data,
+    onsetsHistoryQueue: [expPattern.data, firstPattern.data],
+    velocitiesHistoryQueue: [expPattern.data, firstPattern.data],
+    offsetsHistoryQueue: [expPattern.data, firstPattern.data],
+    currentHistoryIndex: 0,
+  });
+
+  const newPatternStore = new PatternStore();
+  newPatternStore.fromDict(dict);
+  expect(newPatternStore.dims).toEqual(patternStore.dims);
+  expect(newPatternStore.currentOnsets).toEqual(patternStore.currentOnsets);
+  expect(newPatternStore.currentVelocities).toEqual(
+    patternStore.currentVelocities
+  );
+  expect(newPatternStore.currentOffsets).toEqual(patternStore.currentOffsets);
+  expect(newPatternStore.inputOnsets).toEqual(patternStore.inputOnsets);
+  expect(newPatternStore.inputVelocities).toEqual(patternStore.inputVelocities);
+  expect(newPatternStore.inputOffsets).toEqual(patternStore.inputOffsets);
+  expect(newPatternStore.onsetsHistory).toEqual(patternStore.onsetsHistory);
+  expect(newPatternStore.velocitiesHistory).toEqual(
+    patternStore.velocitiesHistory
+  );
+  expect(newPatternStore.offsetsHistory).toEqual(patternStore.offsetsHistory);
+  expect(newPatternStore.currentHistoryIndex).toEqual(
+    patternStore.currentHistoryIndex
+  );
+});
