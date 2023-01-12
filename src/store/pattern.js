@@ -31,7 +31,6 @@ class PatternStore {
     makeAutoObservable(this);
     this.root = rootStore;
 
-    this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.currentVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.currentOffsets = new Pattern(this.emptyPatternData, this.dims);
 
@@ -52,12 +51,18 @@ class PatternStore {
   }
 
   resetInput() {
+    if (this.currentOnsets === undefined) {
+      this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    }
     this.inputOnsets = this.currentOnsets;
     this.inputVelocities = this.currentVelocities;
     this.inputOffsets = this.currentOffsets;
   }
 
   setTempFromCurrent() {
+    if (this.currentOnsets === undefined) {
+      this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    }
     this.tempOnsets = this.currentOnsets;
     this.tempVelocities = this.currentVelocities;
     this.tempOffsets = this.currentOffsets;
@@ -93,6 +98,9 @@ class PatternStore {
     newOffsetsPattern,
     activeInstruments
   ) {
+    if (this.currentOnsets === undefined) {
+      this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    }
     // handle history and state
     this.updateHistory();
     const previousOnsetsTensor = this.currentOnsets.tensor();
@@ -137,6 +145,10 @@ class PatternStore {
   }
 
   updateNote(step, instrument, onsetValue) {
+    if (this.currentOnsets === undefined) {
+      this.currentOnsets = new Pattern(this.emptyPatternData, this.dims);
+    }
+
     const onsetsTensor = this.currentOnsets.tensor();
     const velocitiesTensor = this.currentVelocities.tensor();
     const offsetsTensor = this.currentOffsets.tensor();

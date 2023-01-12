@@ -1,5 +1,5 @@
 const { expect, test } = require("@jest/globals");
-const { Pattern, PatternDataMatrix, LOOP_DURATION } = require("regroovejs");
+const { Pattern, LOOP_DURATION } = require("regroovejs");
 const { NUM_INSTRUMENTS } = require("../config");
 const { PatternStore } = require("../store/pattern");
 const Instrument = require("../store/instrument");
@@ -14,7 +14,6 @@ const createPatternData = (dims, value) => {
 test("newPatternStore", () => {
   const patternStore = new PatternStore();
   const emptyPatternData = createPatternData(patternStore.dims, 0);
-  expect(patternStore.currentOnsets.data).toEqual(emptyPatternData);
   expect(patternStore.currentVelocities.data).toEqual(emptyPatternData);
   expect(patternStore.currentOffsets.data).toEqual(emptyPatternData);
   expect(patternStore.inputOnsets.data).toEqual(emptyPatternData);

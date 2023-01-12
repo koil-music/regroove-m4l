@@ -51,6 +51,12 @@ class InferenceStore {
         grooveInferenceSession,
         this.grooveLatentSize
       );
+      if (this.root.patternStore.currentOnsets === undefined) {
+        this.root.patternStore.currentOnsets = new Pattern(
+          this.root.patternStore.emptyPatternData,
+          this.root.patternStore.dims
+        );
+      }
       this.generator = new Generator(
         syncModel,
         grooveModel,
