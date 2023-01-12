@@ -1,8 +1,12 @@
 const process = require("process");
 const path = require("path");
 
-const BUFFER_LENGTH = 512;
 const GENERATOR_STATE_DICT_NAME = "generatorState";
+const UI_PARAMS_STATE_DICT_NAME = "uiParamsState";
+const PATTERN_STORE_STATE_DICT_NAME = "patternStoreState";
+const EVENT_SEQUENCE_STATE_DICT_NAME = "eventSequenceState";
+
+const BUFFER_LENGTH = 512;
 const HISTORY_DEPTH = 100;
 const LOOP_DURATION = 16;
 const MIN_ONSET_THRESHOLD = 0.3;
@@ -28,6 +32,7 @@ if (process.env.MAX_ENV == "maxforlive") {
 module.exports = {
   BUFFER_LENGTH,
   DEBUG,
+  EVENT_SEQUENCE_STATE_DICT_NAME,
   GENERATOR_STATE_DICT_NAME,
   HISTORY_DEPTH,
   LOOP_DURATION,
@@ -37,5 +42,7 @@ module.exports = {
   MODEL_DIR,
   NUM_INSTRUMENTS,
   NOTE_UPDATE_THROTTLE,
+  PATTERN_STORE_STATE_DICT_NAME,
   TICKS_PER_16TH,
+  UI_PARAMS_STATE_DICT_NAME,
 };

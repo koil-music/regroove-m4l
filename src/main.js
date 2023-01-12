@@ -13,11 +13,13 @@ const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 const {
-  DEBUG,
   MODEL_DIR,
   GENERATOR_STATE_DICT_NAME,
   NOTE_UPDATE_THROTTLE,
+  PATTERN_STORE_STATE_DICT_NAME,
+  UI_PARAMS_STATE_DICT_NAME,
 } = require("./config");
+let { DEBUG } = require("./config");
 const Instrument = require("./store/instrument");
 
 assert.ok(validModelDir(MODEL_DIR));
