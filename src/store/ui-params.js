@@ -109,6 +109,52 @@ class UIParamsStore {
   get activeInstruments() {
     return this._activeInstruments;
   }
+
+  toDict() {
+    return {
+      maxDensity: this.maxDensity,
+      minDensity: this.minDensity,
+      random: this.random,
+      numSamples: this.numSamples,
+      globalVelocity: this.globalVelocity,
+      globalDynamics: this.globalDynamics,
+      globalMicrotiming: this.globalMicrotiming,
+      globalDynamicsOn: this.globalDynamicsOn,
+      globalMicrotimingOn: this.globalMicrotimingOn,
+      density: this.density,
+      syncModeIndex: this.syncModeIndex,
+      syncRateOptions: this.syncRateOptions,
+      syncRate: this.syncRate,
+      detailViewModeIndex: this.detailViewModeIndex,
+      activeInstruments: this.activeInstruments,
+      velAmpDict: this.velAmpDict,
+      velRandDict: this.velRandDict,
+      timeShiftDict: this.timeShiftDict,
+      timeRandDict: this.timeRandDict,
+    };
+  }
+
+  fromDict(dict) {
+    this.maxDensity = dict.maxDensity;
+    this.minDensity = dict.minDensity;
+    this.random = dict.random;
+    this.numSamples = dict.numSamples;
+    this.globalVelocity = dict.globalVelocity;
+    this.globalDynamics = dict.globalDynamics;
+    this.globalMicrotiming = dict.globalMicrotiming;
+    this.globalDynamicsOn = dict.globalDynamicsOn;
+    this.globalMicrotimingOn = dict.globalMicrotimingOn;
+    this.density = dict.density;
+    this.syncModeIndex = dict.syncModeIndex;
+    this.syncRateOptions = dict.syncRateOptions;
+    this.syncRate = dict.syncRate;
+    this.detailViewModeIndex = dict.detailViewModeIndex;
+    this.activeInstruments = dict.activeInstruments;
+    this.velAmpDict = dict.velAmpDict;
+    this.velRandDict = dict.velRandDict;
+    this.timeShiftDict = dict.timeShiftDict;
+    this.timeRandDict = dict.timeRandDict;
+  }
 }
 
 module.exports = {

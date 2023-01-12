@@ -326,3 +326,120 @@ test("uiParamsStore.expressionParams", () => {
     timeShiftDict: altDetailDict,
   });
 });
+
+test("uiParamsStore.toDict", () => {
+  const uiParams = new UIParamsStore();
+  expect(uiParams.toDict()).toEqual({
+    maxDensity: defaultUiParams.maxDensity,
+    minDensity: defaultUiParams.minDensity,
+    random: defaultUiParams.random,
+    numSamples: defaultUiParams.numSamples,
+    globalVelocity: defaultUiParams.globalVelocity,
+    globalDynamics: defaultUiParams.globalDynamics,
+    globalMicrotiming: defaultUiParams.globalMicrotiming,
+    globalDynamicsOn: defaultUiParams.globalDynamicsOn,
+    globalMicrotimingOn: defaultUiParams.globalMicrotimingOn,
+    density: defaultUiParams.density,
+    syncModeIndex: defaultUiParams.syncModeIndex,
+    syncRateOptions: defaultUiParams.syncRateOptions,
+    syncRate: defaultUiParams.syncRate,
+    detailViewModeIndex: defaultUiParams.detailViewModeIndex,
+    activeInstruments: defaultUiParams.activeInstruments,
+    velAmpDict: defaultDetailParam,
+    velRandDict: defaultDetailParam,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
+  });
+
+  uiParams.maxDensity = 0.99;
+  uiParams.minDensity = 0.69;
+  uiParams.random = 0.69;
+  uiParams.numSamples = 0.69;
+  uiParams.globalVelocity = 0.69;
+  uiParams.globalDynamics = 0.69;
+  uiParams.globalMicrotiming = 0.69;
+  uiParams.globalDynamicsOn = true;
+  uiParams.globalMicrotimingOn = false;
+  uiParams.density = 0.69;
+  uiParams.syncModeIndex = 2;
+  uiParams.syncRate = 2;
+  uiParams.detailViewModeIndex = 2;
+
+  const altDetailDict = {
+    0: 0.0,
+    1: 0.89,
+    2: 0.71,
+    3: 0.8,
+    4: 0.8,
+    5: 0.8,
+    6: 0.8,
+    7: 0.8,
+    8: 0.69,
+  };
+  uiParams.velAmpDict = altDetailDict;
+  uiParams.velRandDict = altDetailDict;
+  uiParams.timeRandDict = altDetailDict;
+  uiParams.timeShiftDict = altDetailDict;
+
+  expect(uiParams.toDict()).toEqual({
+    maxDensity: 0.99,
+    minDensity: 0.69,
+    random: 0.69,
+    numSamples: 0.69,
+    globalVelocity: 0.69,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
+    density: 0.69,
+    syncModeIndex: 2,
+    syncRateOptions: defaultUiParams.syncRateOptions,
+    syncRate: 2,
+    detailViewModeIndex: 2,
+    activeInstruments: defaultUiParams.activeInstruments,
+    velAmpDict: altDetailDict,
+    velRandDict: altDetailDict,
+    timeRandDict: altDetailDict,
+    timeShiftDict: altDetailDict,
+  });
+});
+
+test("uiParamsStore.toFromDict", () => {
+  const uiParams = new UIParamsStore();
+  uiParams.maxDensity = 0.99;
+  uiParams.minDensity = 0.69;
+  uiParams.random = 0.69;
+  uiParams.numSamples = 0.69;
+  uiParams.globalVelocity = 0.69;
+  uiParams.globalDynamics = 0.69;
+  uiParams.globalMicrotiming = 0.69;
+  uiParams.globalDynamicsOn = true;
+  uiParams.globalMicrotimingOn = false;
+  uiParams.density = 0.69;
+  uiParams.syncModeIndex = 2;
+  uiParams.syncRate = 2;
+  uiParams.detailViewModeIndex = 2;
+
+  const altDetailDict = {
+    0: 0.0,
+    1: 0.89,
+    2: 0.71,
+    3: 0.8,
+    4: 0.8,
+    5: 0.8,
+    6: 0.8,
+    7: 0.8,
+    8: 0.69,
+  };
+  uiParams.velAmpDict = altDetailDict;
+  uiParams.velRandDict = altDetailDict;
+  uiParams.timeRandDict = altDetailDict;
+  uiParams.timeShiftDict = altDetailDict;
+
+  const uiParamsDict = uiParams.toDict();
+
+  const uiParams2 = new UIParamsStore();
+  uiParams2.fromDict(uiParamsDict);
+
+  expect(uiParams2.toDict()).toEqual(uiParamsDict);
+});
