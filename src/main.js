@@ -530,7 +530,7 @@ Max.addHandler("loadUiParams", async () => {
   if (store.uiParamsStore !== undefined) {
     const dict = await Max.getDict(UI_PARAMS_STATE_DICT_NAME);
     log(`Restoring UiParamsStore state from: ${UI_PARAMS_STATE_DICT_NAME}`);
-    store.uiParamsStore.fromJson(dict["data"]);
+    store.uiParamsStore.loadJson(dict["data"]);
   } else {
     log("UiParamsStore not initialized, could not restore state");
   }
@@ -543,7 +543,7 @@ Max.addHandler("loadPatternStore", async () => {
   if (store.patternStore !== undefined) {
     const dict = await Max.getDict(PATTERN_STORE_STATE_DICT_NAME);
     log(`Restoring PatternStore state from: ${PATTERN_STORE_STATE_DICT_NAME}`);
-    store.patternStore.fromJson(dict["data"]);
+    store.patternStore.loadJson(dict["data"]);
   } else {
     log("PatternStore not initialized, could not restore state");
   }

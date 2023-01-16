@@ -344,7 +344,7 @@ test("updateCurrent", () => {
   }
 });
 
-test("PatternStore.toFromJson", () => {
+test("PatternStore.saveLoadJson", () => {
   const patternStore = new PatternStore();
   const firstValue = 0.69;
   const expPattern = new Pattern(
