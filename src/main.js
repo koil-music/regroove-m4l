@@ -524,41 +524,15 @@ Max.addHandler("loadGenerator", async () => {
 });
 
 /**
- * Persist the UiParams state to a Max dictionary
- */
-Max.addHandler("saveUiParams", () => {
-  if (store.uiParamsStore !== undefined) {
-    const data = store.uiParamsStore.toDict();
-    Max.setDict(UI_PARAMS_STATE_DICT_NAME, data);
-    log(`Saved UiParamsStore state to: ${UI_PARAMS_STATE_DICT_NAME}`);
-  } else {
-    log("UiParamsStore not initialized, cannot save state");
-  }
-});
-
-/**
  * Restore the UiParams state from a Max dictionary
  */
 Max.addHandler("loadUiParams", async () => {
   if (store.uiParamsStore !== undefined) {
-    const data = await Max.getDict(UI_PARAMS_STATE_DICT_NAME);
+    const dict = await Max.getDict(UI_PARAMS_STATE_DICT_NAME);
     log(`Restoring UiParamsStore state from: ${UI_PARAMS_STATE_DICT_NAME}`);
-    store.uiParamsStore.fromDict(data);
+    store.uiParamsStore.fromJson(dict["data"]);
   } else {
     log("UiParamsStore not initialized, could not restore state");
-  }
-});
-
-/**
- * Persist the PatternStore state to a Max dictionary
- */
-Max.addHandler("savePatternStore", () => {
-  if (store.patternStore !== undefined) {
-    const data = store.patternStore.toDict();
-    Max.setDict(PATTERN_STORE_STATE_DICT_NAME, data);
-    log(`Saved PatternStore state to: ${PATTERN_STORE_STATE_DICT_NAME}`);
-  } else {
-    log("PatternStore not initialized, cannot save state");
   }
 });
 
@@ -567,9 +541,9 @@ Max.addHandler("savePatternStore", () => {
  */
 Max.addHandler("loadPatternStore", async () => {
   if (store.patternStore !== undefined) {
-    const data = await Max.getDict(PATTERN_STORE_STATE_DICT_NAME);
+    const dict = await Max.getDict(PATTERN_STORE_STATE_DICT_NAME);
     log(`Restoring PatternStore state from: ${PATTERN_STORE_STATE_DICT_NAME}`);
-    store.patternStore.fromDict(data);
+    store.patternStore.fromJson(dict["data"]);
   } else {
     log("PatternStore not initialized, could not restore state");
   }

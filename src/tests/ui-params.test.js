@@ -1,9 +1,8 @@
 const { expect, test } = require("@jest/globals");
+const { configure } = require("mobx");
 
-const { LOOP_DURATION } = require("regroovejs");
 const {
   UIParamsStore,
-  NUM_INSTRUMENTS,
   SyncMode,
   DetailViewMode,
 } = require("../store/ui-params");
@@ -11,9 +10,13 @@ const defaultUiParams = require("../data/default-ui-params.json");
 const defaultDetailParam = require("../data/default-detail-param.json");
 const { normalize } = require("../utils");
 const {
+  LOOP_DURATION,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
-} = require("regroovejs/dist/constants");
+  NUM_INSTRUMENTS,
+} = require("../config");
+
+configure({ enforceActions: "never" });
 
 test("DefaultUIParamsStore", () => {
   const uiParams = new UIParamsStore();
@@ -329,7 +332,7 @@ test("uiParamsStore.expressionParams", () => {
 
 test("uiParamsStore.toDict", () => {
   const uiParams = new UIParamsStore();
-  expect(uiParams.toDict()).toEqual({
+  const expDict = {
     maxDensity: defaultUiParams.maxDensity,
     minDensity: defaultUiParams.minDensity,
     random: defaultUiParams.random,
@@ -341,7 +344,6 @@ test("uiParamsStore.toDict", () => {
     globalMicrotimingOn: defaultUiParams.globalMicrotimingOn,
     density: defaultUiParams.density,
     syncModeIndex: defaultUiParams.syncModeIndex,
-    syncRateOptions: defaultUiParams.syncRateOptions,
     syncRate: defaultUiParams.syncRate,
     detailViewModeIndex: defaultUiParams.detailViewModeIndex,
     activeInstruments: defaultUiParams.activeInstruments,
@@ -349,7 +351,9 @@ test("uiParamsStore.toDict", () => {
     velRandDict: defaultDetailParam,
     timeRandDict: defaultDetailParam,
     timeShiftDict: defaultDetailParam,
-  });
+  };
+  const gotDict = JSON.parse(uiParams.saveJson());
+  expect(gotDict).toEqual(expDict);
 
   uiParams.maxDensity = 0.99;
   uiParams.minDensity = 0.69;
@@ -381,7 +385,7 @@ test("uiParamsStore.toDict", () => {
   uiParams.timeRandDict = altDetailDict;
   uiParams.timeShiftDict = altDetailDict;
 
-  expect(uiParams.toDict()).toEqual({
+  const expDict2 = {
     maxDensity: 0.99,
     minDensity: 0.69,
     random: 0.69,
@@ -393,7 +397,6 @@ test("uiParamsStore.toDict", () => {
     globalMicrotimingOn: false,
     density: 0.69,
     syncModeIndex: 2,
-    syncRateOptions: defaultUiParams.syncRateOptions,
     syncRate: 2,
     detailViewModeIndex: 2,
     activeInstruments: defaultUiParams.activeInstruments,
@@ -401,7 +404,9 @@ test("uiParamsStore.toDict", () => {
     velRandDict: altDetailDict,
     timeRandDict: altDetailDict,
     timeShiftDict: altDetailDict,
-  });
+  };
+  const gotDict2 = JSON.parse(uiParams.saveJson());
+  expect(gotDict2).toEqual(expDict2);
 });
 
 test("uiParamsStore.toFromDict", () => {
@@ -436,10 +441,10 @@ test("uiParamsStore.toFromDict", () => {
   uiParams.timeRandDict = altDetailDict;
   uiParams.timeShiftDict = altDetailDict;
 
-  const uiParamsDict = uiParams.toDict();
+  const uiParamsDict = uiParams.saveJson();
 
   const uiParams2 = new UIParamsStore();
-  uiParams2.fromDict(uiParamsDict);
+  uiParams2.loadJson(uiParamsDict);
 
-  expect(uiParams2.toDict()).toEqual(uiParamsDict);
+  expect(uiParams2.saveJson()).toEqual(uiParamsDict);
 });
