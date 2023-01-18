@@ -433,6 +433,7 @@ Max.addHandler("autoSync", async (step) => {
     ) {
       const dataSequences = store.maxDisplayStore.autoSync(step);
       if (dataSequences !== undefined) {
+        const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = dataSequences;
         writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
         await writeDetailViewDict(offsetsDataSequence, "offsetsData");
 
