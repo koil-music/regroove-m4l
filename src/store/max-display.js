@@ -1,7 +1,7 @@
 const { makeAutoObservable } = require("mobx");
 
 const Instrument = require("./instrument");
-const { LOOP_DURATION } = require("./ui-params");
+const { LOOP_DURATION } = require("../config");
 const NoteEvent = require("./note-event");
 
 class MaxDisplayStore {

@@ -1,9 +1,8 @@
 const { expect, test } = require("@jest/globals");
+const { configure } = require("mobx");
 
-const { LOOP_DURATION } = require("regroovejs");
 const {
   UIParamsStore,
-  NUM_INSTRUMENTS,
   SyncMode,
   DetailViewMode,
 } = require("../store/ui-params");
@@ -11,9 +10,13 @@ const defaultUiParams = require("../data/default-ui-params.json");
 const defaultDetailParam = require("../data/default-detail-param.json");
 const { normalize } = require("../utils");
 const {
+  LOOP_DURATION,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
-} = require("regroovejs/dist/constants");
+  NUM_INSTRUMENTS,
+} = require("../config");
+
+configure({ enforceActions: "never" });
 
 test("DefaultUIParamsStore", () => {
   const uiParams = new UIParamsStore();
@@ -325,4 +328,123 @@ test("uiParamsStore.expressionParams", () => {
     timeRandDict: altDetailDict,
     timeShiftDict: altDetailDict,
   });
+});
+
+test("uiParamsStore.toDict", () => {
+  const uiParams = new UIParamsStore();
+  const expDict = {
+    maxDensity: defaultUiParams.maxDensity,
+    minDensity: defaultUiParams.minDensity,
+    random: defaultUiParams.random,
+    numSamples: defaultUiParams.numSamples,
+    globalVelocity: defaultUiParams.globalVelocity,
+    globalDynamics: defaultUiParams.globalDynamics,
+    globalMicrotiming: defaultUiParams.globalMicrotiming,
+    globalDynamicsOn: defaultUiParams.globalDynamicsOn,
+    globalMicrotimingOn: defaultUiParams.globalMicrotimingOn,
+    density: defaultUiParams.density,
+    syncModeIndex: defaultUiParams.syncModeIndex,
+    syncRate: defaultUiParams.syncRate,
+    detailViewModeIndex: defaultUiParams.detailViewModeIndex,
+    activeInstruments: defaultUiParams.activeInstruments,
+    velAmpDict: defaultDetailParam,
+    velRandDict: defaultDetailParam,
+    timeRandDict: defaultDetailParam,
+    timeShiftDict: defaultDetailParam,
+  };
+  const gotDict = JSON.parse(uiParams.saveJson());
+  expect(gotDict).toEqual(expDict);
+
+  uiParams.maxDensity = 0.99;
+  uiParams.minDensity = 0.69;
+  uiParams.random = 0.69;
+  uiParams.numSamples = 0.69;
+  uiParams.globalVelocity = 0.69;
+  uiParams.globalDynamics = 0.69;
+  uiParams.globalMicrotiming = 0.69;
+  uiParams.globalDynamicsOn = true;
+  uiParams.globalMicrotimingOn = false;
+  uiParams.density = 0.69;
+  uiParams.syncModeIndex = 2;
+  uiParams.syncRate = 2;
+  uiParams.detailViewModeIndex = 2;
+
+  const altDetailDict = {
+    0: 0.0,
+    1: 0.89,
+    2: 0.71,
+    3: 0.8,
+    4: 0.8,
+    5: 0.8,
+    6: 0.8,
+    7: 0.8,
+    8: 0.69,
+  };
+  uiParams.velAmpDict = altDetailDict;
+  uiParams.velRandDict = altDetailDict;
+  uiParams.timeRandDict = altDetailDict;
+  uiParams.timeShiftDict = altDetailDict;
+
+  const expDict2 = {
+    maxDensity: 0.99,
+    minDensity: 0.69,
+    random: 0.69,
+    numSamples: 0.69,
+    globalVelocity: 0.69,
+    globalDynamics: 0.69,
+    globalMicrotiming: 0.69,
+    globalDynamicsOn: true,
+    globalMicrotimingOn: false,
+    density: 0.69,
+    syncModeIndex: 2,
+    syncRate: 2,
+    detailViewModeIndex: 2,
+    activeInstruments: defaultUiParams.activeInstruments,
+    velAmpDict: altDetailDict,
+    velRandDict: altDetailDict,
+    timeRandDict: altDetailDict,
+    timeShiftDict: altDetailDict,
+  };
+  const gotDict2 = JSON.parse(uiParams.saveJson());
+  expect(gotDict2).toEqual(expDict2);
+});
+
+test("uiParamsStore.toFromDict", () => {
+  const uiParams = new UIParamsStore();
+  uiParams.maxDensity = 0.99;
+  uiParams.minDensity = 0.69;
+  uiParams.random = 0.69;
+  uiParams.numSamples = 0.69;
+  uiParams.globalVelocity = 0.69;
+  uiParams.globalDynamics = 0.69;
+  uiParams.globalMicrotiming = 0.69;
+  uiParams.globalDynamicsOn = true;
+  uiParams.globalMicrotimingOn = false;
+  uiParams.density = 0.69;
+  uiParams.syncModeIndex = 2;
+  uiParams.syncRate = 2;
+  uiParams.detailViewModeIndex = 2;
+
+  const altDetailDict = {
+    0: 0.0,
+    1: 0.89,
+    2: 0.71,
+    3: 0.8,
+    4: 0.8,
+    5: 0.8,
+    6: 0.8,
+    7: 0.8,
+    8: 0.69,
+  };
+  uiParams.velAmpDict = altDetailDict;
+  uiParams.velRandDict = altDetailDict;
+  uiParams.timeRandDict = altDetailDict;
+  uiParams.timeShiftDict = altDetailDict;
+
+  const uiParamsDict = uiParams.saveJson();
+
+  const uiParams2 = new UIParamsStore();
+  uiParams2.loadJson(uiParamsDict);
+
+  expect(uiParams2.saveJson()).toEqual(uiParamsDict);
 });

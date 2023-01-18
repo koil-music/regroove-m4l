@@ -1,9 +1,16 @@
-const { makeAutoObservable } = require("mobx");
+const Max = require("../max-api");
+const { makeAutoObservable, reaction } = require("mobx");
 
 const { Pattern } = require("regroovejs/dist/pattern");
 const { PatternHistory } = require("regroovejs/dist/history");
-const { LOOP_DURATION, NUM_INSTRUMENTS, HISTORY_DEPTH } = require("../config");
+const {
+  LOOP_DURATION,
+  NUM_INSTRUMENTS,
+  HISTORY_DEPTH,
+  PATTERN_STORE_STATE_DICT_NAME,
+} = require("../config");
 const Instrument = require("./instrument");
+const { log } = require("../utils");
 
 class PatternStore {
   root;
@@ -42,6 +49,23 @@ class PatternStore {
     this.tempOnsets = new Pattern(this.emptyPatternData, this.dims);
     this.tempVelocities = new Pattern(this.emptyPatternData, this.dims);
     this.tempOffsets = new Pattern(this.emptyPatternData, this.dims);
+
+    this.persistToMax = reaction(
+      () => this.saveJson(),
+      async (data) => {
+        // const currentDict = await Max.getDict(UI_PARAMS_STATE_DICT_NAME);
+        // if (data !== JSON.stringify(currentDict)) {
+        //   const dict = JSON.parse(data);
+        //   await Max.setDict(UI_PARAMS_STATE_DICT_NAME, dict);
+        //   log(`Saved UIParamsStore to Max dict: ${UI_PARAMS_STATE_DICT_NAME}`);
+        //   Max.outlet("saveUiParams");
+        // };
+        const dict = { data: data };
+        await Max.setDict(PATTERN_STORE_STATE_DICT_NAME, dict);
+        log(`Saved PatternStore to Max dict: ${PATTERN_STORE_STATE_DICT_NAME}`);
+        Max.outlet("savePatternStore");
+      }
+    );
   }
 
   get emptyPatternData() {
@@ -204,6 +228,48 @@ class PatternStore {
     } else {
       return total / count;
     }
+  }
+
+  saveJson() {
+    const d = {
+      dims: Array.from(this.dims),
+      currentOnsets: Array.from(this.currentOnsets.data),
+      currentVelocities: Array.from(this.currentVelocities.data),
+      currentOffsets: Array.from(this.currentOffsets.data),
+      inputOnsets: Array.from(this.inputOnsets.data),
+      inputVelocities: Array.from(this.inputVelocities.data),
+      inputOffsets: Array.from(this.inputOffsets.data),
+    };
+    return JSON.stringify(d);
+  }
+
+  loadJson(jsonData) {
+    const dict = JSON.parse(jsonData);
+    this.dims = Array.from(dict.dims);
+    this.currentOnsets = new Pattern(
+      Float32Array.from(dict.currentOnsets),
+      this.dims
+    );
+    this.currentVelocities = new Pattern(
+      Float32Array.from(dict.currentVelocities),
+      this.dims
+    );
+    this.currentOffsets = new Pattern(
+      Float32Array.from(dict.currentOffsets),
+      this.dims
+    );
+    this.inputOnsets = new Pattern(
+      Float32Array.from(dict.inputOnsets),
+      this.dims
+    );
+    this.inputVelocities = new Pattern(
+      Float32Array.from(dict.inputVelocities),
+      this.dims
+    );
+    this.inputOffsets = new Pattern(
+      Float32Array.from(dict.inputOffsets),
+      this.dims
+    );
   }
 }
 

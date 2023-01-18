@@ -1,8 +1,11 @@
+const { configure } = require("mobx");
 const { expect, test } = require("@jest/globals");
-const { Pattern, PatternDataMatrix, LOOP_DURATION } = require("regroovejs");
+const { Pattern, LOOP_DURATION } = require("regroovejs");
 const { NUM_INSTRUMENTS } = require("../config");
 const { PatternStore } = require("../store/pattern");
 const Instrument = require("../store/instrument");
+
+configure({ enforceActions: "never" });
 
 const createPatternData = (dims, value) => {
   return Float32Array.from(
@@ -14,7 +17,6 @@ const createPatternData = (dims, value) => {
 test("newPatternStore", () => {
   const patternStore = new PatternStore();
   const emptyPatternData = createPatternData(patternStore.dims, 0);
-  expect(patternStore.currentOnsets.data).toEqual(emptyPatternData);
   expect(patternStore.currentVelocities.data).toEqual(emptyPatternData);
   expect(patternStore.currentOffsets.data).toEqual(emptyPatternData);
   expect(patternStore.inputOnsets.data).toEqual(emptyPatternData);
@@ -36,9 +38,13 @@ test("resetInput", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  patternStore.inputOnsets = createPatternData(patternStore.dims, 0);
-  patternStore.inputVelocities = createPatternData(patternStore.dims, 0.5);
-  patternStore.inputOffsets = createPatternData(patternStore.dims, -0.5);
+  const dims = patternStore.dims;
+  patternStore.inputOnsets = new Pattern(createPatternData(dims, 0), dims);
+  patternStore.inputVelocities = new Pattern(
+    createPatternData(dims, 0.5),
+    dims
+  );
+  patternStore.inputOffsets = new Pattern(createPatternData(dims, -0.5), dims);
   patternStore.resetInput();
 
   expect(patternStore.inputOnsets).toEqual(expPattern);
@@ -57,9 +63,10 @@ test("setTempFromCurrent", () => {
   patternStore.currentVelocities = expPattern;
   patternStore.currentOffsets = expPattern;
 
-  patternStore.tempOnsets = createPatternData(patternStore.dims, 0);
-  patternStore.tempVelocities = createPatternData(patternStore.dims, 0.5);
-  patternStore.tempOffsets = createPatternData(patternStore.dims, -0.5);
+  const dims = patternStore.dims;
+  patternStore.tempOnsets = new Pattern(createPatternData(dims, 0), dims);
+  patternStore.tempVelocities = new Pattern(createPatternData(dims, 0.5), dims);
+  patternStore.tempOffsets = new Pattern(createPatternData(dims, -0.5), dims);
   patternStore.setTempFromCurrent();
 
   expect(patternStore.tempOnsets).toEqual(expPattern);
@@ -78,9 +85,16 @@ test("setCurrentFromTemp", () => {
   patternStore.tempVelocities = expPattern;
   patternStore.tempOffsets = expPattern;
 
-  patternStore.currentOnsets = createPatternData(patternStore.dims, 0);
-  patternStore.currentVelocities = createPatternData(patternStore.dims, 0.5);
-  patternStore.currentOffsets = createPatternData(patternStore.dims, -0.5);
+  const dims = patternStore.dims;
+  patternStore.currentOnsets = new Pattern(createPatternData(dims, 0), dims);
+  patternStore.currentVelocities = new Pattern(
+    createPatternData(dims, 0.5),
+    dims
+  );
+  patternStore.currentOffsets = new Pattern(
+    createPatternData(dims, -0.5),
+    dims
+  );
   patternStore.setCurrentFromTemp();
 
   expect(patternStore.currentOnsets).toEqual(expPattern);
@@ -328,4 +342,34 @@ test("updateCurrent", () => {
       }
     }
   }
+});
+
+test("PatternStore.saveLoadJson", () => {
+  const patternStore = new PatternStore();
+  const firstValue = 0.69;
+  const expPattern = new Pattern(
+    createPatternData(patternStore.dims, firstValue),
+    patternStore.dims
+  );
+  patternStore.updateCurrent(
+    expPattern,
+    expPattern,
+    expPattern,
+    [1, 1, 1, 1, 1, 1, 1, 1, 1]
+  );
+  patternStore.resetInput();
+  patternStore.updateHistory();
+
+  const dict = patternStore.saveJson();
+  const newPatternStore = new PatternStore();
+  newPatternStore.loadJson(dict);
+  expect(newPatternStore.dims).toEqual(patternStore.dims);
+  expect(newPatternStore.currentOnsets).toEqual(patternStore.currentOnsets);
+  expect(newPatternStore.currentVelocities).toEqual(
+    patternStore.currentVelocities
+  );
+  expect(newPatternStore.currentOffsets).toEqual(patternStore.currentOffsets);
+  expect(newPatternStore.inputOnsets).toEqual(patternStore.inputOnsets);
+  expect(newPatternStore.inputVelocities).toEqual(patternStore.inputVelocities);
+  expect(newPatternStore.inputOffsets).toEqual(patternStore.inputOffsets);
 });

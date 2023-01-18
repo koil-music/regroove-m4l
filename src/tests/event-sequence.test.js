@@ -1,4 +1,6 @@
 const { test, expect } = require("@jest/globals");
+const { configure } = require("mobx");
+
 const {
   NUM_INSTRUMENTS,
   TICKS_PER_16TH,
@@ -11,6 +13,8 @@ const defaultDetailParams = require("../data/default-detail-param.json");
 const RootStore = require("../store/root");
 const { Pattern, LOOP_DURATION } = require("regroovejs");
 const Instrument = require("../store/instrument");
+
+configure({ enforceActions: "never" });
 
 test("EventSequence._resetQuantizedData", () => {
   const eventSequence = new EventSequence();

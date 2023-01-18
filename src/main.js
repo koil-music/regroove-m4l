@@ -13,11 +13,13 @@ const RootStore = require("./store/root");
 const { SyncMode } = require("./store/ui-params");
 const { log, validModelDir } = require("./utils");
 const {
-  DEBUG,
   MODEL_DIR,
   GENERATOR_STATE_DICT_NAME,
   NOTE_UPDATE_THROTTLE,
+  PATTERN_STORE_STATE_DICT_NAME,
+  UI_PARAMS_STATE_DICT_NAME,
 } = require("./config");
+let { DEBUG } = require("./config");
 const Instrument = require("./store/instrument");
 
 assert.ok(validModelDir(MODEL_DIR));
@@ -84,35 +86,6 @@ Max.addHandler("/params/random", (value) => {
 Max.addHandler("/params/generate", () => {
   store.inferenceStore.run();
   log("Generator successfully ran.");
-});
-
-/**
- * ========================
- * Generator State
- * ========================
- * Save the current state of the generator to a Max dictionary for persistence
- */
-Max.addHandler("saveGenerator", async () => {
-  if (store.inferenceStore.generator !== undefined) {
-    const data = await store.inferenceStore.generator.toDict();
-    Max.setDict(GENERATOR_STATE_DICT_NAME, data);
-    log(
-      `Saved generator state with version: ${data.version} to: ${GENERATOR_STATE_DICT_NAME}`
-    );
-  }
-});
-
-/**
- * Restore the state of the generator from a Max dictionary
- */
-Max.addHandler("loadGenerator", async () => {
-  if (store.inferenceStore.generator !== undefined) {
-    const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
-    log(
-      `Restoring generator state with version: ${data.version} from: ${GENERATOR_STATE_DICT_NAME}`
-    );
-    store.inferenceStore.generator.fromDict(data);
-  }
 });
 
 /**
@@ -460,6 +433,7 @@ Max.addHandler("autoSync", async (step) => {
     ) {
       const dataSequences = store.maxDisplayStore.autoSync(step);
       if (dataSequences !== undefined) {
+        const [onsetsDataSequence, velocitiesDataSequence, offsetsDataSequence] = dataSequences;
         writeDetailViewDict(velocitiesDataSequence, "velocitiesData");
         await writeDetailViewDict(offsetsDataSequence, "offsetsData");
 
@@ -517,4 +491,61 @@ Max.addHandler("updateActiveInstruments", () => {
       `Updated activeInstruments to: ${store.uiParamsStore.activeInstruments}`
     );
   });
+});
+
+/**
+ * ========================
+ * Persist / Recover State
+ * ========================
+ */
+/**
+ * Persist recover the current state of the generator to a Max dictionary
+ */
+Max.addHandler("saveGenerator", async () => {
+  if (store.inferenceStore.generator !== undefined) {
+    const data = await store.inferenceStore.generator.toDict();
+    Max.setDict(GENERATOR_STATE_DICT_NAME, data);
+    log(`Saved Generator state to: ${GENERATOR_STATE_DICT_NAME}`);
+  } else {
+    log("Generator not initialized, cannot save state");
+  }
+});
+
+/**
+ * Restore the Generator state from a Max dictionary
+ */
+Max.addHandler("loadGenerator", async () => {
+  if (store.inferenceStore.generator !== undefined) {
+    const data = await Max.getDict(GENERATOR_STATE_DICT_NAME);
+    log(`Restoring Generator state from: ${GENERATOR_STATE_DICT_NAME}`);
+    store.inferenceStore.generator.fromDict(data);
+  } else {
+    log("Generator not initialized, could not restore state");
+  }
+});
+
+/**
+ * Restore the UiParams state from a Max dictionary
+ */
+Max.addHandler("loadUiParams", async () => {
+  if (store.uiParamsStore !== undefined) {
+    const dict = await Max.getDict(UI_PARAMS_STATE_DICT_NAME);
+    log(`Restoring UiParamsStore state from: ${UI_PARAMS_STATE_DICT_NAME}`);
+    store.uiParamsStore.loadJson(dict["data"]);
+  } else {
+    log("UiParamsStore not initialized, could not restore state");
+  }
+});
+
+/**
+ * Restore the PatternStore state from a Max dictionary
+ */
+Max.addHandler("loadPatternStore", async () => {
+  if (store.patternStore !== undefined) {
+    const dict = await Max.getDict(PATTERN_STORE_STATE_DICT_NAME);
+    log(`Restoring PatternStore state from: ${PATTERN_STORE_STATE_DICT_NAME}`);
+    store.patternStore.loadJson(dict["data"]);
+  } else {
+    log("PatternStore not initialized, could not restore state");
+  }
 });
