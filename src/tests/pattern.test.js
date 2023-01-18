@@ -372,12 +372,4 @@ test("PatternStore.saveLoadJson", () => {
   expect(newPatternStore.inputOnsets).toEqual(patternStore.inputOnsets);
   expect(newPatternStore.inputVelocities).toEqual(patternStore.inputVelocities);
   expect(newPatternStore.inputOffsets).toEqual(patternStore.inputOffsets);
-  expect(newPatternStore.onsetsHistory).toEqual(patternStore.onsetsHistory);
-  expect(newPatternStore.velocitiesHistory).toEqual(
-    patternStore.velocitiesHistory
-  );
-  expect(newPatternStore.offsetsHistory).toEqual(patternStore.offsetsHistory);
-  expect(newPatternStore.currentHistoryIndex).toEqual(
-    patternStore.currentHistoryIndex
-  );
 });

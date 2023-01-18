@@ -231,18 +231,6 @@ class PatternStore {
   }
 
   saveJson() {
-    const onsetsHistoryQueue = [];
-    for (const pattern of this.onsetsHistory._queue) {
-      onsetsHistoryQueue.push(Array.from(pattern.data));
-    }
-    const velocitiesHistoryQueue = [];
-    for (const pattern of this.velocitiesHistory._queue) {
-      velocitiesHistoryQueue.push(Array.from(pattern.data));
-    }
-    const offsetsHistoryQueue = [];
-    for (const pattern of this.offsetsHistory._queue) {
-      offsetsHistoryQueue.push(Array.from(pattern.data));
-    }
     const d = {
       dims: Array.from(this.dims),
       currentOnsets: Array.from(this.currentOnsets.data),
@@ -251,10 +239,6 @@ class PatternStore {
       inputOnsets: Array.from(this.inputOnsets.data),
       inputVelocities: Array.from(this.inputVelocities.data),
       inputOffsets: Array.from(this.inputOffsets.data),
-      onsetsHistoryQueue: onsetsHistoryQueue,
-      velocitiesHistoryQueue: velocitiesHistoryQueue,
-      offsetsHistoryQueue: offsetsHistoryQueue,
-      currentHistoryIndex: this.currentHistoryIndex,
     };
     return JSON.stringify(d);
   }
@@ -286,26 +270,6 @@ class PatternStore {
       Float32Array.from(dict.inputOffsets),
       this.dims
     );
-    this.currentHistoryIndex = dict.currentHistoryIndex;
-
-    this.onsetsHistory = new PatternHistory(HISTORY_DEPTH);
-    for (const data of dict.onsetsHistoryQueue) {
-      this.onsetsHistory._queue.push(
-        new Pattern(Float32Array.from(data), this.dims)
-      );
-    }
-    this.velocitiesHistory = new PatternHistory(HISTORY_DEPTH);
-    for (const data of dict.velocitiesHistoryQueue) {
-      this.velocitiesHistory._queue.push(
-        new Pattern(Float32Array.from(data), this.dims)
-      );
-    }
-    this.offsetsHistory = new PatternHistory(HISTORY_DEPTH);
-    for (const data of dict.offsetsHistoryQueue) {
-      this.offsetsHistory._queue.push(
-        new Pattern(Float32Array.from(data), this.dims)
-      );
-    }
   }
 }
 
