@@ -17,16 +17,14 @@ const NOTE_UPDATE_THROTTLE = 100; // milliseconds
 const TICKS_PER_16TH = BUFFER_LENGTH / LOOP_DURATION;
 
 const ROOT = path.dirname(process.cwd());
-let MODEL_DIR;
+let MODEL_DIR = "current";
 if (process.env.MAX_ENV == "max") {
   MODEL_DIR = path.join(ROOT, "regroove-models/current");
-} else {
-  MODEL_DIR = path.join(ROOT, "current");
 }
 
-let DEBUG = true;
-if (process.env.MAX_ENV == "maxforlive") {
-  DEBUG = false;
+let DEBUG = false;
+if (process.env.MAX_ENV == "max") {
+  DEBUG = true;
 }
 
 module.exports = {
