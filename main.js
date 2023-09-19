@@ -7,20 +7,20 @@ const fs = require("fs");
 const path = require("path");
 
 const { readMidiFile } = require("regroovejs/dist/midi");
-const pitchIndexMapping = require("./data/pitch-index-mapping.json");
+const pitchIndexMapping = require("./src/data/pitch-index-mapping.json");
 
-const RootStore = require("./store/root");
-const { SyncMode } = require("./store/ui-params");
-const { log, validModelDir } = require("./utils");
+const RootStore = require("./src/store/root");
+const { SyncMode } = require("./src/store/ui-params");
+const { log, validModelDir } = require("./src/utils");
 const {
   MODEL_DIR,
   GENERATOR_STATE_DICT_NAME,
   NOTE_UPDATE_THROTTLE,
   PATTERN_STORE_STATE_DICT_NAME,
   UI_PARAMS_STATE_DICT_NAME,
-} = require("./config");
-let { DEBUG } = require("./config");
-const Instrument = require("./store/instrument");
+} = require("./src/config");
+let { DEBUG } = require("./src/config");
+const Instrument = require("./src/store/instrument");
 
 assert.ok(validModelDir(MODEL_DIR));
 const store = new RootStore(MODEL_DIR, true);
@@ -549,3 +549,5 @@ Max.addHandler("loadPatternStore", async () => {
     log("PatternStore not initialized, could not restore state");
   }
 });
+
+Max.outlet("isReady");
