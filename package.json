@@ -1,11 +1,10 @@
 {
   "name": "regroove-m4l",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Max for Live MIDI device for generating expressive rhythm sequences",
   "main": "code/regroove.js",
   "scripts": {
     "prettier": "npx prettier --write src",
-    "postinstall": "./post-install.sh",
     "test": "export DEBUG_JEST=true; jest --coverage --verbose --runInBand",
     "pretest": "prettier --write src",
     "watch": "node --inspect ./node_modules/.bin/jest --watch --no-cache --runInBand"
