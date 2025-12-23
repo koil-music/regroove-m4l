@@ -148,3 +148,9 @@ dist
 
 # MacOS
 .DS_Store
+
+# Various Directories
+exports
+crash
+.claude
+_DeletedItems
